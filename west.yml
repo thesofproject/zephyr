@@ -25,6 +25,8 @@ manifest:
   remotes:
     - name: upstream
       url-base: https://github.com/zephyrproject-rtos
+    - name: sofproject
+      url-base: https://github.com/thesofproject
 
   # The initial list of external projects is just Zephyr's net-tools
   # repository, which is useful for running the Zephyr networking
@@ -68,6 +70,10 @@ manifest:
     - name: segger
       revision: 6fcf61606d6012d2c44129edc033f59331e268bc
       path: modules/debug/segger
+    - name: sof
+      revision: topic/zephyr
+      path: modules/audio/sof
+      remote: sofproject
 
   self:
     path: zephyr
