@@ -30,12 +30,14 @@ PROVIDE(_MemErrorHandler = 0x00000000);
 
 MEMORY
 {
+#ifndef CONFIG_USE_SOF_BOOT_LDR
   vector_reset_text :
         org = XCHAL_RESET_VECTOR0_PADDR_SRAM,
         len = MEM_RESET_TEXT_SIZE
   vector_reset_lit :
         org = XCHAL_RESET_VECTOR0_PADDR_SRAM + MEM_RESET_TEXT_SIZE,
         len = MEM_RESET_LIT_SIZE
+#endif
   vector_memory_lit :
 	org = XCHAL_MEMERROR_VECTOR_PADDR + MEM_ERROR_LIT_SIZE,
         len = MEM_ERROR_LIT_SIZE
@@ -114,8 +116,10 @@ MEMORY
 
 PHDRS
 {
+#ifndef CONFIG_USE_SOF_BOOT_LDR
   vector_reset_text_phdr PT_LOAD;
   vector_reset_lit_phdr PT_LOAD;
+#endif
   vector_memory_lit_phdr PT_LOAD;
   vector_memory_text_phdr PT_LOAD;
   vector_base_text_phdr PT_LOAD;
@@ -171,22 +175,23 @@ _memmap_cacheattr_bp_allvalid = 0x22222222;
  * 0x40000000 - 0x5FFFFFFF (bit  8 - 11) : No access
  * 0x60000000 - 0x7FFFFFFF (bit 12 - 15) : No access
  * 0x80000000 - 0x9FFFFFFF (bit 16 - 19) : Bypass cache
- * 0xA0000000 - 0xBFFFFFFF (bit 20 - 23) : Cached, write-through
- * 0xC0000000 - 0xDFFFFFFF (bit 24 - 27) : Bypass cache
- * 0xE0000000 - 0xFFFFFFFF (bit 28 - 31) : Cached, write-through
+ * 0xA0000000 - 0xBFFFFFFF (bit 20 - 23) : Cached, write-back
+ * 0xC0000000 - 0xDFFFFFFF (bit 24 - 27) : No access
+ * 0xE0000000 - 0xFFFFFFFF (bit 28 - 31) : No access
  *
  * Note that this is both for instruction and data caches,
  * as cacheattr_set macro sets them both to the same set of
  * attributes.
  */
-_memmap_cacheattr_intel_s1000 = 0x1212fff2;
+_memmap_cacheattr_intel_apl_adsp = 0xFF42FFF2;
 
-PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_s1000);
+PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_apl_adsp);
 SECTIONS
 {
 
 #include <linker/rel-sections.ld>
 
+#ifndef CONFIG_USE_SOF_BOOT_LDR
   .ResetVector.text : ALIGN(4)
   {
     . = CONFIG_TEXT_SECTION_OFFSET;
@@ -200,6 +205,8 @@ SECTIONS
     *(.ResetVector.literal)
     _ResetVector_literal_end = ABSOLUTE(.);
   } >vector_reset_lit :vector_reset_lit_phdr
+#endif
+
  .MemoryExceptionVector.literal : ALIGN(4)
   {
     _MemoryExceptionVector_literal_start = ABSOLUTE(.);
@@ -331,6 +338,12 @@ SECTIONS
   {
     _stext = .;
     _text_start = ABSOLUTE(.);
+    KEEP(*(.MainEntry.text))
+    *(.MainEntry.literal)
+#ifdef CONFIG_USE_SOF_BOOT_LDR
+    KEEP (*(.ResetVector.text))
+    *(.ResetVector.literal)
+#endif
     *(.entry.text)
     *(.init.literal)
     *(.iram0.text)
@@ -343,14 +356,8 @@ SECTIONS
     _etext = .;
     . = ALIGN(4096);
   } >ram :ram_phdr
-#include <linker/common-rom.ld>
 
-  .noinit :  ALIGN(4)
-  {
-    *(.noinit)
-    *(.noinit.*)
-  } >ram :ram_phdr
-  .rodata : ALIGN(4)
+  .rodata : ALIGN(4096)
   {
     _rodata_start = ABSOLUTE(.);
     *(.rodata)
@@ -385,10 +392,20 @@ SECTIONS
     _bss_table_end = ABSOLUTE(.);
     _rodata_end = ABSOLUTE(.);
   } >ram :ram_phdr
+
+#include <linker/common-rom.ld>
+
   .fw_ready : ALIGN(4)
   {
     KEEP(*(".fw_ready"));
   } >ram :ram_phdr
+
+  .noinit : ALIGN(4)
+  {
+    *(.noinit)
+    *(.noinit.*)
+  } >ram :ram_phdr
+
   .data : ALIGN(4)
   {
     _data_start = ABSOLUTE(.);
