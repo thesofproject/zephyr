@@ -51,3 +51,8 @@ if(NOT CONFIG_LOG_MINIMAL)
 else()
   zephyr_sources(log_minimal.c)
 endif()
+
+zephyr_sources_ifdef(
+  CONFIG_LOG_BACKEND_ADSP
+  log_backend_adsp.c
+)
