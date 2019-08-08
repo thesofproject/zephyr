@@ -14,8 +14,8 @@
 #include <zephyr.h>
 #include <offsets_short.h>
 #include <kernel.h>
-#include <misc/printk.h>
-#include <misc/stack.h>
+#include <sys/printk.h>
+#include <debug/stack.h>
 #include <random/rand32.h>
 #include <linker/sections.h>
 #include <toolchain.h>
@@ -26,19 +26,19 @@
 #include <ksched.h>
 #include <version.h>
 #include <string.h>
-#include <misc/dlist.h>
+#include <sys/dlist.h>
 #include <kernel_internal.h>
 #include <kswap.h>
-#include <entropy.h>
+#include <drivers/entropy.h>
 #include <logging/log_ctrl.h>
-#include <tracing.h>
+#include <debug/tracing.h>
 #include <stdbool.h>
-#include <misc/gcov.h>
+#include <debug/gcov.h>
 
 #define IDLE_THREAD_NAME	"idle"
 #define LOG_LEVEL CONFIG_KERNEL_LOG_LEVEL
 #include <logging/log.h>
-LOG_MODULE_REGISTER(kernel);
+LOG_MODULE_REGISTER(os);
 
 /* boot banner items */
 #if defined(CONFIG_MULTITHREADING) && defined(CONFIG_BOOT_DELAY) \
@@ -50,10 +50,10 @@ LOG_MODULE_REGISTER(kernel);
 #endif
 
 #ifdef BUILD_VERSION
-#define BOOT_BANNER "Booting Zephyr OS "	\
+#define BOOT_BANNER "Booting Zephyr OS build "		\
 	 STRINGIFY(BUILD_VERSION) BOOT_DELAY_BANNER
 #else
-#define BOOT_BANNER "Booting Zephyr OS "	\
+#define BOOT_BANNER "Booting Zephyr OS version "	\
 	 KERNEL_VERSION_STRING BOOT_DELAY_BANNER
 #endif
 
@@ -132,6 +132,13 @@ K_THREAD_STACK_DEFINE(_interrupt_stack3, CONFIG_ISR_STACK_SIZE);
 
 extern void idle(void *unused1, void *unused2, void *unused3);
 
+
+/* LCOV_EXCL_START
+ *
+ * This code is called so early in the boot process that code coverage
+ * doesn't work properly. In addition, not all arches call this code,
+ * some like x86 do this with optimized assembly
+ */
 
 /**
  *
@@ -215,7 +222,9 @@ void z_data_copy(void)
 #endif /* CONFIG_STACK_CANARIES */
 #endif /* CONFIG_USERSPACE */
 }
-#endif
+#endif /* CONFIG_XIP */
+
+/* LCOV_EXCL_STOP */
 
 /**
  *
@@ -263,7 +272,7 @@ static void bg_thread_main(void *unused1, void *unused2, void *unused3)
 	z_init_static_threads();
 
 #ifdef CONFIG_SMP
-	smp_init();
+	z_smp_init();
 #endif
 
 #ifdef CONFIG_BOOT_TIME_MEASUREMENT
@@ -277,18 +286,22 @@ static void bg_thread_main(void *unused1, void *unused2, void *unused3)
 
 	main();
 
+	/* Mark nonessenrial since main() has no more work to do */
+	_main_thread->base.user_options &= ~K_ESSENTIAL;
+
 	/* Dump coverage data once the main() has exited. */
 	gcov_coverage_dump();
+} /* LCOV_EXCL_LINE ... because we just dumped final coverage data */
 
-	/* Terminate thread normally since it has no more work to do */
-	_main_thread->base.user_options &= ~K_ESSENTIAL;
-}
+/* LCOV_EXCL_START */
 
 void __weak main(void)
 {
 	/* NOP default main() if the application does not provide one. */
 	arch_nop();
 }
+
+/* LCOV_EXCL_STOP */
 
 #if defined(CONFIG_MULTITHREADING)
 static void init_idle_thread(struct k_thread *thr, k_thread_stack_t *stack)
@@ -322,13 +335,6 @@ static void prepare_multithreading(struct k_thread *dummy_thread)
 #ifdef CONFIG_ARCH_HAS_CUSTOM_SWAP_TO_MAIN
 	ARG_UNUSED(dummy_thread);
 #else
-
-#ifdef CONFIG_TRACING
-	sys_trace_thread_switched_out();
-#endif
-#ifdef CONFIG_TRACING
-	sys_trace_thread_switched_in();
-#endif
 
 	/*
 	 * Initialize the current execution thread to permit a level of
@@ -405,7 +411,7 @@ static void prepare_multithreading(struct k_thread *dummy_thread)
 
 }
 
-static void switch_to_main_thread(void)
+static FUNC_NORETURN void switch_to_main_thread(void)
 {
 #ifdef CONFIG_ARCH_HAS_CUSTOM_SWAP_TO_MAIN
 	z_arch_switch_to_main_thread(_main_thread, _main_stack,
@@ -419,6 +425,7 @@ static void switch_to_main_thread(void)
 	 */
 	z_swap_unlocked();
 #endif
+	CODE_UNREACHABLE; /* LCOV_EXCL_LINE */
 }
 #endif /* CONFIG_MULTITHREADING */
 
@@ -513,9 +520,13 @@ FUNC_NORETURN void z_cstart(void)
 #else
 	bg_thread_main(NULL, NULL, NULL);
 
+	/* LCOV_EXCL_START
+	 * We've already dumped coverage data at this point.
+	 */
 	irq_lock();
 	while (true) {
 	}
+	/* LCOV_EXCL_STOP */
 #endif
 
 	/*
@@ -524,5 +535,5 @@ FUNC_NORETURN void z_cstart(void)
 	 * far.
 	 */
 
-	CODE_UNREACHABLE;
+	CODE_UNREACHABLE; /* LCOV_EXCL_LINE */
 }

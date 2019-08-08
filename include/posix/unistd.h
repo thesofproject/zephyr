@@ -12,9 +12,13 @@ extern "C" {
 
 #include "posix_types.h"
 #include "sys/stat.h"
+#ifdef CONFIG_NETWORKING
+/* For zsock_gethostname() */
+#include "net/socket.h"
+#endif
 
 #ifdef CONFIG_POSIX_API
-#include <fs.h>
+#include <fs/fs.h>
 
 /* File related operations */
 extern int open(const char *name, int flags);
@@ -32,6 +36,13 @@ extern int mkdir(const char *path, mode_t mode);
 
 unsigned sleep(unsigned int seconds);
 int usleep(useconds_t useconds);
+
+#ifdef CONFIG_NETWORKING
+static inline int gethostname(char *buf, size_t len)
+{
+	return zsock_gethostname(buf, len);
+}
+#endif
 
 #ifdef __cplusplus
 }

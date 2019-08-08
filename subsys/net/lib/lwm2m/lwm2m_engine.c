@@ -31,7 +31,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <ctype.h>
 #include <errno.h>
 #include <init.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 #include <net/net_ip.h>
 #include <net/http_parser_url.h>
 #include <net/socket.h>
@@ -178,21 +178,19 @@ char *lwm2m_sprint_ip_addr(const struct sockaddr *addr)
 {
 	static char buf[NET_IPV6_ADDR_LEN];
 
-#if defined(CONFIG_NET_IPV6)
 	if (addr->sa_family == AF_INET6) {
 		return net_addr_ntop(AF_INET6, &net_sin6(addr)->sin6_addr,
 				     buf, sizeof(buf));
 	}
-#endif
-#if defined(CONFIG_NET_IPV4)
+
 	if (addr->sa_family == AF_INET) {
 		return net_addr_ntop(AF_INET, &net_sin(addr)->sin_addr,
 				     buf, sizeof(buf));
 	}
-#endif
 
 	LOG_ERR("Unknown IP address family:%d", addr->sa_family);
-	return NULL;
+	strcpy(buf, "unk");
+	return buf;
 }
 
 static u8_t to_hex_digit(u8_t digit)
@@ -301,7 +299,7 @@ get_block_ctx(const u8_t *token, u8_t tkl, struct block_context **ctx)
 		if (block1_contexts[i].tkl == tkl &&
 		    memcmp(token, block1_contexts[i].token, tkl) == 0) {
 			*ctx = &block1_contexts[i];
-			/* refresh timestmap */
+			/* refresh timestamp */
 			(*ctx)->timestamp = k_uptime_get();
 			break;
 		}
@@ -3795,7 +3793,7 @@ static int lwm2m_engine_service(void)
 		 * - current timestamp > last_timestamp + max_period_sec
 		 */
 		} else if (timestamp > obs->last_timestamp +
-				K_SECONDS(obs->min_period_sec)) {
+				K_SECONDS(obs->max_period_sec)) {
 			obs->last_timestamp = k_uptime_get();
 			generate_notify_message(obs, false);
 		}
@@ -3981,8 +3979,8 @@ static int load_tls_credential(struct lwm2m_ctx *client_ctx, u16_t res_id,
 
 	ret = tls_credential_add(client_ctx->tls_tag, type, cred, cred_len);
 	if (ret < 0) {
-		LOG_ERR("Unable to get resource data for '%s'",
-			log_strdup(pathstr));
+		LOG_ERR("Error setting cred tag %d type %d: Error %d",
+			client_ctx->tls_tag, type, ret);
 	}
 
 	return ret;
@@ -4098,21 +4096,15 @@ int lwm2m_parse_peerinfo(char *url, struct sockaddr *addr, bool *use_dtls)
 	(void)memset(addr, 0, sizeof(*addr));
 
 	/* try and set IP address directly */
-	ret = -EINVAL;
-
-#if defined(CONFIG_NET_IPV6)
 	addr->sa_family = AF_INET6;
 	ret = net_addr_pton(AF_INET6, url + off,
 			    &((struct sockaddr_in6 *)addr)->sin6_addr);
-#endif /* CONFIG_NET_IPV6 */
-
-#if defined(CONFIG_NET_IPV4)
+	/* Try to parse again using AF_INET */
 	if (ret < 0) {
 		addr->sa_family = AF_INET;
 		ret = net_addr_pton(AF_INET, url + off,
 				    &((struct sockaddr_in *)addr)->sin_addr);
 	}
-#endif /* CONFIG_NET_IPV4 */
 
 	if (ret < 0) {
 #if defined(CONFIG_DNS_RESOLVER)
@@ -4120,8 +4112,10 @@ int lwm2m_parse_peerinfo(char *url, struct sockaddr *addr, bool *use_dtls)
 		hints.ai_family = AF_UNSPEC;
 #elif defined(CONFIG_NET_IPV6)
 		hints.ai_family = AF_INET6;
-#else
+#elif defined(CONFIG_NET_IPV4)
 		hints.ai_family = AF_INET;
+#else
+		hints.ai_family = AF_UNSPEC;
 #endif /* defined(CONFIG_NET_IPV6) && defined(CONFIG_NET_IPV4) */
 		hints.ai_socktype = SOCK_DGRAM;
 		ret = getaddrinfo(url + off, NULL, &hints, &res);

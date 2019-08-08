@@ -6,12 +6,12 @@
 
 #include <errno.h>
 
-#include <pwm.h>
+#include <drivers/pwm.h>
 #include <device.h>
 #include <kernel.h>
 #include <init.h>
-#include <power.h>
-#include <misc/util.h>
+#include <power/power.h>
+#include <sys/util.h>
 
 #include "qm_pwm.h"
 #include "clk.h"

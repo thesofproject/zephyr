@@ -28,6 +28,7 @@
 #include "lll_adv.h"
 #include "lll_scan.h"
 #include "lll_conn.h"
+#include "lll_internal.h"
 #include "lll_filter.h"
 
 #include "ull_adv_types.h"
@@ -564,11 +565,6 @@ u8_t ll_adv_enable(u8_t enable)
 		conn_lll->nesn = 0;
 		conn_lll->empty = 0;
 
-#if defined(CONFIG_BT_CTLR_LE_ENC)
-		conn_lll->enc_rx = 0;
-		conn_lll->enc_tx = 0;
-#endif /* CONFIG_BT_CTLR_LE_ENC */
-
 #if defined(CONFIG_BT_CTLR_DATA_LENGTH)
 		conn_lll->max_tx_octets = PDU_DC_PAYLOAD_SIZE_MIN;
 		conn_lll->max_rx_octets = PDU_DC_PAYLOAD_SIZE_MIN;
@@ -627,7 +623,10 @@ u8_t ll_adv_enable(u8_t enable)
 		conn->llcp_terminate.node_rx.hdr.link = link;
 
 #if defined(CONFIG_BT_CTLR_LE_ENC)
-		conn->pause_tx = conn->pause_rx = conn->refresh = 0;
+		conn_lll->enc_rx = conn_lll->enc_tx = 0U;
+		conn->llcp_enc.req = conn->llcp_enc.ack = 0U;
+		conn->llcp_enc.pause_tx = conn->llcp_enc.pause_rx = 0U;
+		conn->llcp_enc.refresh = 0U;
 #endif /* CONFIG_BT_CTLR_LE_ENC */
 
 #if defined(CONFIG_BT_CTLR_CONN_PARAM_REQ)
@@ -926,6 +925,11 @@ inline u16_t ull_adv_handle_get(struct ll_adv_set *adv)
 	return ((u8_t *)adv - (u8_t *)ll_adv) / sizeof(*adv);
 }
 
+u16_t ull_adv_lll_handle_get(struct lll_adv *lll)
+{
+	return ull_adv_handle_get((void *)lll->hdr.parent);
+}
+
 inline struct ll_adv_set *ull_adv_is_enabled_get(u16_t handle)
 {
 	struct ll_adv_set *adv;
@@ -1018,7 +1022,7 @@ static void ticker_cb(u32_t ticks_at_expire, u32_t remainder, u16_t lazy,
 		u32_t random_delay;
 		u32_t ret;
 
-		ull_entropy_get(sizeof(random_delay), &random_delay);
+		lll_entropy_get(sizeof(random_delay), &random_delay);
 		random_delay %= HAL_TICKER_US_TO_TICKS(10000);
 		random_delay += 1;
 

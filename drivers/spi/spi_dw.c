@@ -32,15 +32,15 @@ LOG_MODULE_REGISTER(spi_dw);
 #include <device.h>
 #include <init.h>
 
-#include <sys_io.h>
-#include <clock_control.h>
-#include <misc/util.h>
+#include <sys/sys_io.h>
+#include <drivers/clock_control.h>
+#include <sys/util.h>
 
 #ifdef CONFIG_IOAPIC
-#include <drivers/ioapic.h>
+#include <drivers/interrupt_controller/ioapic.h>
 #endif
 
-#include <spi.h>
+#include <drivers/spi.h>
 
 #include "spi_dw.h"
 #include "spi_context.h"

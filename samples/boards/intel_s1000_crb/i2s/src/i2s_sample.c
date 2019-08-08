@@ -5,7 +5,7 @@
  */
 
 #include <zephyr.h>
-#include <i2s.h>
+#include <drivers/i2s.h>
 #include <audio/codec.h>
 
 #include <string.h>
@@ -25,10 +25,6 @@ LOG_MODULE_REGISTER(i2s_sample);
 
 #define AUDIO_FRAME_BUF_BYTES		\
 	(AUDIO_SAMPLES_PER_FRAME * AUDIO_SAMPLE_BYTES)
-
-#define LP_SRAM_BASE			(0xBE800000)
-#define LP_SRAM_BASE_UNCACHED		(0x9E800000)
-#define LP_SRAM_SIZE			(16 << 10)
 
 #define I2S_PLAYBACK_DEV		"I2S_1"
 #define I2S_HOST_DEV			"I2S_2"
@@ -61,7 +57,8 @@ LOG_MODULE_REGISTER(i2s_sample);
 #endif
 
 static struct k_mem_slab i2s_mem_slab;
-static char *audio_buffers = (char *)LP_SRAM_BASE_UNCACHED;
+__attribute__((section(".dma_buffers")))
+static char audio_buffers[AUDIO_FRAME_BUF_BYTES][I2S_PLAY_BUF_COUNT];
 static struct device *spk_i2s_dev;
 static struct device *host_i2s_dev;
 static struct device *codec_device;
@@ -143,9 +140,9 @@ static void i2s_audio_init(void)
 		return;
 	}
 
-	codec_device = device_get_binding(DT_TI_TLV320DAC_0_LABEL);
+	codec_device = device_get_binding(DT_INST_0_TI_TLV320DAC_LABEL);
 	if (!codec_device) {
-		LOG_ERR("unable to find " DT_TI_TLV320DAC_0_LABEL " device");
+		LOG_ERR("unable to find " DT_INST_0_TI_TLV320DAC_LABEL " device");
 		return;
 	}
 
@@ -295,11 +292,13 @@ static void i2s_stop_audio(void)
 {
 	int ret;
 
-	if (i2s_trigger(spk_i2s_dev, I2S_DIR_TX, I2S_TRIGGER_STOP)) {
+	ret = i2s_trigger(spk_i2s_dev, I2S_DIR_TX, I2S_TRIGGER_STOP);
+	if (ret) {
 		LOG_ERR("spk_i2s_dev stop failed with code %d", ret);
 	}
 
-	if (i2s_trigger(host_i2s_dev, I2S_DIR_RX, I2S_TRIGGER_STOP)) {
+	ret = i2s_trigger(host_i2s_dev, I2S_DIR_RX, I2S_TRIGGER_STOP);
+	if (ret) {
 		LOG_ERR("host_i2s_dev stop failed with code %d", ret);
 	}
 

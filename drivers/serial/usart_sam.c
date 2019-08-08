@@ -13,11 +13,11 @@
  */
 
 #include <errno.h>
-#include <misc/__assert.h>
+#include <sys/__assert.h>
 #include <device.h>
 #include <init.h>
 #include <soc.h>
-#include <uart.h>
+#include <drivers/uart.h>
 
 /*
  * Verify Kconfig configuration
@@ -144,7 +144,6 @@ static void usart_sam_poll_out(struct device *dev, unsigned char c)
 
 	/* Wait for transmitter to be ready */
 	while (!(usart->US_CSR & US_CSR_TXRDY)) {
-		;
 	}
 
 	/* send a character */
@@ -201,7 +200,6 @@ static int usart_sam_fifo_fill(struct device *dev, const uint8_t *tx_data,
 
 	/* Wait for transmitter to be ready. */
 	while ((usart->US_CSR & US_CSR_TXRDY) == 0) {
-		;
 	}
 
 	usart->US_THR = *tx_data;

@@ -14,7 +14,7 @@
 #include <shell/shell_log_backend.h>
 #include <logging/log_instance.h>
 #include <logging/log.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -851,9 +851,12 @@ void shell_help(const struct shell *shell);
  *	 This function must not be called from shell command context!
 
  *
- * @param[in] shell	Pointer to the shell instance. It can be NULL when
+ * @param[in] shell	Pointer to the shell instance.
+ *			@rst
+ *			It can be NULL when
  *			the :option:`CONFIG_SHELL_BACKEND_DUMMY` option is
  *			enabled.
+ *			@endrst
  * @param[in] cmd	Command to be executed.
  *
  * @returns		Result of the execution

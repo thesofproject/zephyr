@@ -8,8 +8,8 @@
 #include <zephyr.h>
 #include <init.h>
 #include <errno.h>
-#include <misc/math_extras.h>
-#include <misc/mempool.h>
+#include <sys/math_extras.h>
+#include <sys/mempool.h>
 #include <string.h>
 #include <app_memory/app_memdomain.h>
 
@@ -105,9 +105,9 @@ void *realloc(void *ptr, size_t requested_size)
 	/* Determine size of previously allocated block by its level.
 	 * Most likely a bit larger than the original allocation
 	 */
-	block_size = _ALIGN4(blk->pool->base.max_sz);
+	block_size = blk->pool->base.max_sz;
 	for (int i = 1; i <= blk->level; i++) {
-		block_size = _ALIGN4(block_size / 4);
+		block_size = WB_UP(block_size / 4);
 	}
 
 	/* We really need this much memory */

@@ -3,23 +3,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: ARDUINO GPIO HEADER
 version: 0.1
 
 description: >
     This is a representation of GPIO pin nodes exposed as headers on Arduino R3
 
+inherits:
+    !include base.yaml
+
 properties:
     compatible:
-      type: string
-      category: required
-      description: compatible strings
       constraint: "arduino-header-r3"
-      generation: define
 
     gpio-map:
       type: compound
       category: required
-
-...

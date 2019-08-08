@@ -7,8 +7,8 @@
 #include <ztest.h>
 #include <irq_offload.h>
 #include <ksched.h>
-#include <misc/__assert.h>
-#include <misc/util.h>
+#include <sys/__assert.h>
+#include <sys/util.h>
 
 /*
  * @file
@@ -494,7 +494,7 @@ static void test_timeout_threads_pend_fail_on_fifo(void)
  */
 static void test_timeout_setup(void)
 {
-	s32_t ii;
+	intptr_t ii;
 
 	/* Init kernel objects */
 	k_fifo_init(&fifo_timeout[0]);

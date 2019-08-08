@@ -14,3 +14,6 @@ supported:
   - i2c
   - hwinfo
   - spi
+  - adc
+  - can
+  - watchdog

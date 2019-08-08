@@ -13,9 +13,9 @@
 #include <kernel.h>
 #include <device.h>
 #include <init.h>
-#include <misc/util.h>
-#include <gpio.h>
-#include <i2c.h>
+#include <sys/util.h>
+#include <drivers/gpio.h>
+#include <drivers/i2c.h>
 
 #include "gpio_pcal9535a.h"
 
@@ -60,10 +60,11 @@ static inline int has_i2c_master(struct device *dev)
 		(struct gpio_pcal9535a_drv_data * const)dev->driver_data;
 	struct device * const i2c_master = drv_data->i2c_master;
 
-	if (i2c_master)
+	if (i2c_master) {
 		return 1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 /**

@@ -10,11 +10,11 @@ from os import path
 from runners.core import ZephyrBinaryRunner
 
 DEFAULT_ARC_GDB_PORT = 3333
-DEFAULT_PROPS_FILE = 'nsim.props'
+DEFAULT_PROPS_FILE = 'nsim_em.props'
 
 
 class NsimBinaryRunner(ZephyrBinaryRunner):
-    '''Runner front-end for the ARC si.'''
+    '''Runner front-end for the ARC nSIM.'''
 
     # This unusual 'flash' implementation matches the original shell script.
     #
@@ -55,6 +55,7 @@ class NsimBinaryRunner(ZephyrBinaryRunner):
             props=args.props)
 
     def do_run(self, command, **kwargs):
+        self.require(self.nsim_cmd[0])
         kwargs['nsim-cfg'] = path.join(self.cfg.board_dir, 'support',
                                        self.props)
 
@@ -77,10 +78,10 @@ class NsimBinaryRunner(ZephyrBinaryRunner):
         server_cmd = (self.nsim_cmd + ['-gdb',
                                        '-port={}'.format(self.gdb_port),
                                        '-propsfile', config])
-
         gdb_cmd = (self.gdb_cmd +
                    ['-ex', 'target remote :{}'.format(self.gdb_port),
                     '-ex', 'load', self.cfg.elf_file])
+        self.require(gdb_cmd[0])
 
         self.run_server_and_client(server_cmd, gdb_cmd)
 

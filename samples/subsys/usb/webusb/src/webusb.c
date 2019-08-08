@@ -16,7 +16,7 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(webusb);
 
-#include <misc/byteorder.h>
+#include <sys/byteorder.h>
 #include <usb/usb_device.h>
 #include <usb/usb_common.h>
 #include <usb_descriptor.h>
@@ -90,8 +90,9 @@ int webusb_custom_handle_req(struct usb_setup_packet *pSetup,
 
 	/* Call the callback */
 	if ((req_handlers && req_handlers->custom_handler) &&
-		(!req_handlers->custom_handler(pSetup, len, data)))
+		(!req_handlers->custom_handler(pSetup, len, data))) {
 		return 0;
+	}
 
 	return -ENOTSUP;
 }
@@ -110,8 +111,9 @@ int webusb_vendor_handle_req(struct usb_setup_packet *pSetup,
 {
 	/* Call the callback */
 	if ((req_handlers && req_handlers->vendor_handler) &&
-		(!req_handlers->vendor_handler(pSetup, len, data)))
+		(!req_handlers->vendor_handler(pSetup, len, data))) {
 		return 0;
+	}
 
 	return -ENOTSUP;
 }
@@ -211,7 +213,7 @@ static struct usb_ep_cfg_data webusb_ep_data[] = {
 	}
 };
 
-USBD_CFG_DATA_DEFINE(webusb) struct usb_cfg_data webusb_config = {
+USBD_CFG_DATA_DEFINE(primary, webusb) struct usb_cfg_data webusb_config = {
 	.usb_device_description = NULL,
 	.interface_descriptor = &webusb_desc.if0,
 	.cb_usb_status = webusb_dev_status_cb,

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: Nordic nRF Family SPIS (SPI Slave)
 version: 0.1
 
@@ -18,16 +18,10 @@ properties:
       constraint: "nordic,nrf-spis"
 
     reg:
-      type: array
       category: required
-      description: mmio register space
-      generation: define
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     sck-pin:
       type: int
@@ -60,4 +54,3 @@ properties:
           Default character. Character clocked out when the slave was not
           provided with buffers and is ignoring the transaction.
       generation: define
-...

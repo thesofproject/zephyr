@@ -17,8 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <misc/printk.h>
-#include <misc/byteorder.h>
+#include <sys/printk.h>
+#include <sys/byteorder.h>
 #include <zephyr.h>
 
 #include <shell/shell.h>

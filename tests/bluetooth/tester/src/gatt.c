@@ -16,8 +16,8 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/gatt.h>
 #include <bluetooth/uuid.h>
-#include <misc/byteorder.h>
-#include <misc/printk.h>
+#include <sys/byteorder.h>
+#include <sys/printk.h>
 #include <net/buf.h>
 
 #include <logging/log.h>
@@ -441,7 +441,7 @@ static void add_characteristic(u8_t *data, u16_t len)
 		goto fail;
 	}
 
-	/* characterisic must be added only sequential */
+	/* characteristic must be added only sequential */
 	if (cmd->svc_id) {
 		goto fail;
 	}

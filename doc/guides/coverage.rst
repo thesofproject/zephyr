@@ -44,25 +44,51 @@ To report the coverage for the particular test application set :option:`CONFIG_C
 Steps to generate code coverage reports
 =======================================
 
-1. Build the code with CONFIG_COVERAGE=y::
+These steps will produce an HTML coverage report for a single application.
 
-     $ cmake -DBOARD=mps2_an385 -DCONFIG_COVERAGE=y ..
+1. Build the code with CONFIG_COVERAGE=y. Some boards like qemu_x86_coverage
+   automatically enable this, but for boards that do not you will need to
+   enable the configuration manually:
 
-#. Store the build and run output on to a log file::
+   .. zephyr-app-commands::
+      :tool: all
+      :board: mps2_an385
+      :gen-args: -DCONFIG_COVERAGE=y
+      :goals: build
+      :compact:
 
-     $ make run > log.log
+#. Capture the emulator output into a log file. You may need to terminate
+   the emulator with :kbd:`Ctrl-A X` for this to complete after the coverage dump
+   has been printed:
 
-#. Generate the gcov gcda files from the log file that was saved::
+   .. code-block:: console
+
+      ninja -Cbuild run | tee log.log
+
+   or
+
+   .. code-block:: console
+
+      ninja -Cbuild run | tee log.log
+
+#. Generate the gcov ``.gcda`` and ``.gcno`` files from the log file that was
+   saved::
 
      $ python3 scripts/gen_gcov_files.py -i log.log
 
-#. Find the gcov binary placed in the SDK::
+#. Find the gcov binary placed in the SDK. You will need to pass the path to
+   the gcov binary for the appropriate architecture when you later invoke
+   ``gcovr``::
 
-     $ find -iregex ".*gcov"
+     $ find $ZEPHYR_SDK_INSTALL_DIR -iregex ".*gcov"
 
-#. Run gcovr to get the reports::
+#. Create an output directory for the reports::
 
-     $ gcovr -r . --html -o gcov_report/coverage.html --html-details --gcov-executable <gcov_path_in_SDK>
+     $ mkdir -p gcov_report
+
+#. Run ``gcovr`` to get the reports::
+
+     $ gcovr -r $ZEPHYR_BASE . --html -o gcov_report/coverage.html --html-details --gcov-executable <gcov_path_in_SDK>
 
 .. _coverage_posix:
 
@@ -93,22 +119,25 @@ You may postprocess these with your preferred tools. For example:
 
 .. code-block:: console
 
-   $ zephyr/zephyr.exe
+   $ ./build/zephyr/zephyr.exe
    # Press Ctrl+C to exit
    lcov --capture --directory ./ --output-file lcov.info -q --rc lcov_branch_coverage=1
    genhtml lcov.info --output-directory lcov_html -q --ignore-errors source --branch-coverage --highlight --legend
 
 Sanitycheck coverage reports
-============================
+****************************
 
-When targeting boards based on the POSIX architecture,
 Zephyr's :ref:`sanitycheck script <sanitycheck_script>` can automatically
 generate a coverage report from the tests which were executed.
-You just need to invoke it with the ``-C`` command line option.
+You just need to invoke it with the ``--coverage`` command line option.
 
-For example you may run::
+For example, you may invoke::
 
-    $ sanitycheck -p native_posix -T tests/kernel -C
+    $ sanitycheck --coverage -p qemu_x86 -T tests/kernel
+
+or::
+
+    $ sanitycheck --coverage -p native_posix -T tests/bluetooth
 
 which will produce ``sanity-out/coverage/index.html`` with the report.
 

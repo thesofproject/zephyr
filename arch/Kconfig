@@ -9,12 +9,12 @@
 #
 
 # Include these first so that any properties (e.g. defaults) below can be
-# overriden (by defining symbols in multiple locations)
+# overridden (by defining symbols in multiple locations)
 
 # Note: $ARCH might be a glob pattern
 source "$(ARCH_DIR)/$(ARCH)/Kconfig"
 
-choice
+choice ARCH_CHOICE
 	prompt "Architecture"
 	default X86
 
@@ -83,7 +83,16 @@ config BIG_ENDIAN
          is used to select linker script OUTPUT_FORMAT and command
          line option for gen_isr_tables.py.
 
-if ARC || ARM || NIOS2 || X86
+config 64BIT
+	bool
+	help
+	  This option tells the build system that the target system is
+	  using a 64-bit address space, meaning that pointer and long types
+	  are 64 bits wide. This option is selected by arch/$ARCH/Kconfig,
+	  soc/**/Kconfig, or boards/**/Kconfig and the user should generally
+	  avoid modifying it.
+
+if ARC || ARM || NIOS2 || X86 || X86_64
 
 config SRAM_SIZE
 	int "SRAM Size in kB"
@@ -117,7 +126,7 @@ config FLASH_BASE_ADDRESS
 	  normally set by the board's defconfig file and the user should generally
 	  avoid modifying it via the menu configuration.
 
-endif # ARM || ARC || NIOS2 || X86
+endif # ARM || ARC || NIOS2 || X86 || X86_64
 
 if ARCH_HAS_TRUSTED_EXECUTION
 
@@ -445,6 +454,7 @@ config MPU_REQUIRES_NON_OVERLAPPING_REGIONS
 menuconfig FLOAT
 	bool "Floating point"
 	depends on CPU_HAS_FPU
+	depends on ARM || X86
 	help
 	  This option allows threads to use the floating point registers.
 	  By default, only a single thread may use the registers.

@@ -15,7 +15,7 @@ LOG_MODULE_REGISTER(LOG_DOMAIN);
 #include <ctype.h>
 #include <errno.h>
 #include <zephyr.h>
-#include <gpio.h>
+#include <drivers/gpio.h>
 #include <device.h>
 #include <init.h>
 
@@ -33,7 +33,7 @@ LOG_MODULE_REGISTER(LOG_DOMAIN);
 #include "udp_internal.h"
 #endif
 
-#include <drivers/modem/modem_receiver.h>
+#include "modem_receiver.h"
 
 #if !defined(CONFIG_MODEM_UBLOX_SARA_R4_MANUAL_MCCMNO)
 #define CONFIG_MODEM_UBLOX_SARA_R4_MANUAL_MCCMNO ""
@@ -63,15 +63,15 @@ enum mdm_control_pins {
 
 static const struct mdm_control_pinconfig pinconfig[] = {
 	/* MDM_POWER */
-	PINCONFIG(DT_UBLOX_SARA_R4_0_MDM_POWER_GPIOS_CONTROLLER,
-		  DT_UBLOX_SARA_R4_0_MDM_POWER_GPIOS_PIN),
+	PINCONFIG(DT_INST_0_UBLOX_SARA_R4_MDM_POWER_GPIOS_CONTROLLER,
+		  DT_INST_0_UBLOX_SARA_R4_MDM_POWER_GPIOS_PIN),
 
 	/* MDM_RESET */
-	PINCONFIG(DT_UBLOX_SARA_R4_0_MDM_RESET_GPIOS_CONTROLLER,
-		  DT_UBLOX_SARA_R4_0_MDM_RESET_GPIOS_PIN),
+	PINCONFIG(DT_INST_0_UBLOX_SARA_R4_MDM_RESET_GPIOS_CONTROLLER,
+		  DT_INST_0_UBLOX_SARA_R4_MDM_RESET_GPIOS_PIN),
 };
 
-#define MDM_UART_DEV_NAME		DT_UBLOX_SARA_R4_0_BUS_NAME
+#define MDM_UART_DEV_NAME		DT_INST_0_UBLOX_SARA_R4_BUS_NAME
 
 #define MDM_POWER_ENABLE		1
 #define MDM_POWER_DISABLE		0

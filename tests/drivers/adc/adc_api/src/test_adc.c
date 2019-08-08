@@ -13,7 +13,7 @@
  * @}
  */
 
-#include <adc.h>
+#include <drivers/adc.h>
 #include <zephyr.h>
 #include <ztest.h>
 
@@ -112,18 +112,9 @@
 #define ADC_1ST_CHANNEL_ID	10
 #define ADC_2ND_CHANNEL_ID	11
 
-#elif defined(CONFIG_BOARD_QUARK_D2000_CRB)
-#define ADC_DEVICE_NAME		DT_ADC_0_NAME
-#define ADC_RESOLUTION		10
-#define ADC_GAIN		ADC_GAIN_1
-#define ADC_REFERENCE		ADC_REF_INTERNAL
-#define ADC_ACQUISITION_TIME	ADC_ACQ_TIME_DEFAULT
-#define ADC_1ST_CHANNEL_ID	3
-#define ADC_2ND_CHANNEL_ID	4
-
 #elif defined(CONFIG_SOC_FAMILY_SAM0)
 #include <soc.h>
-#define ADC_DEVICE_NAME         DT_ATMEL_SAM0_ADC_0_LABEL
+#define ADC_DEVICE_NAME         DT_INST_0_ATMEL_SAM0_ADC_LABEL
 #define ADC_RESOLUTION          12
 #define ADC_GAIN                ADC_GAIN_1
 #define ADC_REFERENCE           ADC_REF_INTERNAL
@@ -160,6 +151,15 @@
 #define ADC_REFERENCE		ADC_REF_INTERNAL
 #define ADC_ACQUISITION_TIME	ADC_ACQ_TIME_DEFAULT
 #define ADC_1ST_CHANNEL_ID	1
+
+#elif defined(CONFIG_BOARD_TWR_KE18F)
+#define ADC_DEVICE_NAME		DT_ADC_0_NAME
+#define ADC_RESOLUTION		12
+#define ADC_GAIN		ADC_GAIN_1
+#define ADC_REFERENCE		ADC_REF_INTERNAL
+#define ADC_ACQUISITION_TIME	ADC_ACQ_TIME_DEFAULT
+#define ADC_1ST_CHANNEL_ID	0
+#define ADC_2ND_CHANNEL_ID	1
 
 #else
 #error "Unsupported board."

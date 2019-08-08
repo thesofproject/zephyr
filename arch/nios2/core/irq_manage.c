@@ -15,11 +15,11 @@
 #include <kernel_structs.h>
 #include <arch/cpu.h>
 #include <irq.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 #include <sw_isr_table.h>
 #include <ksched.h>
 #include <kswap.h>
-#include <tracing.h>
+#include <debug/tracing.h>
 
 void z_irq_spurious(void *unused)
 {

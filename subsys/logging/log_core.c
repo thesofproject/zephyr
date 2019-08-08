@@ -9,10 +9,10 @@
 #include <logging/log_backend.h>
 #include <logging/log_ctrl.h>
 #include <logging/log_output.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 #include <init.h>
 #include <assert.h>
-#include <atomic.h>
+#include <sys/atomic.h>
 #include <ctype.h>
 
 LOG_MODULE_REGISTER(log);
@@ -51,7 +51,7 @@ struct log_strdup_buf {
 
 static const char *log_strdup_fail_msg = "<log_strdup alloc failed>";
 struct k_mem_slab log_strdup_pool;
-static u8_t __noinit __aligned(sizeof(u32_t))
+static u8_t __noinit __aligned(sizeof(void *))
 		log_strdup_pool_buf[LOG_STRDUP_POOL_BUFFER_SIZE];
 
 static struct log_list_t list;
@@ -125,13 +125,12 @@ static u32_t count_s(const char *str, u32_t nargs)
  */
 static bool is_rodata(const void *addr)
 {
-#if defined(CONFIG_ARM) || defined(CONFIG_ARC) || defined(CONIFG_RISCV32) || \
-	defined(CONFIG_X86)
+#if defined(CONFIG_ARM) || defined(CONFIG_ARC) || defined(CONFIG_X86)
 	extern const char *_image_rodata_start[];
 	extern const char *_image_rodata_end[];
 	#define RO_START _image_rodata_start
 	#define RO_END _image_rodata_end
-#elif defined(CONFIG_NIOS2)
+#elif defined(CONFIG_NIOS2) || defined(CONFIG_RISCV32)
 	extern const char *_image_rom_start[];
 	extern const char *_image_rom_end[];
 	#define RO_START _image_rom_start
@@ -151,7 +150,7 @@ static bool is_rodata(const void *addr)
 }
 
 /**
- * @brief Scan string arguments and report evert address which is not in read
+ * @brief Scan string arguments and report every address which is not in read
  *	  only memory and not yet duplicated.
  *
  * @param msg Log message.
@@ -161,8 +160,15 @@ static void detect_missed_strdup(struct log_msg *msg)
 #define ERR_MSG	"argument %d in log message \"%s\" missing log_strdup()."
 	u32_t idx;
 	const char *str;
-	const char *msg_str = log_msg_str_get(msg);
-	u32_t mask = count_s(msg_str, log_msg_nargs_get(msg));
+	const char *msg_str;
+	u32_t mask;
+
+	if (!log_msg_is_std(msg)) {
+		return;
+	}
+
+	msg_str = log_msg_str_get(msg);
+	mask = count_s(msg_str, log_msg_nargs_get(msg));
 
 	while (mask) {
 		idx = 31 - __builtin_clz(mask);
@@ -198,7 +204,9 @@ static inline void msg_finalize(struct log_msg *msg,
 	irq_unlock(key);
 
 	if (panic_mode) {
+		key = irq_lock();
 		(void)log_process(false);
+		irq_unlock(key);
 	} else if (CONFIG_LOG_PROCESS_TRIGGER_THRESHOLD) {
 		if ((buffered_cnt == CONFIG_LOG_PROCESS_TRIGGER_THRESHOLD) &&
 		    (proc_tid != NULL)) {
@@ -218,7 +226,7 @@ void log_0(const char *str, struct log_msg_ids src_level)
 }
 
 void log_1(const char *str,
-	   u32_t arg0,
+	   log_arg_t arg0,
 	   struct log_msg_ids src_level)
 {
 	struct log_msg *msg = log_msg_create_1(str, arg0);
@@ -230,8 +238,8 @@ void log_1(const char *str,
 }
 
 void log_2(const char *str,
-	   u32_t arg0,
-	   u32_t arg1,
+	   log_arg_t arg0,
+	   log_arg_t arg1,
 	   struct log_msg_ids src_level)
 {
 	struct log_msg *msg = log_msg_create_2(str, arg0, arg1);
@@ -244,9 +252,9 @@ void log_2(const char *str,
 }
 
 void log_3(const char *str,
-	   u32_t arg0,
-	   u32_t arg1,
-	   u32_t arg2,
+	   log_arg_t arg0,
+	   log_arg_t arg1,
+	   log_arg_t arg2,
 	   struct log_msg_ids src_level)
 {
 	struct log_msg *msg = log_msg_create_3(str, arg0, arg1, arg2);
@@ -259,7 +267,7 @@ void log_3(const char *str,
 }
 
 void log_n(const char *str,
-	   u32_t *args,
+	   log_arg_t *args,
 	   u32_t narg,
 	   struct log_msg_ids src_level)
 {
@@ -355,11 +363,11 @@ void log_generic(struct log_msg_ids src_level, const char *fmt, va_list ap)
 			}
 		}
 	} else {
-		u32_t args[LOG_MAX_NARGS];
+		log_arg_t args[LOG_MAX_NARGS];
 		u32_t nargs = count_args(fmt);
 
 		for (int i = 0; i < nargs; i++) {
-			args[i] = va_arg(ap, u32_t);
+			args[i] = va_arg(ap, log_arg_t);
 		}
 
 		log_n(fmt, args, nargs, src_level);
@@ -509,7 +517,7 @@ void log_panic(void)
 		return;
 	}
 
-	/* If panic happend early logger might not be initialized.
+	/* If panic happened early logger might not be initialized.
 	 * Forcing initialization of the logger and auto-starting backends.
 	 */
 	log_init();
@@ -753,7 +761,7 @@ char *log_strdup(const char *str)
 	struct log_strdup_buf *dup;
 	int err;
 
-	if (IS_ENABLED(CONFIG_LOG_IMMEDIATE)) {
+	if (IS_ENABLED(CONFIG_LOG_IMMEDIATE) || is_rodata(str)) {
 		return (char *)str;
 	}
 

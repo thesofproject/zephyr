@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <zephyr/types.h>
-#include <stats.h>
+#include <stats/stats.h>
 
 #define STATS_GEN_NAME_MAX_LEN  (sizeof("s255"))
 
@@ -281,5 +281,5 @@ stats_init_and_reg(struct stats_hdr *shdr, u8_t size, u16_t cnt,
 void
 stats_reset(struct stats_hdr *hdr)
 {
-	(void)memset(hdr + 1, 0, hdr->s_size * hdr->s_cnt);
+	(void)memset((u8_t *)hdr + sizeof(*hdr), 0, hdr->s_size * hdr->s_cnt);
 }

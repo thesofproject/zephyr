@@ -1,4 +1,4 @@
----
+
 title: GECKO USART
 version: 0.1
 
@@ -13,16 +13,10 @@ properties:
       constraint: "silabs,gecko-usart"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: compound
       category: required
-      description: required interrupts
-      generation: define
 
     # Note: Not all SoC series support setting individual pin location. If this
     # is a case all location-* properties need to have identical value.
@@ -38,4 +32,3 @@ properties:
       category: required
       description: TX pin configuration defined as <location port pin>
       generation: define
-...

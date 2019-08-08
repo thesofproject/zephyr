@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: Kinetis FTM
 version: 0.1
 
@@ -18,19 +18,12 @@ properties:
       constraint: "nxp,kinetis-ftm"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
 "#cells":
   - channel
 # period in terms of nanoseconds
   - period
-...

@@ -53,6 +53,7 @@ config UART_CONSOLE
 
 config UART_CONSOLE_INIT_PRIORITY
 	int "Init priority"
+	default 95 if USB_UART_CONSOLE
 	default 60
 	depends on UART_CONSOLE
 	help
@@ -167,6 +168,7 @@ config IPM_CONSOLE_RECEIVER
 config IPM_CONSOLE_STACK_SIZE
 	int "Stack size for IPM console receiver thread"
 	depends on IPM_CONSOLE_RECEIVER
+	default 2048 if COVERAGE
 	default 512
 	help
 	  Each instance of the IPM console receiver driver creates a worker

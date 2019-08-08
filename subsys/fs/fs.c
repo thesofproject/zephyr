@@ -9,7 +9,7 @@
 #include <zephyr/types.h>
 #include <errno.h>
 #include <init.h>
-#include <fs.h>
+#include <fs/fs.h>
 
 
 #define LOG_LEVEL CONFIG_FS_LOG_LEVEL
@@ -513,6 +513,38 @@ int fs_unmount(struct fs_mount_t *mp)
 unmount_err:
 	k_mutex_unlock(&mutex);
 	return rc;
+}
+
+int fs_readmount(int *number, const char **name)
+{
+	sys_dnode_t *node;
+	int rc = -ENOENT;
+	int cnt = 0;
+	struct fs_mount_t *itr = NULL;
+
+	*name = NULL;
+
+	k_mutex_lock(&mutex, K_FOREVER);
+
+	SYS_DLIST_FOR_EACH_NODE(&fs_mnt_list, node) {
+		if (*number == cnt) {
+			itr = CONTAINER_OF(node, struct fs_mount_t, node);
+			break;
+		}
+
+		++cnt;
+	}
+
+	k_mutex_unlock(&mutex);
+
+	if (itr != NULL) {
+		rc = 0;
+		*name = itr->mnt_point;
+		++(*number);
+	}
+
+	return rc;
+
 }
 
 /* Register File system */

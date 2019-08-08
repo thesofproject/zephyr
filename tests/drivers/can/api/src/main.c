@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <can.h>
+#include <drivers/can.h>
 #include <ztest.h>
 #include <strings.h>
 
@@ -43,6 +43,8 @@
 
 #if defined(CONFIG_CAN_LOOPBACK_DEV_NAME)
 #define CAN_DEVICE_NAME CONFIG_CAN_LOOPBACK_DEV_NAME
+#elif defined(DT_CAN_0_NAME)
+#define CAN_DEVICE_NAME DT_CAN_0_NAME
 #elif defined(DT_CAN_1_NAME)
 #define CAN_DEVICE_NAME DT_CAN_1_NAME
 #else

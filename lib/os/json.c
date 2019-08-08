@@ -8,14 +8,14 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <misc/printk.h>
-#include <misc/util.h>
+#include <sys/printk.h>
+#include <sys/util.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zephyr/types.h>
 
-#include "json.h"
+#include <data/json.h>
 
 struct token {
 	enum json_tokens type;
@@ -493,7 +493,7 @@ static ptrdiff_t get_elem_size(const struct json_obj_descr *descr)
 		for (i = 0; i < descr->object.sub_descr_len; i++) {
 			ptrdiff_t s = get_elem_size(&descr->object.sub_descr[i]);
 
-			total += ROUND_UP(s, descr->alignment + 1);
+			total += ROUND_UP(s, 1 << descr->align_shift);
 		}
 
 		return total;

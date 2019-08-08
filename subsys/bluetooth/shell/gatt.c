@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <misc/byteorder.h>
+#include <sys/byteorder.h>
 #include <zephyr.h>
 
 #include <bluetooth/bluetooth.h>
@@ -178,7 +178,9 @@ static int cmd_discover(const struct shell *shell, size_t argc, char *argv[])
 		}
 	}
 
-	if (!strcmp(argv[0], "discover-secondary")) {
+	if (!strcmp(argv[0], "discover")) {
+		discover_params.type = BT_GATT_DISCOVER_ATTRIBUTE;
+	} else if (!strcmp(argv[0], "discover-secondary")) {
 		discover_params.type = BT_GATT_DISCOVER_SECONDARY;
 	} else if (!strcmp(argv[0], "discover-include")) {
 		discover_params.type = BT_GATT_DISCOVER_INCLUDE;
@@ -562,10 +564,18 @@ static int cmd_show_db(const struct shell *shell, size_t argc, char *argv[])
 	memset(&stats, 0, sizeof(stats));
 
 	if (argc > 1) {
+		u16_t num_matches = 0;
+
 		uuid.uuid.type = BT_UUID_TYPE_16;
 		uuid.val = strtoul(argv[1], NULL, 16);
-		bt_gatt_foreach_attr_type(0x0001, 0xffff, &uuid.uuid, NULL, 0,
-					  print_attr, (void *)shell);
+
+		if (argc > 2) {
+			num_matches = strtoul(argv[2], NULL, 10);
+		}
+
+		bt_gatt_foreach_attr_type(0x0001, 0xffff, &uuid.uuid, NULL,
+					  num_matches, print_attr,
+					  (void *)shell);
 		return 0;
 	}
 
@@ -782,7 +792,7 @@ static int cmd_notify(const struct shell *shell, size_t argc, char *argv[])
 	params.func = notify_cb;
 	params.user_data = (void *)shell;
 
-	bt_gatt_notify_cb(NULL, 1, &params);
+	bt_gatt_notify_cb(NULL, &params);
 
 	return 0;
 }
@@ -927,8 +937,9 @@ static int cmd_get(const struct shell *shell, size_t argc, char *argv[])
 	start = strtoul(argv[1], NULL, 16);
 	end = start;
 
-	if (argc > 2)
+	if (argc > 2) {
 		end = strtoul(argv[2], NULL, 16);
+	}
 
 	bt_gatt_foreach_attr(start, end, get_cb, (void *)shell);
 
@@ -996,6 +1007,8 @@ static int cmd_set(const struct shell *shell, size_t argc, char *argv[])
 
 SHELL_STATIC_SUBCMD_SET_CREATE(gatt_cmds,
 #if defined(CONFIG_BT_GATT_CLIENT)
+	SHELL_CMD_ARG(discover, NULL,
+		      "[UUID] [start handle] [end handle]", cmd_discover, 1, 3),
 	SHELL_CMD_ARG(discover-characteristic, NULL,
 		      "[UUID] [start handle] [end handle]", cmd_discover, 1, 3),
 	SHELL_CMD_ARG(discover-descriptor, NULL,
@@ -1028,7 +1041,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(gatt_cmds,
 #endif /* CONFIG_BT_GATT_CLIENT */
 	SHELL_CMD_ARG(get, NULL, "<start handle> [end handle]", cmd_get, 2, 1),
 	SHELL_CMD_ARG(set, NULL, "<handle> [data...]", cmd_set, 2, 255),
-	SHELL_CMD_ARG(show-db, NULL, "[uuid]", cmd_show_db, 1, 1),
+	SHELL_CMD_ARG(show-db, NULL, "[uuid] [num_matches]", cmd_show_db, 1, 2),
 #if defined(CONFIG_BT_GATT_DYNAMIC_DB)
 	SHELL_CMD_ARG(metrics, NULL,
 		      "register vendr char and measure rx <value: on, off>",

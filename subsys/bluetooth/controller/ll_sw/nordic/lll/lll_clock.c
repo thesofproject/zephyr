@@ -7,7 +7,7 @@
 #include <zephyr/types.h>
 #include <soc.h>
 #include <device.h>
-#include <clock_control.h>
+#include <drivers/clock_control.h>
 #include <drivers/clock_control/nrf_clock_control.h>
 
 #define LOG_MODULE_NAME bt_ctlr_llsw_nordic_lll_clock
@@ -24,7 +24,7 @@ void lll_clock_wait(void)
 	done = true;
 
 	struct device *lf_clock = device_get_binding(
-		DT_NORDIC_NRF_CLOCK_0_LABEL "_32K");
+		DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_32K");
 
 	LL_ASSERT(lf_clock);
 

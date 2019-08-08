@@ -13,14 +13,14 @@
 #include <soc.h>
 #include <toolchain.h>
 #include <errno.h>
-#include <atomic.h>
+#include <sys/atomic.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_vs.h>
 #include <bluetooth/buf.h>
 #include <bluetooth/bluetooth.h>
 #include <drivers/bluetooth/hci_driver.h>
-#include <misc/byteorder.h>
-#include <misc/util.h>
+#include <sys/byteorder.h>
+#include <sys/util.h>
 
 #include "util/util.h"
 #include "util/memq.h"
@@ -120,7 +120,7 @@ void *hci_cmd_complete(struct net_buf **buf, u8_t plen)
 {
 	struct bt_hci_evt_cmd_complete *cc;
 
-	*buf = bt_buf_get_cmd_complete(K_FOREVER);
+	*buf = bt_buf_get_evt(BT_HCI_EVT_CMD_COMPLETE, false, K_FOREVER);
 
 	hci_evt_create(*buf, BT_HCI_EVT_CMD_COMPLETE, sizeof(*cc) + plen);
 
@@ -137,7 +137,7 @@ static struct net_buf *cmd_status(u8_t status)
 	struct bt_hci_evt_cmd_status *cs;
 	struct net_buf *buf;
 
-	buf = bt_buf_get_cmd_complete(K_FOREVER);
+	buf = bt_buf_get_evt(BT_HCI_EVT_CMD_STATUS, false, K_FOREVER);
 	hci_evt_create(buf, BT_HCI_EVT_CMD_STATUS, sizeof(*cs));
 
 	cs = net_buf_add(buf, sizeof(*cs));

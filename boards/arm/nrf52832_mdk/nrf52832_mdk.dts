@@ -18,6 +18,7 @@
 		zephyr,shell-uart = &uart0;
 		zephyr,uart-mcumgr = &uart0;
 		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
@@ -61,15 +62,15 @@
 };
 
 &gpiote {
-	status ="ok";
+	status = "okay";
 };
 
 &gpio0 {
-	status ="ok";
+	status = "okay";
 };
 
 &uart0 {
-	status = "ok";
+	status = "okay";
 	compatible = "nordic,nrf-uart";
 	current-speed = <115200>;
 	tx-pin = <20>;
@@ -79,19 +80,19 @@
 };
 
 &i2c0 {
-	status = "ok";
+	status = "okay";
 	sda-pin = <26>;
 	scl-pin = <27>;
 };
 
 &i2c1 {
-	status = "ok";
+	status = "okay";
 	sda-pin = <30>;
 	scl-pin = <31>;
 };
 
 &pwm0 {
-	status = "ok";
+	status = "okay";
 	ch0-pin = <22>;
 	ch0-inverted;
 };

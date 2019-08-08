@@ -16,7 +16,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <misc/byteorder.h>
+#include <sys/byteorder.h>
 #include <usb/usb_device.h>
 #include "usb_dw_registers.h"
 #include <soc.h>
@@ -212,8 +212,8 @@ static void usb_dw_flush_tx_fifo(int ep)
 	int fnum = usb_dw_ctrl.in_ep_ctrl[ep].fifo_num;
 
 	USB_DW->grstctl = (fnum << 6) | (1<<5);
-	while (USB_DW->grstctl & (1<<5))
-		;
+	while (USB_DW->grstctl & (1<<5)) {
+	}
 }
 
 static int usb_dw_tx_fifo_avail(int ep)

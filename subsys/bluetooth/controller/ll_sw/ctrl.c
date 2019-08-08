@@ -11,11 +11,11 @@
 
 #include <soc.h>
 #include <device.h>
-#include <entropy.h>
-#include <clock_control.h>
+#include <drivers/entropy.h>
+#include <drivers/clock_control.h>
 #include <bluetooth/hci.h>
-#include <misc/util.h>
-#include <misc/byteorder.h>
+#include <sys/util.h>
+#include <sys/byteorder.h>
 
 #include "ll.h"
 #include "ll_feat.h"
@@ -962,6 +962,7 @@ static inline u32_t isr_rx_adv(u8_t devmatch_ok, u8_t devmatch_id,
 
 	if ((pdu_adv->type == PDU_ADV_TYPE_SCAN_REQ) &&
 	    (pdu_adv->len == sizeof(struct pdu_adv_scan_req)) &&
+	    (_pdu_adv->type != PDU_ADV_TYPE_DIRECT_IND) &&
 	    isr_adv_sr_check(_pdu_adv, pdu_adv, devmatch_ok, &rl_idx)) {
 
 #if defined(CONFIG_BT_CTLR_SCAN_REQ_NOTIFY)
@@ -1497,7 +1498,7 @@ static inline u32_t isr_rx_scan(u8_t devmatch_ok, u8_t devmatch_id,
 		 * +/- half the 32KHz clock resolution. In order to achieve
 		 * a microsecond resolution, in the case of negative remainder,
 		 * the radio packet timer is started one 32KHz tick early,
-		 * hence substract one tick unit from the measurement of the
+		 * hence subtract one tick unit from the measurement of the
 		 * packet end.
 		 */
 		if (!_radio.remainder_anchor ||
@@ -4977,7 +4978,7 @@ static void k32src_wait(void)
 	done = true;
 
 	struct device *lf_clock = device_get_binding(
-		DT_NORDIC_NRF_CLOCK_0_LABEL "_32K");
+		DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_32K");
 
 	LL_ASSERT(lf_clock);
 
@@ -7134,10 +7135,6 @@ static inline u32_t event_conn_upd_prep(struct connection *conn,
 			conn->procedure_expire = 0U;
 		}
 #endif /* CONFIG_BT_CTLR_CONN_PARAM_REQ */
-		/* Reset ticker_id_prepare as role is not continued further
-		 * due to conn update at this event.
-		 */
-		_radio.ticker_id_prepare = 0U;
 
 		/* reset mutex */
 		if (_radio.conn_upd == conn) {
@@ -8507,6 +8504,7 @@ static void event_connection_prepare(u32_t ticks_at_expire,
 				 * lets skip this event and try in the next
 				 * event.
 				 */
+				_radio.ticker_id_prepare = 0U;
 				return;
 			}
 #endif /* CONFIG_BT_CTLR_DATA_LENGTH */
@@ -8523,8 +8521,13 @@ static void event_connection_prepare(u32_t ticks_at_expire,
 
 		switch (conn->llcp_type) {
 		case LLCP_CONN_UPD:
-			if (event_conn_upd_prep(conn, event_counter,
-						ticks_at_expire) == 0) {
+			if (!event_conn_upd_prep(conn, event_counter,
+						 ticks_at_expire)) {
+				/* Reset ticker_id_prepare as role is not
+				 * continued further due to conn update at
+				 * this event.
+				 */
+				_radio.ticker_id_prepare = 0U;
 				return;
 			}
 			break;
@@ -9176,6 +9179,26 @@ static void packet_tx_enqueue(u8_t max)
 				pdu_data_q_tx->handle);
 
 		if (conn->handle == pdu_data_q_tx->handle) {
+			if (IS_ENABLED(CONFIG_BT_CTLR_LLID_DATA_START_EMPTY)) {
+				struct pdu_data *p;
+
+				p = (void *)node_tx_new->pdu_data;
+				if ((p->ll_id == PDU_DATA_LLID_DATA_START) &&
+				    !p->len) {
+					conn->start_empty = 1U;
+					pdu_node_tx_release(conn->handle,
+							    node_tx_new);
+					goto packet_tx_enqueue_release;
+				} else if (p->len && conn->start_empty) {
+					conn->start_empty = 0U;
+					if (p->ll_id ==
+					    PDU_DATA_LLID_DATA_CONTINUE) {
+						p->ll_id =
+							PDU_DATA_LLID_DATA_START;
+					}
+				}
+			}
+
 			if (conn->pkt_tx_data == 0) {
 				conn->pkt_tx_data = node_tx_new;
 
@@ -9203,6 +9226,7 @@ static void packet_tx_enqueue(u8_t max)
 			pdu_node_tx_release(pdu_data_q_tx->handle, node_tx_new);
 		}
 
+packet_tx_enqueue_release:
 		first = _radio.packet_tx_first + 1;
 		if (first == _radio.packet_tx_count) {
 			first = 0U;
@@ -9495,7 +9519,7 @@ static void ctrl_tx_enqueue(struct connection *conn,
 		 * by peer, hence place this new ctrl after head
 		 */
 
-		/* if data transmited once, keep it at head of the tx list,
+		/* if data transmitted once, keep it at head of the tx list,
 		 * as we will insert a ctrl after it, hence advance the
 		 * data pointer
 		 */

@@ -9,23 +9,21 @@
 #include <wait_q.h>
 #include <init.h>
 #include <string.h>
-#include <misc/__assert.h>
-#include <misc/math_extras.h>
+#include <sys/__assert.h>
+#include <sys/math_extras.h>
 #include <stdbool.h>
-
-/* Linker-defined symbols bound the static pool structs */
-extern struct k_mem_pool _k_mem_pool_list_start[];
-extern struct k_mem_pool _k_mem_pool_list_end[];
 
 static struct k_spinlock lock;
 
 static struct k_mem_pool *get_pool(int id)
 {
+	extern struct k_mem_pool _k_mem_pool_list_start[];
 	return &_k_mem_pool_list_start[id];
 }
 
 static int pool_id(struct k_mem_pool *pool)
 {
+	extern struct k_mem_pool _k_mem_pool_list_start[];
 	return pool - &_k_mem_pool_list_start[0];
 }
 
@@ -38,9 +36,8 @@ static void k_mem_pool_init(struct k_mem_pool *p)
 int init_static_pools(struct device *unused)
 {
 	ARG_UNUSED(unused);
-	struct k_mem_pool *p;
 
-	for (p = _k_mem_pool_list_start; p < _k_mem_pool_list_end; p++) {
+	Z_STRUCT_SECTION_FOREACH(k_mem_pool, p) {
 		k_mem_pool_init(p);
 	}
 
@@ -58,7 +55,7 @@ int k_mem_pool_alloc(struct k_mem_pool *p, struct k_mem_block *block,
 	__ASSERT(!(z_is_in_isr() && timeout != K_NO_WAIT), "");
 
 	if (timeout > 0) {
-		end = z_tick_get() + z_ms_to_ticks(timeout);
+		end = k_uptime_get() + timeout;
 	}
 
 	while (true) {
@@ -96,9 +93,8 @@ int k_mem_pool_alloc(struct k_mem_pool *p, struct k_mem_block *block,
 		z_pend_curr_unlocked(&p->wait_q, timeout);
 
 		if (timeout != K_FOREVER) {
-			timeout = end - z_tick_get();
-
-			if (timeout < 0) {
+			timeout = end - k_uptime_get();
+			if (timeout <= 0) {
 				break;
 			}
 		}
@@ -145,7 +141,8 @@ void *k_mem_pool_malloc(struct k_mem_pool *pool, size_t size)
 	 * get a block large enough to hold an initial (hidden) block
 	 * descriptor, as well as the space the caller requested
 	 */
-	if (size_add_overflow(size, sizeof(struct k_mem_block_id), &size)) {
+	if (size_add_overflow(size, WB_UP(sizeof(struct k_mem_block_id)),
+			      &size)) {
 		return NULL;
 	}
 	if (k_mem_pool_alloc(pool, &block, size, K_NO_WAIT) != 0) {
@@ -156,14 +153,14 @@ void *k_mem_pool_malloc(struct k_mem_pool *pool, size_t size)
 	(void)memcpy(block.data, &block.id, sizeof(struct k_mem_block_id));
 
 	/* return address of the user area part of the block to the caller */
-	return (char *)block.data + sizeof(struct k_mem_block_id);
+	return (char *)block.data + WB_UP(sizeof(struct k_mem_block_id));
 }
 
 void k_free(void *ptr)
 {
 	if (ptr != NULL) {
 		/* point to hidden block descriptor at start of block */
-		ptr = (char *)ptr - sizeof(struct k_mem_block_id);
+		ptr = (char *)ptr - WB_UP(sizeof(struct k_mem_block_id));
 
 		/* return block to the heap memory pool */
 		k_mem_pool_free_id(ptr);

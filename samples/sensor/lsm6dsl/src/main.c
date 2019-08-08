@@ -6,9 +6,9 @@
 
 #include <zephyr.h>
 #include <device.h>
-#include <sensor.h>
+#include <drivers/sensor.h>
 #include <stdio.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 static inline float out_ev(struct sensor_value *val)
 {
@@ -100,7 +100,7 @@ void main(void)
 	int cnt = 0;
 	char out_str[64];
 	struct sensor_value odr_attr;
-	struct device *lsm6dsl_dev = device_get_binding(DT_ST_LSM6DSL_0_LABEL);
+	struct device *lsm6dsl_dev = device_get_binding(DT_INST_0_ST_LSM6DSL_LABEL);
 
 	if (lsm6dsl_dev == NULL) {
 		printk("Could not get LSM6DSL device\n");

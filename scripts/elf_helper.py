@@ -38,6 +38,7 @@ DW_OP_fbreg = 0x91
 STACK_TYPE = "_k_thread_stack_element"
 thread_counter = 0
 sys_mutex_counter = 0
+futex_counter = 0
 
 # Global type environment. Populated by pass 1.
 type_env = {}
@@ -56,6 +57,7 @@ class KobjectInstance:
     def __init__(self, type_obj, addr):
         global thread_counter
         global sys_mutex_counter
+        global futex_counter
 
         self.addr = addr
         self.type_obj = type_obj
@@ -72,6 +74,9 @@ class KobjectInstance:
         elif self.type_obj.name == "sys_mutex":
             self.data = "(u32_t)(&kernel_mutexes[%d])" % sys_mutex_counter
             sys_mutex_counter += 1
+        elif self.type_obj.name == "k_futex":
+            self.data = "(u32_t)(&futex_data[%d])" % futex_counter
+            futex_counter += 1
         else:
             self.data = 0
 
@@ -380,10 +385,8 @@ class ElfHelper:
             sys.stderr.write("ELF file has no DWARF information\n")
             sys.exit(1)
 
-        kram_start = syms["__kernel_ram_start"]
-        kram_end = syms["__kernel_ram_end"]
-        krom_start = syms["_image_rom_start"]
-        krom_end = syms["_image_rom_end"]
+        app_smem_start = syms["_app_smem_start"]
+        app_smem_end = syms["_app_smem_end"]
 
         di = self.elf.get_dwarf_info()
 
@@ -496,8 +499,7 @@ class ElfHelper:
 
             _, user_ram_allowed = kobjects[ko.type_obj.name]
             if (not user_ram_allowed and
-                    (addr < kram_start or addr >= kram_end) and
-                    (addr < krom_start or addr >= krom_end)):
+                    (addr >= app_smem_start and addr < app_smem_end)):
 
                 self.debug_die(die,
                                "object '%s' found in invalid location %s"
@@ -566,3 +568,6 @@ class ElfHelper:
 
     def get_sys_mutex_counter(self):
         return sys_mutex_counter
+
+    def get_futex_counter(self):
+        return futex_counter

@@ -1,4 +1,4 @@
----
+
 title: ns16550
 version: 0.1
 
@@ -13,9 +13,6 @@ properties:
       constraint: "ns16550"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     reg-shift:
@@ -25,10 +22,7 @@ properties:
       generation: define
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     pcp:
       type: int
@@ -47,4 +41,3 @@ properties:
       category: optional
       description: attached via PCI(e) bus
       generation: define
-...

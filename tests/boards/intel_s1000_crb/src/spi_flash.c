@@ -5,8 +5,8 @@
  */
 
 #include <zephyr.h>
-#include <flash.h>
-#include <flash_map.h>
+#include <drivers/flash.h>
+#include <storage/flash_map.h>
 #include <device.h>
 #include <stdio.h>
 #include <logging/log.h>
@@ -56,7 +56,7 @@ void test_flash(void)
 	u32_t magic[4];
 	int i;
 
-	flash_dev = device_get_binding(DT_JEDEC_SPI_NOR_0_LABEL);
+	flash_dev = device_get_binding(DT_INST_0_JEDEC_SPI_NOR_LABEL);
 
 	if (!flash_dev) {
 		LOG_ERR("SPI flash driver was not found!\n");

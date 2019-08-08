@@ -364,7 +364,7 @@ config LOG_BACKEND_NATIVE_POSIX
 
 config LOG_BACKEND_XTENSA_SIM
 	bool "Enable xtensa simulator backend"
-	depends on SOC_XTENSA_SAMPLE_CONTROLLER
+	depends on SOC_XTENSA_SAMPLE_CONTROLLER || SOC_INTEL_APL_ADSP
 	help
 	  Enable backend in xtensa simulator
 
@@ -422,6 +422,13 @@ config LOG_BACKEND_NET_MAX_BUF_SIZE
 	  should be selected so that typical messages will fit the buffer.
 
 endif # LOG_BACKEND_NET
+
+config LOG_BACKEND_ADSP
+	bool "Enable Intel ADSP backend"
+	depends on SOC_INTEL_APL_ADSP
+	select RING_BUFFER
+	help
+	  Enable backend in APL ADSP using memory mailbox
 
 config LOG_BACKEND_SHOW_COLOR
 	bool "Enable colors in the backend"

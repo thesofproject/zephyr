@@ -7,8 +7,8 @@
 
 #include <errno.h>
 #include <device.h>
-#include <uart.h>
-#include <clock_control.h>
+#include <drivers/uart.h>
+#include <drivers/clock_control.h>
 #include <fsl_lpuart.h>
 #include <soc.h>
 
@@ -51,8 +51,8 @@ static void rv32m1_lpuart_poll_out(struct device *dev, unsigned char c)
 	const struct rv32m1_lpuart_config *config = dev->config->config_info;
 
 	while (!(LPUART_GetStatusFlags(config->base)
-		& kLPUART_TxDataRegEmptyFlag))
-		;
+		& kLPUART_TxDataRegEmptyFlag)) {
+	}
 
 	LPUART_WriteByte(config->base, c);
 }
@@ -326,10 +326,10 @@ DEVICE_AND_API_INIT(uart_0, DT_OPENISA_RV32M1_LPUART_UART_0_LABEL,
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void rv32m1_lpuart_config_func_0(struct device *dev)
 {
-	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_0_IRQ_0, DT_OPENISA_RV32M1_LPUART_0_IRQ_0_PRI, rv32m1_lpuart_isr,
+	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_UART_0_IRQ_0, 0, rv32m1_lpuart_isr,
 		    DEVICE_GET(uart_0), 0);
 
-	irq_enable(DT_OPENISA_RV32M1_LPUART_0_IRQ_0);
+	irq_enable(DT_OPENISA_RV32M1_LPUART_UART_0_IRQ_0);
 }
 #endif
 
@@ -367,10 +367,10 @@ DEVICE_AND_API_INIT(uart_1, DT_OPENISA_RV32M1_LPUART_UART_1_LABEL,
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void rv32m1_lpuart_config_func_1(struct device *dev)
 {
-	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_1_IRQ_0, DT_OPENISA_RV32M1_LPUART_1_IRQ_0_PRI, rv32m1_lpuart_isr,
+	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_UART_1_IRQ_0, 0, rv32m1_lpuart_isr,
 		    DEVICE_GET(uart_1), 0);
 
-	irq_enable(DT_OPENISA_RV32M1_LPUART_1_IRQ_0);
+	irq_enable(DT_OPENISA_RV32M1_LPUART_UART_1_IRQ_0);
 }
 #endif
 
@@ -408,10 +408,10 @@ DEVICE_AND_API_INIT(uart_2, DT_OPENISA_RV32M1_LPUART_UART_2_LABEL,
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void rv32m1_lpuart_config_func_2(struct device *dev)
 {
-	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_2_IRQ_0, DT_OPENISA_RV32M1_LPUART_2_IRQ_0_PRI, rv32m1_lpuart_isr,
+	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_UART_2_IRQ_0, 0, rv32m1_lpuart_isr,
 		    DEVICE_GET(uart_2), 0);
 
-	irq_enable(DT_OPENISA_RV32M1_LPUART_2_IRQ_0);
+	irq_enable(DT_OPENISA_RV32M1_LPUART_UART_2_IRQ_0);
 }
 #endif
 
@@ -449,10 +449,10 @@ DEVICE_AND_API_INIT(uart_3, DT_OPENISA_RV32M1_LPUART_3_LABEL,
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN
 static void rv32m1_lpuart_config_func_3(struct device *dev)
 {
-	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_3_IRQ_0, DT_OPENISA_RV32M1_LPUART_3_IRQ_0_PRI, rv32m1_lpuart_isr,
+	IRQ_CONNECT(DT_OPENISA_RV32M1_LPUART_UART_3_IRQ_0, 0, rv32m1_lpuart_isr,
 		    DEVICE_GET(uart_3), 0);
 
-	irq_enable(DT_OPENISA_RV32M1_LPUART_3_IRQ_0);
+	irq_enable(DT_OPENISA_RV32M1_LPUART_UART_3_IRQ_0);
 }
 #endif
 

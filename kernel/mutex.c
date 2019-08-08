@@ -31,15 +31,12 @@
 #include <toolchain.h>
 #include <linker/sections.h>
 #include <wait_q.h>
-#include <misc/dlist.h>
+#include <sys/dlist.h>
 #include <debug/object_tracing_common.h>
 #include <errno.h>
 #include <init.h>
 #include <syscall_handler.h>
-#include <tracing.h>
-
-extern struct k_mutex _k_mutex_list_start[];
-extern struct k_mutex _k_mutex_list_end[];
+#include <debug/tracing.h>
 
 /* We use a global spinlock here because some of the synchronization
  * is protecting things like owner thread priorities which aren't
@@ -59,9 +56,7 @@ static int init_mutex_module(struct device *dev)
 {
 	ARG_UNUSED(dev);
 
-	struct k_mutex *mutex;
-
-	for (mutex = _k_mutex_list_start; mutex < _k_mutex_list_end; mutex++) {
+	Z_STRUCT_SECTION_FOREACH(k_mutex, mutex) {
 		SYS_TRACING_OBJ_INIT(k_mutex, mutex);
 	}
 	return 0;

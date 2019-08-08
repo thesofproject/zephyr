@@ -11,8 +11,8 @@
 set_ifndef(OPENSDA_FW jlink)
 
 if(OPENSDA_FW STREQUAL jlink)
-  set_ifndef(BOARD_DEBUG_RUNNER jlink)
-  set_ifndef(BOARD_FLASH_RUNNER jlink)
+  board_set_debugger_ifnset(jlink)
+  board_set_flasher_ifnset(jlink)
 endif()
 
 if(CONFIG_BOARD_LPCXPRESSO55S69_CPU0)
@@ -22,4 +22,7 @@ if(CONFIG_BOARD_LPCXPRESSO55S69_CPU1)
 board_runner_args(jlink "--device=LPC55S69_core1")
 endif()
 
+board_runner_args(pyocd "--target=lpc55s69")
+
 include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)
+include(${ZEPHYR_BASE}/boards/common/pyocd.board.cmake)

@@ -1,4 +1,4 @@
----
+
 title: SAM Family UART
 version: 0.1
 
@@ -13,20 +13,13 @@ properties:
       constraint: "atmel,sam-uart"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     peripheral-id:
       type: int
       description: peripheral ID
       generation: define
       category: required
-...

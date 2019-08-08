@@ -11,6 +11,7 @@ zephyr_library_compile_definitions_ifdef(
 )
 
 zephyr_sources_ifdef(CONFIG_HAS_MCUX_CACHE    fsl_cache.c)
+zephyr_sources_ifdef(CONFIG_ADC_MCUX_ADC12    fsl_adc12.c)
 zephyr_sources_ifdef(CONFIG_ADC_MCUX_ADC16    fsl_adc16.c)
 zephyr_sources_ifdef(CONFIG_ETH_MCUX          fsl_enet.c)
 zephyr_sources_ifdef(CONFIG_I2C_MCUX          fsl_i2c.c)
@@ -27,3 +28,8 @@ zephyr_sources_ifdef(CONFIG_UART_MCUX_LPUART  fsl_lpuart.c)
 zephyr_sources_ifdef(CONFIG_COUNTER_MCUX_RTC  fsl_rtc.c)
 zephyr_sources_ifdef(CONFIG_RTC_MCUX          fsl_rtc.c)
 zephyr_sources_ifdef(CONFIG_WDT_MCUX_WDOG     fsl_wdog.c)
+zephyr_sources_ifdef(CONFIG_WDT_MCUX_WDOG32   fsl_wdog32.c)
+zephyr_sources_ifdef(CONFIG_CAN_MCUX_FLEXCAN  fsl_flexcan.c)
+if(NOT CONFIG_ASSERT OR CONFIG_FORCE_NO_ASSERT)
+  zephyr_compile_definitions(NDEBUG) # squelch fsl_flexcan.c warning
+endif()

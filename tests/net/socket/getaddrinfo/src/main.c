@@ -9,7 +9,7 @@ LOG_MODULE_REGISTER(net_test, CONFIG_NET_SOCKETS_LOG_LEVEL);
 
 #include <stdio.h>
 #include <ztest_assert.h>
-#include <misc/mutex.h>
+#include <sys/mutex.h>
 #include <net/socket.h>
 #include <net/dns_resolve.h>
 #include <net/buf.h>
@@ -33,6 +33,8 @@ static int sock_v6;
 
 static struct sockaddr_in addr_v4;
 static struct sockaddr_in6 addr_v6;
+
+static int queries_received;
 
 /* The mutex is there to wait the data to be received. */
 static ZTEST_BMEM SYS_MUTEX_DEFINE(wait_data);
@@ -67,6 +69,7 @@ static bool check_dns_query(u8_t *buf, int buf_len)
 	}
 
 	queries = ret;
+	queries_received++;
 
 	NET_DBG("Received %d %s", queries,
 		queries > 1 ? "queries" : "query");
@@ -213,6 +216,8 @@ void test_getaddrinfo_ok(void)
 {
 	struct addrinfo *res = NULL;
 
+	queries_received = 0;
+
 	/* This check simulates a local query that we will catch
 	 * in dns_process() function. So we do not check the res variable
 	 * as that will currently not contain anything useful. We just check
@@ -224,6 +229,9 @@ void test_getaddrinfo_ok(void)
 	if (sys_mutex_lock(&wait_data, WAIT_TIME)) {
 		zassert_true(false, "Timeout DNS query not received");
 	}
+
+	zassert_equal(queries_received, 2,
+		      "Did not receive both IPv4 and IPv6 query");
 
 	freeaddrinfo(res);
 }

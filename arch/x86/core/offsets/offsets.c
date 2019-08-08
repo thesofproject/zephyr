@@ -27,8 +27,8 @@
 /* list of headers that define whose structure offsets will be generated */
 
 #include <kernel_structs.h>
-#include <swapstk.h>
-#include <mmustructs.h>
+#include <ia32/mmustructs.h>
+#include <arch/x86/multiboot.h>
 
 #include <kernel_offsets.h>
 
@@ -47,18 +47,6 @@ GEN_ABSOLUTE_SYM(_K_THREAD_NO_FLOAT_SIZEOF,
 		 sizeof(struct k_thread) - sizeof(tPreempFloatReg));
 
 GEN_OFFSET_SYM(_callee_saved_t, esp);
-
-GEN_OFFSET_SYM(tSwapStk, eax);
-GEN_OFFSET_SYM(tSwapStk, ebp);
-GEN_OFFSET_SYM(tSwapStk, ebx);
-GEN_OFFSET_SYM(tSwapStk, esi);
-GEN_OFFSET_SYM(tSwapStk, edi);
-GEN_OFFSET_SYM(tSwapStk, retAddr);
-GEN_OFFSET_SYM(tSwapStk, param);
-
-/* size of the entire tSwapStk structure */
-
-GEN_ABSOLUTE_SYM(__tSwapStk_SIZEOF, sizeof(tSwapStk));
 
 /* NANO_ESF structure member offsets */
 
@@ -81,5 +69,10 @@ GEN_OFFSET_SYM(NANO_ESF, eflags);
 /* size of the MMU_REGION structure. Used by linker scripts */
 
 GEN_ABSOLUTE_SYM(__MMU_REGION_SIZEOF, sizeof(struct mmu_region));
+
+/* size of struct x86_multiboot_info, used by crt0.S */
+
+GEN_ABSOLUTE_SYM(__X86_MULTIBOOT_INFO_SIZEOF,
+	sizeof(struct x86_multiboot_info));
 
 GEN_ABS_SYM_END

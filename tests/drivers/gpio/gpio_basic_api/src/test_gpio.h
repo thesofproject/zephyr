@@ -8,8 +8,8 @@
 #define __TEST_GPIO_H__
 
 #include <zephyr.h>
-#include <gpio.h>
-#include <misc/util.h>
+#include <drivers/gpio.h>
+#include <sys/util.h>
 #include <ztest.h>
 
 #if defined(CONFIG_BOARD_QUARK_SE_C1000_DEVBOARD)
@@ -28,10 +28,6 @@
 #define DEV_NAME DT_GPIO_QMSI_SS_0_NAME
 #define PIN_OUT 2  /* AD0 */
 #define PIN_IN 3  /* AD1 */
-#elif defined(CONFIG_BOARD_QUARK_D2000_CRB)
-#define DEV_NAME DT_GPIO_QMSI_0_NAME
-#define PIN_OUT 8  /* DIO7 */
-#define PIN_IN 9  /* DIO8 */
 #elif defined(CONFIG_BOARD_ESP32)
 #define DEV_NAME CONFIG_GPIO_ESP32_0_NAME
 #define PIN_OUT 4  /* DIO4 */

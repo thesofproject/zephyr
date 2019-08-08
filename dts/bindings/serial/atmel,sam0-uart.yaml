@@ -1,4 +1,4 @@
----
+
 title: Atmel SAM0 SERCOM UART driver
 version: 0.1
 
@@ -13,16 +13,10 @@ properties:
       constraint: "atmel,sam0-uart"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     rxpo:
       type: int
@@ -47,4 +41,3 @@ properties:
       category: optional
       description: Transmit DMA channel
       generation: define
-...

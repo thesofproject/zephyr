@@ -5,7 +5,7 @@
  */
 
 #include <init.h>
-#include <pinmux.h>
+#include <drivers/pinmux.h>
 #include <fsl_port.h>
 
 static int twr_ke18f_pinmux_init(struct device *dev)
@@ -102,14 +102,28 @@ static int twr_ke18f_pinmux_init(struct device *dev)
 	pinmux_pin_set(portd, 8, PORT_PCR_MUX(kPORT_MuxAlt2));
 #endif
 
+#if CONFIG_CAN_0
+	/* FlexCAN0 RX, TX */
+	pinmux_pin_set(porte, 4, PORT_PCR_MUX(kPORT_MuxAlt5));
+	pinmux_pin_set(porte, 5, PORT_PCR_MUX(kPORT_MuxAlt5));
+#endif
+
 	/* FXOS8700 INT1, INT2, RST */
-#ifdef DT_NXP_FXOS8700_0_INT1_GPIOS_PIN
+#ifdef DT_INST_0_NXP_FXOS8700_INT1_GPIOS_PIN
 	pinmux_pin_set(porta, 14, PORT_PCR_MUX(kPORT_MuxAsGpio));
 #endif
-#ifdef DT_NXP_FXOS8700_0_INT2_GPIOS_PIN
+#ifdef DT_INST_0_NXP_FXOS8700_INT2_GPIOS_PIN
 	pinmux_pin_set(portc, 17, PORT_PCR_MUX(kPORT_MuxAsGpio));
 #endif
 	pinmux_pin_set(portc, 15, PORT_PCR_MUX(kPORT_MuxAsGpio));
+
+#ifdef CONFIG_ADC_0
+	/* Thermistor A, B */
+	pinmux_pin_set(porta, 0, PORT_PCR_MUX(kPORT_PinDisabledOrAnalog));
+	pinmux_pin_set(porta, 1, PORT_PCR_MUX(kPORT_PinDisabledOrAnalog));
+	/* Potentiometer */
+	pinmux_pin_set(portc, 14, PORT_PCR_MUX(kPORT_PinDisabledOrAnalog));
+#endif
 
 	return 0;
 }

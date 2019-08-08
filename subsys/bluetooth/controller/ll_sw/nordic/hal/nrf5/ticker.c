@@ -6,8 +6,8 @@
  */
 
 #include <stdbool.h>
-#include <misc/dlist.h>
-#include <misc/mempool_base.h>
+#include <sys/dlist.h>
+#include <sys/mempool_base.h>
 
 #include "hal/cntr.h"
 

@@ -7,7 +7,8 @@
 #include <errno.h>
 #include <zephyr/types.h>
 #include <device.h>
-#include <clock_control.h>
+#include <drivers/entropy.h>
+#include <drivers/clock_control.h>
 #include <drivers/clock_control/nrf_clock_control.h>
 
 #include "hal/ccm.h"
@@ -16,11 +17,12 @@
 
 #include "util/mem.h"
 #include "util/memq.h"
-
 #include "util/mayfly.h"
+
 #include "ticker/ticker.h"
 
 #include "lll.h"
+#include "lll_vendor.h"
 #include "lll_internal.h"
 
 #define LOG_MODULE_NAME bt_ctlr_llsw_nordic_lll
@@ -40,6 +42,9 @@ static struct {
 	struct device *clk_hf;
 } lll;
 
+/* Entropy device */
+static struct device *dev_entropy;
+
 static int init_reset(void);
 static int prepare(lll_is_abort_cb_t is_abort_cb, lll_abort_cb_t abort_cb,
 		   lll_prepare_cb_t prepare_cb, int prio,
@@ -47,6 +52,7 @@ static int prepare(lll_is_abort_cb_t is_abort_cb, lll_abort_cb_t abort_cb,
 static int resume_enqueue(lll_prepare_cb_t resume_cb, int resume_prio);
 
 #if !defined(CONFIG_BT_CTLR_LOW_LAT)
+static void ticker_start_op_cb(u32_t status, void *param);
 static void preempt_ticker_cb(u32_t ticks_at_expire, u32_t remainder,
 			      u16_t lazy, void *param);
 static void preempt(void *param);
@@ -107,11 +113,17 @@ int lll_init(void)
 	struct device *clk_k32;
 	int err;
 
+	/* Get reference to entropy device */
+	dev_entropy = device_get_binding(CONFIG_ENTROPY_NAME);
+	if (!dev_entropy) {
+		return -ENODEV;
+	}
+
 	/* Initialise LLL internals */
 	event.curr.abort_cb = NULL;
 
 	/* Initialize LF CLK */
-	clk_k32 = device_get_binding(DT_NORDIC_NRF_CLOCK_0_LABEL "_32K");
+	clk_k32 = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_32K");
 	if (!clk_k32) {
 		return -ENODEV;
 	}
@@ -120,7 +132,7 @@ int lll_init(void)
 
 	/* Initialize HF CLK */
 	lll.clk_hf =
-		device_get_binding(DT_NORDIC_NRF_CLOCK_0_LABEL "_16M");
+		device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_16M");
 	if (!lll.clk_hf) {
 		return -ENODEV;
 	}
@@ -147,6 +159,11 @@ int lll_init(void)
 	irq_enable(NRF5_IRQ_SWI5_IRQn);
 
 	return 0;
+}
+
+u8_t lll_entropy_get(u8_t len, void *rand)
+{
+	return entropy_get_entropy_isr(dev_entropy, rand, len, 0);
 }
 
 int lll_reset(void)
@@ -240,6 +257,7 @@ int lll_done(void *param)
 {
 	struct lll_event *next = ull_prepare_dequeue_get();
 	struct ull_hdr *ull = NULL;
+	void *evdone;
 	int ret = 0;
 
 	/* Assert if param supplied without a pending prepare to cancel. */
@@ -271,7 +289,8 @@ int lll_done(void *param)
 	}
 
 	/* Let ULL know about LLL event done */
-	ull_event_done(ull);
+	evdone = ull_event_done(ull);
+	LL_ASSERT(evdone);
 
 	return ret;
 }
@@ -340,10 +359,24 @@ u32_t lll_evt_offset_get(struct evt_hdr *evt)
 u32_t lll_preempt_calc(struct evt_hdr *evt, u8_t ticker_id,
 		       u32_t ticks_at_event)
 {
-	/* TODO: */
+	u32_t ticks_now = ticker_ticks_now_get();
+	u32_t diff;
+
+	diff = ticker_ticks_diff_get(ticks_now, ticks_at_event);
+	diff += HAL_TICKER_CNTR_CMP_OFFSET_MIN;
+	if (!(diff & BIT(HAL_TICKER_CNTR_MSBIT)) &&
+	    (diff > HAL_TICKER_US_TO_TICKS(EVENT_OVERHEAD_START_US))) {
+		/* TODO: for Low Latency Feature with Advanced XTAL feature.
+		 * 1. Release retained HF clock.
+		 * 2. Advance the radio event to accommodate normal prepare
+		 *    duration.
+		 * 3. Increase the preempt to start ticks for future events.
+		 */
+		return 1;
+	}
+
 	return 0;
 }
-
 
 void lll_chan_set(u32_t chan)
 {
@@ -443,7 +476,7 @@ static int prepare(lll_is_abort_cb_t is_abort_cb, lll_abort_cb_t abort_cb,
 				   TICKER_NULL_LAZY,
 				   TICKER_NULL_SLOT,
 				   preempt_ticker_cb, NULL,
-				   NULL, NULL);
+				   ticker_start_op_cb, NULL);
 		LL_ASSERT((ret == TICKER_STATUS_SUCCESS) ||
 			  (ret == TICKER_STATUS_FAILURE) ||
 			  (ret == TICKER_STATUS_BUSY));
@@ -502,6 +535,17 @@ static int resume_enqueue(lll_prepare_cb_t resume_cb, int resume_prio)
 }
 
 #if !defined(CONFIG_BT_CTLR_LOW_LAT)
+static void ticker_start_op_cb(u32_t status, void *param)
+{
+	/* NOTE: this callback is present only for addition debug messages
+	 * when needed, else can be dispensed with.
+	 */
+	ARG_UNUSED(param);
+
+	LL_ASSERT((status == TICKER_STATUS_SUCCESS) ||
+		  (status == TICKER_STATUS_FAILURE));
+}
+
 static void preempt_ticker_cb(u32_t ticks_at_expire, u32_t remainder,
 			       u16_t lazy, void *param)
 {

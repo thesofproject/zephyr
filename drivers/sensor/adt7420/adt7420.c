@@ -5,12 +5,12 @@
  */
 
 #include <device.h>
-#include <i2c.h>
-#include <misc/byteorder.h>
-#include <misc/util.h>
+#include <drivers/i2c.h>
+#include <sys/byteorder.h>
+#include <sys/util.h>
 #include <kernel.h>
-#include <sensor.h>
-#include <misc/__assert.h>
+#include <drivers/sensor.h>
+#include <sys/__assert.h>
 
 #include "adt7420.h"
 
@@ -166,8 +166,9 @@ static int adt7420_probe(struct device *dev)
 		return ret;
 	}
 
-	if (value != ADT7420_DEFAULT_ID)
+	if (value != ADT7420_DEFAULT_ID) {
 		return -ENODEV;
+	}
 
 	ret = i2c_reg_write_byte(drv_data->i2c, cfg->i2c_addr,
 			ADT7420_REG_CONFIG, ADT7420_CONFIG_RESOLUTION |
@@ -216,14 +217,14 @@ static int adt7420_init(struct device *dev)
 static struct adt7420_data adt7420_driver;
 
 static const struct adt7420_dev_config adt7420_config = {
-	.i2c_port = DT_ADI_ADT7420_0_BUS_NAME,
-	.i2c_addr = DT_ADI_ADT7420_0_BASE_ADDRESS,
+	.i2c_port = DT_INST_0_ADI_ADT7420_BUS_NAME,
+	.i2c_addr = DT_INST_0_ADI_ADT7420_BASE_ADDRESS,
 #ifdef CONFIG_ADT7420_TRIGGER
-	.gpio_port = DT_ADI_ADT7420_0_INT_GPIOS_CONTROLLER,
-	.int_gpio = DT_ADI_ADT7420_0_INT_GPIOS_PIN,
+	.gpio_port = DT_INST_0_ADI_ADT7420_INT_GPIOS_CONTROLLER,
+	.int_gpio = DT_INST_0_ADI_ADT7420_INT_GPIOS_PIN,
 #endif
 };
 
-DEVICE_AND_API_INIT(adt7420, DT_ADI_ADT7420_0_LABEL, adt7420_init, &adt7420_driver,
+DEVICE_AND_API_INIT(adt7420, DT_INST_0_ADI_ADT7420_LABEL, adt7420_init, &adt7420_driver,
 		    &adt7420_config, POST_KERNEL, CONFIG_SENSOR_INIT_PRIORITY,
 		    &adt7420_driver_api);

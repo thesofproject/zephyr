@@ -10,10 +10,10 @@
 #include <kernel.h>
 
 #if !defined(_ASMLANGUAGE)
-#include <atomic.h>
-#include <misc/dlist.h>
-#include <misc/rb.h>
-#include <misc/util.h>
+#include <sys/atomic.h>
+#include <sys/dlist.h>
+#include <sys/rb.h>
+#include <sys/util.h>
 #include <string.h>
 #endif
 
@@ -241,7 +241,7 @@ static ALWAYS_INLINE void z_new_thread_init(struct k_thread *thread,
 #endif
 
 #ifdef CONFIG_THREAD_NAME
-	thread->name = NULL;
+	thread->name[0] = '\0';
 #endif
 
 #if defined(CONFIG_USERSPACE)

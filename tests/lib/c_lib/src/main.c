@@ -16,10 +16,11 @@
  */
 
 #include <zephyr.h>
-#include <misc/__assert.h>
+#include <sys/__assert.h>
 #include <ztest.h>
 
 #include <limits.h>
+#include <sys/types.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <zephyr/types.h>
@@ -55,6 +56,16 @@ void test_limits(void)
 	zassert_true((long_max + long_one == LONG_MIN), NULL);
 }
 
+static ssize_t foobar(void)
+{
+	return -1;
+}
+
+void test_ssize_t(void)
+{
+	zassert_true(foobar() < 0, NULL);
+}
+
 /**
  *
  * @brief Test boolean types and values library
@@ -84,8 +95,11 @@ volatile size_t size_of_long_variable = sizeof(long_variable);
 
 void test_stddef(void)
 {
-
+#ifdef CONFIG_64BIT
+	zassert_true((size_of_long_variable == 8), "sizeof");
+#else
 	zassert_true((size_of_long_variable == 4), "sizeof");
+#endif
 }
 
 /*
@@ -285,6 +299,7 @@ void test_main(void)
 {
 	ztest_test_suite(test_c_lib,
 			 ztest_unit_test(test_limits),
+			 ztest_unit_test(test_ssize_t),
 			 ztest_unit_test(test_stdbool),
 			 ztest_unit_test(test_stddef),
 			 ztest_unit_test(test_stdint),

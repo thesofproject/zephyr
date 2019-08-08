@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: MICROCHIP I2C
 version: 0.1
 
@@ -15,16 +15,9 @@ inherits:
 
 properties:
     compatible:
-      type: string
-      category: required
-      description: compatible strings
       constraint: "microchip,xec-i2c"
-      generation: define
 
     reg:
-      type: int
-      description: mmio register space
-      generation: define
       category: required
 
     port_sel:
@@ -32,5 +25,3 @@ properties:
       description: soc block mapping to pin
       generation: define
       category: define
-
-...

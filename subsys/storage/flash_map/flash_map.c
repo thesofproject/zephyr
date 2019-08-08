@@ -10,8 +10,8 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <device.h>
-#include <flash_map.h>
-#include <flash.h>
+#include <storage/flash_map.h>
+#include <drivers/flash.h>
 #include <soc.h>
 #include <init.h>
 

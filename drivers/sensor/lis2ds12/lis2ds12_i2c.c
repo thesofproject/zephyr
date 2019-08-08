@@ -9,14 +9,14 @@
  */
 
 #include <string.h>
-#include <i2c.h>
+#include <drivers/i2c.h>
 #include <logging/log.h>
 
 #include "lis2ds12.h"
 
 #ifdef DT_ST_LIS2DS12_BUS_I2C
 
-static u16_t lis2ds12_i2c_slave_addr = DT_ST_LIS2DS12_0_BASE_ADDRESS;
+static u16_t lis2ds12_i2c_slave_addr = DT_INST_0_ST_LIS2DS12_BASE_ADDRESS;
 
 #define LOG_LEVEL CONFIG_SENSOR_LOG_LEVEL
 LOG_MODULE_DECLARE(LIS2DS12);

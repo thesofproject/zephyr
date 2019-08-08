@@ -63,6 +63,7 @@ boundary	Boundary Devices Inc.
 brcm	Broadcom Corporation
 buffalo	Buffalo, Inc.
 bticino Bticino International
+cadence	Cadence Design Systems, Inc.
 calxeda	Calxeda
 capella	Capella Microsystems, Inc
 cascoda	Cascoda, Ltd.
@@ -127,6 +128,7 @@ engicam	Engicam S.r.l.
 epcos	EPCOS AG
 epfl	Ecole Polytechnique Fédérale de Lausanne
 epson	Seiko Epson Corp.
+espressif	Espressif Systems
 est	ESTeem Wireless Modems
 ettus	NI Ettus Research
 eukrea  Eukréa Electromatique
@@ -456,6 +458,7 @@ xunlong	Shenzhen Xunlong Software CO.,Limited
 ysoft	Y Soft Corporation a.s.
 zarlink	Zarlink Semiconductor
 zeitec	ZEITEC Semiconductor Co., LTD.
+zephyr	Zephyr-specific binding
 zidoo	Shenzhen Zidoo Technology Co., Ltd.
 zii	Zodiac Inflight Innovations
 zte	ZTE Corp.

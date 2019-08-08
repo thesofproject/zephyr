@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: Atmel SAM0 Family ADC
 version: 0.1
 
@@ -15,22 +15,13 @@ inherits:
 
 properties:
     compatible:
-      type: string
-      category: required
-      description: compatible strings
       constraint: "atmel,sam0-adc"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     gclk:
       type: int
@@ -43,4 +34,3 @@ properties:
       category: required
       description: clock prescaler divisor applied to the generic clock
       generation: define
-...

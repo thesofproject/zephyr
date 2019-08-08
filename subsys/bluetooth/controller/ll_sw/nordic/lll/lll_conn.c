@@ -9,7 +9,7 @@
 
 #include <toolchain.h>
 #include <zephyr/types.h>
-#include <misc/util.h>
+#include <sys/util.h>
 #include <drivers/clock_control/nrf_clock_control.h>
 
 #include "util/mem.h"
@@ -634,6 +634,8 @@ static void isr_done(void *param)
 	/* TODO: MOVE ^^ */
 
 	e = ull_event_done_extra_get();
+	LL_ASSERT(e);
+
 	e->type = EVENT_DONE_EXTRA_TYPE_CONN;
 	e->trx_cnt = trx_cnt;
 	e->crc_valid = crc_valid;

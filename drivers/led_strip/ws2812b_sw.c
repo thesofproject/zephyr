@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <led_strip.h>
+#include <drivers/led_strip.h>
 
 #include <string.h>
 
@@ -14,9 +14,9 @@ LOG_MODULE_REGISTER(ws2812b_sw);
 
 #include <zephyr.h>
 #include <soc.h>
-#include <gpio.h>
+#include <drivers/gpio.h>
 #include <device.h>
-#include <clock_control.h>
+#include <drivers/clock_control.h>
 
 #define BLOCKING ((void *)1)
 
@@ -32,7 +32,7 @@ static int send_buf(u8_t *buf, size_t len)
 	 */
 	u32_t i = 0U;
 
-	clock = device_get_binding(DT_NORDIC_NRF_CLOCK_0_LABEL "_16M");
+	clock = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_16M");
 	if (!clock) {
 		LOG_ERR("Unable to get HF clock");
 		return -EIO;

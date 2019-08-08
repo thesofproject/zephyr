@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <atomic.h>
+#include <sys/atomic.h>
 #include <zephyr/types.h>
 #include <string.h>
 
@@ -14,7 +14,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 
-#include <misc/byteorder.h>
+#include <sys/byteorder.h>
 #include <net/buf.h>
 
 #include <logging/log.h>

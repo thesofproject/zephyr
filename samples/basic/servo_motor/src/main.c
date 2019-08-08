@@ -11,11 +11,11 @@
  */
 
 #include <zephyr.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 #include <device.h>
-#include <pwm.h>
+#include <drivers/pwm.h>
 
-#if defined(CONFIG_SOC_QUARK_SE_C1000) || defined(CONFIG_SOC_QUARK_D2000)
+#if defined(CONFIG_SOC_QUARK_SE_C1000)
 #define PWM_DEV CONFIG_PWM_QMSI_DEV_NAME
 #elif defined(CONFIG_SOC_FAMILY_NRF)
 #if defined(CONFIG_PWM_NRF5_SW)

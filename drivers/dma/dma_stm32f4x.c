@@ -7,13 +7,13 @@
 
 
 #include <device.h>
-#include <dma.h>
+#include <drivers/dma.h>
 #include <errno.h>
 #include <init.h>
 #include <stdio.h>
 #include <soc.h>
 #include <string.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 #define LOG_LEVEL CONFIG_DMA_LOG_LEVEL
 #include <logging/log.h>
@@ -508,8 +508,9 @@ static int dma_stm32_stop(struct device *dev, u32_t id)
 
 	/* Disable stream */
 	ret = dma_stm32_disable_stream(ddata, id);
-	if (ret)
+	if (ret) {
 		return ret;
+	}
 
 	/* Clear remanent IRQs from previous transfers */
 	irqstatus = dma_stm32_irq_status(ddata, id);

@@ -105,6 +105,16 @@
 			status = "disabled";
 		};
 
+		rtcc0: rtcc@40042000 {
+			compatible = "silabs,gecko-rtcc";
+			reg = <0x40042000 0x184>;
+			interrupts = <30 0>;
+			clock-frequency = <32768>;
+			prescaler = <1>;
+			status = "disabled";
+			label = "RTCC_0";
+		};
+
 		gpio: gpio@4000a400 {
 			compatible = "silabs,efr32mg-gpio";
 			reg = <0x4000a400 0xc00>;
@@ -158,7 +168,7 @@
 
 			gpiof: gpio@4000a0f0 {
 				compatible = "silabs,efr32mg-gpio-port";
-				reg = <0x4000af0 0x30>;
+				reg = <0x4000a0f0 0x30>;
 				label = "GPIO_F";
 				gpio-controller;
 				#gpio-cells = <2>;

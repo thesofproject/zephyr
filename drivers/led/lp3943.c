@@ -17,9 +17,9 @@
  *   values for a LED will affect other LEDs also.
  */
 
-#include <i2c.h>
-#include <led.h>
-#include <misc/util.h>
+#include <drivers/i2c.h>
+#include <drivers/led.h>
+#include <sys/util.h>
 #include <zephyr.h>
 
 #define LOG_LEVEL CONFIG_LED_LOG_LEVEL
@@ -27,9 +27,9 @@
 LOG_MODULE_REGISTER(lp3943);
 
 #ifdef CONFIG_HAS_DTS_I2C
-#define CONFIG_LP3943_DEV_NAME			DT_TI_LP3943_0_LABEL
-#define CONFIG_LP3943_I2C_ADDRESS		DT_TI_LP3943_0_BASE_ADDRESS
-#define CONFIG_LP3943_I2C_MASTER_DEV_NAME	DT_TI_LP3943_0_BUS_NAME
+#define CONFIG_LP3943_DEV_NAME			DT_INST_0_TI_LP3943_LABEL
+#define CONFIG_LP3943_I2C_ADDRESS		DT_INST_0_TI_LP3943_BASE_ADDRESS
+#define CONFIG_LP3943_I2C_MASTER_DEV_NAME	DT_INST_0_TI_LP3943_BUS_NAME
 #endif
 
 #include "led_context.h"

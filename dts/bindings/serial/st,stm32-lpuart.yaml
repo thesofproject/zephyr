@@ -1,4 +1,4 @@
----
+
 title: STM32 LPUART
 version: 0.1
 
@@ -13,16 +13,10 @@ properties:
       constraint: "st,stm32-lpuart"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
 
     clocks:
       type: array
@@ -35,4 +29,3 @@ properties:
       category: optional
       description: Set to enable RTS/CTS flow control at boot time
       generation: define
-...

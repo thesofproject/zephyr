@@ -4,17 +4,17 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  *
- * I2C Driver for: STM32F0, STM32F3, STM32F7, STM32L0 and STM32L4
+ * I2C Driver for: STM32F0, STM32F3, STM32F7, STM32L0, STM32L4 and STM32WB
  *
  */
 
 #include <clock_control/stm32_clock_control.h>
-#include <clock_control.h>
-#include <misc/util.h>
+#include <drivers/clock_control.h>
+#include <sys/util.h>
 #include <kernel.h>
 #include <soc.h>
 #include <errno.h>
-#include <i2c.h>
+#include <drivers/i2c.h>
 #include "i2c_ll_stm32.h"
 
 #define LOG_LEVEL CONFIG_I2C_LOG_LEVEL
@@ -519,8 +519,8 @@ static inline int msg_done(struct device *dev, unsigned int current_msg_flags)
 	if (current_msg_flags & I2C_MSG_STOP) {
 		LL_I2C_GenerateStopCondition(i2c);
 		while (!LL_I2C_IsActiveFlag_STOP(i2c)) {
-			;
 		}
+
 		LL_I2C_ClearFlag_STOP(i2c);
 		LL_I2C_DisableReloadMode(i2c);
 	}

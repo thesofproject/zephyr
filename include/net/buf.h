@@ -12,7 +12,7 @@
 
 #include <stddef.h>
 #include <zephyr/types.h>
-#include <misc/util.h>
+#include <sys/util.h>
 #include <zephyr.h>
 
 #ifdef __cplusplus
@@ -27,7 +27,7 @@ extern "C" {
  */
 
 /* Alignment needed for various parts of the buffer definition */
-#define __net_buf_align __aligned(sizeof(int))
+#define __net_buf_align __aligned(sizeof(void *))
 
 /**
  *  @def NET_BUF_SIMPLE_DEFINE

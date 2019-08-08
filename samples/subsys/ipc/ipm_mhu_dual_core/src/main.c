@@ -5,8 +5,8 @@
  */
 
 #include <zephyr.h>
-#include <misc/printk.h>
-#include <ipm.h>
+#include <sys/printk.h>
+#include <drivers/ipm.h>
 
 enum cpu_id_t {
 	MHU_CPU0 = 0,
@@ -49,7 +49,7 @@ void main(void)
 {
 	printk("IPM MHU sample on %s\n", CONFIG_BOARD);
 
-	mhu0 = device_get_binding(DT_ARM_MHU_0_LABEL);
+	mhu0 = device_get_binding(DT_INST_0_ARM_MHU_LABEL);
 	if (!mhu0) {
 		printk("CPU %d, get MHU0 fail!\n",
 				sse_200_platform_get_cpu_id());

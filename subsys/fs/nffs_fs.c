@@ -9,11 +9,11 @@
 #include <zephyr/types.h>
 #include <errno.h>
 #include <init.h>
-#include <flash.h>
-#include <fs.h>
-#include <crc.h>
-#include <misc/__assert.h>
-#include <misc/printk.h>
+#include <drivers/flash.h>
+#include <fs/fs.h>
+#include <sys/crc.h>
+#include <sys/__assert.h>
+#include <sys/printk.h>
 #include <nffs/os.h>
 #include <nffs/nffs.h>
 

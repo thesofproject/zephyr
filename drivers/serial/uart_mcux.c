@@ -6,8 +6,8 @@
 
 #include <errno.h>
 #include <device.h>
-#include <uart.h>
-#include <clock_control.h>
+#include <drivers/uart.h>
+#include <drivers/clock_control.h>
 #include <fsl_uart.h>
 #include <soc.h>
 
@@ -47,8 +47,8 @@ static void uart_mcux_poll_out(struct device *dev, unsigned char c)
 {
 	const struct uart_mcux_config *config = dev->config->config_info;
 
-	while (!(UART_GetStatusFlags(config->base) & kUART_TxDataRegEmptyFlag))
-		;
+	while (!(UART_GetStatusFlags(config->base) & kUART_TxDataRegEmptyFlag)) {
+	}
 
 	UART_WriteByte(config->base, c);
 }

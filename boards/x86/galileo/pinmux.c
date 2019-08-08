@@ -11,10 +11,10 @@
 #include <device.h>
 #include <init.h>
 
-#include <pinmux.h>
-#include <i2c.h>
-#include <gpio.h>
-#include <pwm.h>
+#include <drivers/pinmux.h>
+#include <drivers/i2c.h>
+#include <drivers/gpio.h>
+#include <drivers/pwm.h>
 
 #include <pinmux/pinmux.h>
 
@@ -265,7 +265,7 @@ static struct mux_path _galileo_path[PINMUX_NUM_PINS * NUM_PIN_FUNCS] = {
 			    { EXP0,  7,   PIN_LOW, (GPIO_DIR_OUT) },
 			    { NONE,  0, DONT_CARE, (GPIO_DIR_IN)  },
 			    { NONE,  0, DONT_CARE, (GPIO_DIR_IN)  } } },
-	{9, PINMUX_FUNC_C, {{ NONE,  0, DONT_CARE, (GPIO_DIR_IN)  }, /* NONE */
+	{9, PINMUX_FUNC_D, {{ NONE,  0, DONT_CARE, (GPIO_DIR_IN)  }, /* NONE */
 			    { NONE,  0, DONT_CARE, (GPIO_DIR_IN)  },
 			    { NONE,  0, DONT_CARE, (GPIO_DIR_IN)  },
 			    { NONE,  0, DONT_CARE, (GPIO_DIR_IN)  },

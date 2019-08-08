@@ -49,13 +49,10 @@
  */
 #if defined(CONFIG_HPET_TIMER)
 #define TICK_IRQ CONFIG_HPET_TIMER_IRQ
+#elif defined(CONFIG_APIC_TIMER)
+#define TICK_IRQ CONFIG_APIC_TIMER_IRQ
 #elif defined(CONFIG_LOAPIC_TIMER)
-#if defined(CONFIG_LOAPIC)
 #define TICK_IRQ CONFIG_LOAPIC_TIMER_IRQ
-#else
-/* MVIC case */
-#define TICK_IRQ CONFIG_MVIC_TIMER_IRQ
-#endif
 #elif defined(CONFIG_XTENSA)
 #define TICK_IRQ UTIL_CAT(XCHAL_TIMER,		\
 			  UTIL_CAT(CONFIG_XTENSA_TIMER_ID, _INTERRUPT))
@@ -69,7 +66,7 @@
 #elif defined(CONFIG_LITEX_TIMER)
 #define TICK_IRQ DT_LITEX_TIMER0_E0002800_IRQ_0
 #elif defined(CONFIG_RV32M1_LPTMR_TIMER)
-#define TICK_IRQ DT_OPENISA_RV32M1_LPTMR_SYSTEM_LPTMR_IRQ
+#define TICK_IRQ DT_OPENISA_RV32M1_LPTMR_SYSTEM_LPTMR_IRQ_0
 #elif defined(CONFIG_CPU_CORTEX_M)
 /*
  * The Cortex-M use the SYSTICK exception for the system timer, which is
@@ -663,7 +660,7 @@ static void busy_wait_thread(void *mseconds, void *arg2, void *arg3)
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
 
-	usecs = (int)mseconds * 1000;
+	usecs = POINTER_TO_INT(mseconds) * 1000;
 
 	TC_PRINT("Thread busy waiting for %d usecs\n", usecs);
 	k_busy_wait(usecs);
@@ -689,7 +686,7 @@ static void busy_wait_thread(void *mseconds, void *arg2, void *arg3)
 static void thread_sleep(void *delta, void *arg2, void *arg3)
 {
 	s64_t timestamp;
-	int timeout = (int)delta;
+	int timeout = POINTER_TO_INT(delta);
 
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
@@ -700,7 +697,9 @@ static void thread_sleep(void *delta, void *arg2, void *arg3)
 	timestamp = k_uptime_get() - timestamp;
 	TC_PRINT(" thread back from sleep\n");
 
-	if (timestamp < timeout || timestamp > timeout + __ticks_to_ms(2)) {
+	int slop = MAX(__ticks_to_ms(2), 1);
+
+	if (timestamp < timeout || timestamp > timeout + slop) {
 		TC_ERROR("timestamp out of range, got %d\n", (int)timestamp);
 		return;
 	}
@@ -711,7 +710,7 @@ static void thread_sleep(void *delta, void *arg2, void *arg3)
 /* a thread is started with a delay, then it reports that it ran via a fifo */
 static void delayed_thread(void *num, void *arg2, void *arg3)
 {
-	struct timeout_order *timeout = &timeouts[(int)num];
+	struct timeout_order *timeout = &timeouts[POINTER_TO_INT(num)];
 
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
@@ -738,7 +737,7 @@ static void test_busy_wait(void)
 
 	k_thread_create(&timeout_threads[0], timeout_stacks[0],
 			THREAD_STACKSIZE2, busy_wait_thread,
-			(void *)(intptr_t) timeout, NULL,
+			INT_TO_POINTER(timeout), NULL,
 			NULL, K_PRIO_COOP(THREAD_PRIORITY), 0, 0);
 
 	rv = k_sem_take(&reply_timeout, timeout * 2);
@@ -765,7 +764,7 @@ static void test_k_sleep(void)
 
 	k_thread_create(&timeout_threads[0], timeout_stacks[0],
 			THREAD_STACKSIZE2, thread_sleep,
-			(void *)(intptr_t) timeout, NULL,
+			INT_TO_POINTER(timeout), NULL,
 			NULL, K_PRIO_COOP(THREAD_PRIORITY), 0, 0);
 
 	rv = k_sem_take(&reply_timeout, timeout * 2);
@@ -779,8 +778,7 @@ static void test_k_sleep(void)
 		k_thread_create(&timeout_threads[i], timeout_stacks[i],
 				THREAD_STACKSIZE2,
 				delayed_thread,
-				(void *)i,
-				NULL, NULL,
+				INT_TO_POINTER(i), NULL, NULL,
 				K_PRIO_COOP(5), 0, timeouts[i].timeout);
 	}
 	for (i = 0; i < NUM_TIMEOUT_THREADS; i++) {
@@ -815,7 +813,7 @@ static void test_k_sleep(void)
 
 		id = k_thread_create(&timeout_threads[i], timeout_stacks[i],
 				     THREAD_STACKSIZE2, delayed_thread,
-				     (void *)i, NULL, NULL,
+				     INT_TO_POINTER(i), NULL, NULL,
 				     K_PRIO_COOP(5), 0, timeouts[i].timeout);
 
 		delayed_threads[i] = id;

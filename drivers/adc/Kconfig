@@ -19,6 +19,11 @@ menuconfig ADC
 
 if ADC
 
+config ADC_SHELL
+	bool "Enable ADC Shell"
+	help
+	  Enable ADC Shell for testing.
+
 # By selecting or not this option particular ADC drivers indicate if it is
 # required to explicitly specify analog inputs when configuring channels or
 # just the channel identifier is sufficient.
@@ -46,6 +51,9 @@ config ADC_0
 
 config ADC_1
 	bool "Enable ADC 1"
+
+config ADC_2
+	bool "Enable ADC 2"
 
 source "drivers/adc/Kconfig.mcux"
 

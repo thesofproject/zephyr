@@ -330,7 +330,8 @@ int net_context_unref(struct net_context *context)
 	net_tcp_unref(context);
 
 	if (context->conn_handler) {
-		if (IS_ENABLED(CONFIG_NET_TCP) || IS_ENABLED(CONFIG_NET_UDP)) {
+		if (IS_ENABLED(CONFIG_NET_TCP) || IS_ENABLED(CONFIG_NET_UDP) ||
+		    IS_ENABLED(CONFIG_NET_SOCKETS_CAN)) {
 			net_conn_unregister(context->conn_handler);
 		}
 
@@ -1113,6 +1114,23 @@ static int get_context_timepstamp(struct net_context *context,
 #endif
 }
 
+#if defined(CONFIG_NET_CONTEXT_TIMESTAMP)
+int net_context_get_timestamp(struct net_context *context,
+			      struct net_pkt *pkt,
+			      struct net_ptp_time *timestamp)
+{
+	bool is_timestamped;
+
+	get_context_timepstamp(context, &is_timestamped, NULL);
+	if (is_timestamped) {
+		memcpy(timestamp, net_pkt_timestamp(pkt), sizeof(*timestamp));
+		return 0;
+	}
+
+	return -ENOENT;
+}
+#endif /* CONFIG_NET_CONTEXT_TIMESTAMP */
+
 static int context_setup_udp_packet(struct net_context *context,
 				    struct net_pkt *pkt,
 				    const void *buf,
@@ -1347,7 +1365,24 @@ static int context_sendto(struct net_context *context,
 		get_context_timepstamp(context, &timestamp, NULL);
 		if (timestamp) {
 			struct net_ptp_time tp = {
-				.second = k_cycle_get_32(),
+				/* Use the nanosecond field to temporarily
+				 * store the cycle count as it is a 32-bit
+				 * variable. The value is checked in
+				 * net_if.c:net_if_tx()
+				 *
+				 * The net_pkt timestamp field is used in two
+				 * roles here:
+				 * 1) To calculate how long it takes the packet
+				 *    from net_context to be sent by the
+				 *    network device driver.
+				 * 2) gPTP enabled Ethernet device driver will
+				 *    use the value to tell gPTP what time the
+				 *    packet was sent.
+				 *
+				 * Because these two things are happening at
+				 * different times, we can share the variable.
+				 */
+				.nanosecond = k_cycle_get_32(),
 			};
 
 			net_pkt_set_timestamp(pkt, &tp);
@@ -1645,6 +1680,7 @@ static enum net_verdict net_context_raw_packet_received(
 static int recv_raw(struct net_context *context,
 		    net_context_recv_cb_t cb,
 		    s32_t timeout,
+		    struct sockaddr *local_addr,
 		    void *user_data)
 {
 	int ret;
@@ -1665,7 +1701,7 @@ static int recv_raw(struct net_context *context,
 
 	ret = net_conn_register(net_context_get_ip_proto(context),
 				net_context_get_family(context),
-				NULL, NULL, 0, 0,
+				NULL, local_addr, 0, 0,
 				net_context_raw_packet_received,
 				user_data,
 				&context->conn_handler);
@@ -1704,10 +1740,23 @@ int net_context_recv(struct net_context *context,
 	} else {
 		if (IS_ENABLED(CONFIG_NET_SOCKETS_PACKET) &&
 		    net_context_get_family(context) == AF_PACKET) {
-			ret = recv_raw(context, cb, timeout, user_data);
+			ret = recv_raw(context, cb, timeout, NULL, user_data);
 		} else if (IS_ENABLED(CONFIG_NET_SOCKETS_CAN) &&
 			   net_context_get_family(context) == AF_CAN) {
-			ret = recv_raw(context, cb, timeout, user_data);
+			struct sockaddr_can local_addr = {
+				.can_family = AF_CAN,
+			};
+
+			ret = recv_raw(context, cb, timeout,
+				       (struct sockaddr *)&local_addr,
+				       user_data);
+			if (ret == -EALREADY) {
+				/* This is perfectly normal for CAN sockets.
+				 * The SocketCAN will dispatch the packet to
+				 * correct net_context listener.
+				 */
+				ret = 0;
+			}
 		} else {
 			ret = -EPROTOTYPE;
 		}

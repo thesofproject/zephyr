@@ -22,6 +22,8 @@ target hardware in the early phases of development.
 This board provides a few peripherals such as an Ethernet driver and UART.
 See `Peripherals`_ for more information.
 
+.. _native_posix_deps:
+
 Host system dependencies
 ========================
 
@@ -158,7 +160,7 @@ Run the zephyr.exe executable as you would any other Linux console application.
 
 .. code-block:: console
 
-   $ zephyr/zephyr.exe
+   $ ./build/zephyr/zephyr.exe
    # Press Ctrl+C to exit
 
 This executable accepts several command line options depending on the
@@ -166,7 +168,7 @@ compilation configuration.
 You can run it with the ``--help`` command line switch to get a list of
 available options::
 
-   $ zephyr/zephyr.exe --help
+   $ ./build/zephyr/zephyr.exe --help
 
 Note that the Zephyr kernel does not actually exit once the application is
 finished. It simply goes into the idle loop forever.
@@ -200,7 +202,7 @@ Address Sanitizer (ASan)
 
 You can also build Zephyr with `Address Sanitizer`_. To do this, set
 :option:`CONFIG_ASAN`, for example, in the application project file, or in the
-cmake command line invocation.
+``west build`` or ``cmake`` command line invocation.
 
 Note that you will need the ASan library installed in your system.
 In Debian/Ubuntu this is ``libasan1``.
@@ -554,6 +556,9 @@ The following peripherals are currently provided with this board:
   configuration. In case the file does not exists the driver will take care of
   creating the file, else the existing file is used.
 
+  The flash content can be accessed from the host system, as explained in the
+  `Host based flash access`_ section.
+
 UART
 ****
 
@@ -626,3 +631,38 @@ development by integrating more seamlessly with the host operating system:
   A backend/"bottom" for Zephyr's CTF tracing subsystem which writes the tracing
   data to a file in the host filesystem.
   More information can be found in :ref:`Common Tracing Format <ctf>`
+
+Host based flash access
+***********************
+
+If a flash device is present, the file system partitions on the flash
+device can be exposed through the host file system by enabling
+:option:`CONFIG_FUSE_FS_ACCESS`. This option enables a FUSE
+(File system in User space) layer that maps the Zephyr file system calls to
+the required UNIX file system calls, and provides access to the flash file
+system partitions with normal operating system commands such as ``cd``,
+``ls`` and ``mkdir``.
+
+By default the partitions are exposed through the directory *flash* in the
+current working directory. This directory can be changed via the command line
+option *--flash-mount*. As this directory operates as a mount point for FUSE
+you have to ensure that it exists before starting the native POSIX board.
+
+On exit, the native POSIX board application will take care of unmounting the
+directory. In the unfortunate case that the native POSIX board application
+crashes, you can cleanup the stale mount point by using the program
+``fusermount``::
+
+    $ fusermount -u flash
+
+Note that this feature requires a 32-bit version of the FUSE library, with a
+minimal version of 2.6, on the host system and ``pkg-config`` settings to
+correctly pickup the FUSE install path and compiler flags.
+
+On a Ubuntu 18.04 host system, for example, install the ``pkg-config`` and
+``libfuse-dev:i386`` packages, and configure the pkg-config search path with
+these commands::
+
+    $ sudo apt-get install pkg-config libfuse-dev:i386
+    $ export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
+

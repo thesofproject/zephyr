@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
----
+
 title: STM32 OTGFS
 version: 0.1
 
@@ -18,21 +18,10 @@ properties:
       constraint: "st,stm32-otgfs"
 
     reg:
-      type: array
-      description: mmio register space
-      generation: define
       category: required
 
     interrupts:
-      type: array
       category: required
-      description: required interrupts
-      generation: define
-
-    interrupt-names:
-      type: stringlist
-      category: optional
-      description: readable string describing the interrupts
 
     ram-size:
       type: int
@@ -46,4 +35,3 @@ properties:
       category: optional
       generation: define
       description: PHY provider specifier
-...

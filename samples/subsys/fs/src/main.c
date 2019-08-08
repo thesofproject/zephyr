@@ -8,9 +8,9 @@
 
 #include <zephyr.h>
 #include <device.h>
-#include <disk_access.h>
+#include <disk/disk_access.h>
 #include <logging/log.h>
-#include <fs.h>
+#include <fs/fs.h>
 #include <ff.h>
 
 LOG_MODULE_REGISTER(main);

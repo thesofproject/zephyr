@@ -5,11 +5,11 @@
  */
 
 #include <errno.h>
-#include <i2c.h>
+#include <drivers/i2c.h>
 #include <soc.h>
 #include <fsl_i2c.h>
 #include <fsl_clock.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(i2c_mcux);
@@ -121,7 +121,7 @@ static int i2c_mcux_transfer(struct device *dev, struct i2c_msg *msgs,
 		transfer.dataSize = msgs->len;
 
 		/* Prevent the controller to send a start condition between
-		 * messages, except if explicitely requested.
+		 * messages, except if explicitly requested.
 		 */
 		if (i != 0 && !(msgs->flags & I2C_MSG_RESTART)) {
 			transfer.flags |= kI2C_TransferNoStartFlag;

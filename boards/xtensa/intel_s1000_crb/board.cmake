@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-set(BOARD_FLASH_RUNNER intel_s1000)
-set(BOARD_DEBUG_RUNNER intel_s1000)
+board_set_flasher_ifnset(intel_s1000)
+board_set_debugger_ifnset(intel_s1000)
 
 board_finalize_runner_args(intel_s1000
   "--xt-ocd-dir=/opt/tensilica/xocd-12.0.4/xt-ocd"
@@ -10,6 +10,6 @@ board_finalize_runner_args(intel_s1000
   "--gdb-flash-file=load_elf.txt"
 )
 
-if(NOT "${ZEPHYR_TOOLCHAIN_VARIANT}" STREQUAL "xcc")
-  message(FATAL_ERROR "ZEPHYR_TOOLCHAIN_VARIANT != xcc. This requires xcc to build!")
+if(NOT "${ZEPHYR_TOOLCHAIN_VARIANT}" MATCHES "^(xcc|xtools)$")
+  message(FATAL_ERROR "Requires XCC or custom crosstools built toolchain!")
 endif()

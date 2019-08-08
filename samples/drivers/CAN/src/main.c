@@ -6,10 +6,10 @@
 
 #include <zephyr.h>
 #include <kernel.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 #include <device.h>
-#include <can.h>
-#include <gpio.h>
+#include <drivers/can.h>
+#include <drivers/gpio.h>
 
 #define TX_THREAD_STACK_SIZE 512
 #define LED_THREAD_STACK_SIZE 512
@@ -126,8 +126,9 @@ void rx_str_thread(void *msgq, void *can_dev_param, void *unused)
 
 	while (1) {
 		k_msgq_get((struct k_msgq *)msgq, &msg, K_FOREVER);
-		for (int i = 0; i < msg.dlc; i++)
+		for (int i = 0; i < msg.dlc; i++) {
 			printk("%c", msg.data[i]);
+		}
 	}
 }
 

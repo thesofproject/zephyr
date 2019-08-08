@@ -19,7 +19,7 @@
 #include <kernel.h>
 #include <usb/usb_dc.h>
 #include <usb/usb_device.h>
-#include <clock_control.h>
+#include <drivers/clock_control.h>
 #include <hal/nrf_power.h>
 #include <drivers/clock_control/nrf_clock_control.h>
 #include <nrfx_usbd.h>
@@ -28,26 +28,6 @@
 #define LOG_LEVEL CONFIG_USB_DRIVER_LOG_LEVEL
 #include <logging/log.h>
 LOG_MODULE_REGISTER(usb_nrfx);
-
-#define USB_BREQUEST_SETADDRESS 		0x05
-#define USB_BMREQUESTTYPE_DIR_POS		7uL
-#define USB_BMREQUESTTYPE_DIR_MASK		(1uL << USB_BMREQUESTTYPE_DIR_POS)
-#define USB_BMREQUESTTYPE_DIR_HOSTTODEVICE_MASK	0uL
-#define USB_BMREQUESTTYPE_DIR_DEVICETOHOST_MASK	(1uL << USB_BMREQUESTTYPE_DIR_POS)
-#define USB_BMREQUESTTYPE_TYPE_POS		5uL
-#define USB_BMREQUESTTYPE_TYPE_MASK		(3uL << USB_BMREQUESTTYPE_TYPE_POS)
-#define USB_BMREQUESTTYPE_TYPE_STANDARD_MASK	0uL
-#define USB_BMREQUESTTYPE_TYPE_CLASS_MASK	(1uL << USB_BMREQUESTTYPE_TYPE_POS)
-#define USB_BMREQUESTTYPE_TYPE_CLASS_VENDOR	(2uL << USB_BMREQUESTTYPE_TYPE_POS)
-
-#define MAX_EP_BUF_SZ           64UL
-#define MAX_ISO_EP_BUF_SZ       1024UL
-
-#define USBD_EPSTATUS_EPIN_MASK         (0x1FF << USBD_EPSTATUS_EPIN0_Pos)
-#define USBD_EPSTATUS_EPOUT_MASK        (0x1FF << USBD_EPSTATUS_EPOUT0_Pos)
-#define USBD_EPDATASTATUS_EPIN_MASK     (0x7F << USBD_EPDATASTATUS_EPIN1_Pos)
-#define USBD_EPDATASTATUS_EPOUT_MASK    (0x7F << USBD_EPDATASTATUS_EPOUT1_Pos)
-
 
 /**
  * @brief nRF USBD peripheral states
@@ -122,10 +102,14 @@ struct nrf_usbd_ep_buf {
  *
  * @param cfg			Endpoint configuration
  * @param buf			Endpoint buffer
- * @param read_complete		A flag indicating that DMA read operation has been completed.
- * @param read_pending		A flag indicating that the Host has requested a data transfer.
- * @param write_in_progress	A flag indicating that write operation has been scheduled.
- * @param write_fragmented	A flag indicating that IN transfer has been fragmented.
+ * @param read_complete		A flag indicating that DMA read operation
+ *				has been completed.
+ * @param read_pending		A flag indicating that the Host has requested
+ *				a data transfer.
+ * @param write_in_progress	A flag indicating that write operation has
+ *				been scheduled.
+ * @param write_fragmented	A flag indicating that IN transfer has
+ *				been fragmented.
  */
 struct nrf_usbd_ep_ctx {
 	struct nrf_usbd_ep_cfg cfg;
@@ -184,15 +168,14 @@ struct usbd_event {
  */
 #define FIFO_ELEM_MIN_SZ        sizeof(struct usbd_event)
 #define FIFO_ELEM_MAX_SZ        sizeof(struct usbd_event)
-#define FIFO_ELEM_COUNT         CONFIG_USB_NRFX_EVT_QUEUE_SIZE
 #define FIFO_ELEM_ALIGN         sizeof(unsigned int)
 
-K_MEM_POOL_DEFINE(fifo_elem_pool, FIFO_ELEM_MIN_SZ, FIFO_ELEM_MAX_SZ,
-		  FIFO_ELEM_COUNT, FIFO_ELEM_ALIGN);
-
 #if CONFIG_USB_NRFX_EVT_QUEUE_SIZE < 4
-#error Invalid USBD event queue size (CONFIG_USB_NRFX_EVT_QUEUE_SIZE). Minimum size: 4.
+#error Invalid USBD event queue size (CONFIG_USB_NRFX_EVT_QUEUE_SIZE).
 #endif
+
+K_MEM_POOL_DEFINE(fifo_elem_pool, FIFO_ELEM_MIN_SZ, FIFO_ELEM_MAX_SZ,
+		  CONFIG_USB_NRFX_EVT_QUEUE_SIZE, FIFO_ELEM_ALIGN);
 
 /**
  * @brief Endpoint buffer pool
@@ -218,14 +201,17 @@ K_MEM_POOL_DEFINE(fifo_elem_pool, FIFO_ELEM_MIN_SZ, FIFO_ELEM_MAX_SZ,
 #define EP_ISOIN_INDEX CFG_EPIN_CNT
 #define EP_ISOOUT_INDEX (CFG_EPIN_CNT + CFG_EP_ISOIN_CNT + CFG_EPOUT_CNT)
 
-/** Minimum endpoint buffer size */
-#define EP_BUF_MIN_SZ MAX_EP_BUF_SZ
+#define EP_BUF_MAX_SZ		64UL
+#define ISO_EP_BUF_MAX_SZ	1024UL
 
-/** Maximum endpoint buffer size */
+/** Minimum endpoint buffer size (minimum block size) */
+#define EP_BUF_POOL_BLOCK_MIN_SZ EP_BUF_MAX_SZ
+
+/** Maximum endpoint buffer size (maximum block size) */
 #if (CFG_EP_ISOIN_CNT || CFG_EP_ISOOUT_CNT)
-#define EP_BUF_MAX_SZ MAX_ISO_EP_BUF_SZ
+#define EP_BUF_POOL_BLOCK_MAX_SZ ISO_EP_BUF_MAX_SZ
 #else
-#define EP_BUF_MAX_SZ MAX_EP_BUF_SZ
+#define EP_BUF_POOL_BLOCK_MAX_SZ EP_BUF_MAX_SZ
 #endif
 
 /** Total endpoints configured */
@@ -233,20 +219,21 @@ K_MEM_POOL_DEFINE(fifo_elem_pool, FIFO_ELEM_MIN_SZ, FIFO_ELEM_MAX_SZ,
 		    CFG_EPOUT_CNT + CFG_EP_ISOOUT_CNT)
 
 /** Total buffer size for all endpoints */
-#define EP_BUF_TOTAL ((CFG_EPIN_CNT * MAX_EP_BUF_SZ) +	       \
-		      (CFG_EPOUT_CNT * MAX_EP_BUF_SZ) +	       \
-		      (CFG_EP_ISOIN_CNT * MAX_ISO_EP_BUF_SZ) + \
-		      (CFG_EP_ISOOUT_CNT * MAX_ISO_EP_BUF_SZ))
+#define EP_BUF_TOTAL ((CFG_EPIN_CNT * EP_BUF_MAX_SZ) +	       \
+		      (CFG_EPOUT_CNT * EP_BUF_MAX_SZ) +	       \
+		      (CFG_EP_ISOIN_CNT * ISO_EP_BUF_MAX_SZ) + \
+		      (CFG_EP_ISOOUT_CNT * ISO_EP_BUF_MAX_SZ))
 
 /** Total number of maximum sized buffers needed */
-#define EP_BUF_COUNT ((EP_BUF_TOTAL / EP_BUF_MAX_SZ) + \
-		      ((EP_BUF_TOTAL % EP_BUF_MAX_SZ) ? 1 : 0))
+#define EP_BUF_POOL_BLOCK_COUNT ((EP_BUF_TOTAL / EP_BUF_POOL_BLOCK_MAX_SZ) + \
+		      ((EP_BUF_TOTAL % EP_BUF_POOL_BLOCK_MAX_SZ) ? 1 : 0))
 
 /** 4 Byte Buffer alignment required by hardware */
-#define EP_BUF_ALIGN sizeof(unsigned int)
+#define EP_BUF_POOL_ALIGNMENT sizeof(unsigned int)
 
-K_MEM_POOL_DEFINE(ep_buf_pool, EP_BUF_MIN_SZ, EP_BUF_MAX_SZ,
-		  EP_BUF_COUNT, EP_BUF_ALIGN);
+K_MEM_POOL_DEFINE(ep_buf_pool, EP_BUF_POOL_BLOCK_MIN_SZ,
+		  EP_BUF_POOL_BLOCK_MAX_SZ, EP_BUF_POOL_BLOCK_COUNT,
+		  EP_BUF_POOL_ALIGNMENT);
 
 /**
  * @brief USBD control structure
@@ -310,10 +297,10 @@ static inline uint8_t nrfx_addr_to_ep(nrfx_usbd_ep_t ep)
 
 static inline bool ep_is_valid(const u8_t ep)
 {
-	u8_t ep_num = NRF_USBD_EP_NR_GET(ep);
+	u8_t ep_num = ep & ~USB_EP_DIR_MASK;
 
 	if (NRF_USBD_EPIN_CHECK(ep)) {
-		if (unlikely(NRF_USBD_EPISO_CHECK(ep))) {
+		if (unlikely(ep_num == NRF_USBD_EPISO_FIRST)) {
 			if (CFG_EP_ISOIN_CNT == 0) {
 				return false;
 			}
@@ -323,7 +310,7 @@ static inline bool ep_is_valid(const u8_t ep)
 			}
 		}
 	} else {
-		if (unlikely(NRF_USBD_EPISO_CHECK(ep))) {
+		if (unlikely(ep_num == NRF_USBD_EPISO_FIRST)) {
 			if (CFG_EP_ISOOUT_CNT == 0) {
 				return false;
 			}
@@ -454,9 +441,10 @@ static inline struct usbd_event *usbd_evt_alloc(void)
 		LOG_ERR("USBD event allocation failed!");
 
 		/* This should NOT happen in a properly designed system.
-		 * Allocation may fail if workqueue thread is starved
-		 * or event queue size is too small (CONFIG_USB_NRFX_EVT_QUEUE_SIZE).
-		 * Wipe all events, free the space and schedule reinitialization.
+		 * Allocation may fail if workqueue thread is starved or event
+		 * queue size is too small (CONFIG_USB_NRFX_EVT_QUEUE_SIZE).
+		 * Wipe all events, free the space and schedule
+		 * reinitialization.
 		 */
 		usbd_evt_flush();
 
@@ -464,7 +452,9 @@ static inline struct usbd_event *usbd_evt_alloc(void)
 					       sizeof(struct usbd_event),
 					       K_NO_WAIT);
 		if (ret < 0) {
-			/* This should never fail in a properly operating system. */
+			/* This should never fail in a properly
+			 * operating system.
+			 */
 			LOG_ERR("USBD event memory corrupted");
 			__ASSERT_NO_MSG(0);
 			return NULL;
@@ -537,7 +527,7 @@ static int hf_clock_enable(bool on, bool blocking)
 	struct device *clock;
 	static bool clock_requested;
 
-	clock = device_get_binding(DT_NORDIC_NRF_CLOCK_0_LABEL "_16M");
+	clock = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_16M");
 	if (!clock) {
 		LOG_ERR("NRF HF Clock device not found!");
 		return ret;
@@ -637,8 +627,6 @@ static void ep_ctx_reset(struct nrf_usbd_ep_ctx *ep_ctx)
 	ep_ctx->buf.curr = ep_ctx->buf.data;
 	ep_ctx->buf.len  = 0U;
 
-	ep_ctx->cfg.en = false;
-
 	ep_ctx->read_complete = true;
 	ep_ctx->read_pending = false;
 	ep_ctx->write_in_progress = false;
@@ -663,7 +651,7 @@ static int eps_ctx_init(void)
 
 		if (!ep_ctx->buf.block.data) {
 			err = k_mem_pool_alloc(&ep_buf_pool, &ep_ctx->buf.block,
-					       MAX_EP_BUF_SZ, K_NO_WAIT);
+					       EP_BUF_MAX_SZ, K_NO_WAIT);
 			if (err < 0) {
 				LOG_ERR("Buffer alloc failed for EP 0x%02x", i);
 				return -ENOMEM;
@@ -679,7 +667,7 @@ static int eps_ctx_init(void)
 
 		if (!ep_ctx->buf.block.data) {
 			err = k_mem_pool_alloc(&ep_buf_pool, &ep_ctx->buf.block,
-					       MAX_EP_BUF_SZ, K_NO_WAIT);
+					       EP_BUF_MAX_SZ, K_NO_WAIT);
 			if (err < 0) {
 				LOG_ERR("Buffer alloc failed for EP 0x%02x", i);
 				return -ENOMEM;
@@ -695,7 +683,8 @@ static int eps_ctx_init(void)
 
 		if (!ep_ctx->buf.block.data) {
 			err = k_mem_pool_alloc(&ep_buf_pool, &ep_ctx->buf.block,
-					       MAX_ISO_EP_BUF_SZ, K_NO_WAIT);
+					       ISO_EP_BUF_MAX_SZ,
+					       K_NO_WAIT);
 			if (err < 0) {
 				LOG_ERR("EP buffer alloc failed for ISOIN");
 				return -ENOMEM;
@@ -711,7 +700,8 @@ static int eps_ctx_init(void)
 
 		if (!ep_ctx->buf.block.data) {
 			err = k_mem_pool_alloc(&ep_buf_pool, &ep_ctx->buf.block,
-					       MAX_ISO_EP_BUF_SZ, K_NO_WAIT);
+					       ISO_EP_BUF_MAX_SZ,
+					       K_NO_WAIT);
 			if (err < 0) {
 				LOG_ERR("EP buffer alloc failed for ISOOUT");
 				return -ENOMEM;
@@ -854,8 +844,8 @@ static inline void usbd_work_process_setup(struct nrf_usbd_ep_ctx *ep_ctx)
 
 	struct nrf_usbd_ctx *ctx = get_usbd_ctx();
 
-	if (((usbd_setup->bmRequestType & USB_BMREQUESTTYPE_DIR_MASK)
-	     == USB_BMREQUESTTYPE_DIR_HOSTTODEVICE_MASK)
+	if ((REQTYPE_GET_DIR(usbd_setup->bmRequestType)
+	     == REQTYPE_DIR_TO_DEVICE)
 	    && (usbd_setup->wLength)) {
 		struct nrf_usbd_ctx *ctx = get_usbd_ctx();
 
@@ -1177,9 +1167,9 @@ static void usbd_event_handler(nrfx_usbd_evt_t const *const p_event)
 		nrfx_usbd_setup_t drv_setup;
 
 		nrfx_usbd_setup_get(&drv_setup);
-		if ((drv_setup.bRequest != USB_BREQUEST_SETADDRESS)
-		    || ((drv_setup.bmRequestType & USB_BMREQUESTTYPE_TYPE_MASK)
-			!= USB_BMREQUESTTYPE_TYPE_STANDARD_MASK)) {
+		if ((drv_setup.bRequest != REQ_SET_ADDRESS)
+		    || (REQTYPE_GET_TYPE(drv_setup.bmRequestType)
+			!= REQTYPE_TYPE_STANDARD)) {
 			/* SetAddress is habdled by USBD hardware.
 			 * No software action required.
 			 */
@@ -1306,8 +1296,8 @@ int usb_dc_attach(void)
 	k_work_init(&ctx->usb_work, usbd_work_handler);
 	k_mutex_init(&ctx->drv_lock);
 
-	IRQ_CONNECT(DT_NORDIC_NRF_USBD_USBD_0_IRQ,
-		    DT_NORDIC_NRF_USBD_USBD_0_IRQ_PRIORITY,
+	IRQ_CONNECT(DT_NORDIC_NRF_USBD_USBD_0_IRQ_0,
+		    DT_NORDIC_NRF_USBD_USBD_0_IRQ_0_PRIORITY,
 		    nrfx_isr, nrfx_usbd_irq_handler, 0);
 
 	err = nrfx_usbd_init(usbd_event_handler);
@@ -1350,8 +1340,14 @@ int usb_dc_detach(void)
 	usbd_evt_flush();
 	eps_ctx_uninit();
 
-	nrfx_usbd_disable();
-	nrfx_usbd_uninit();
+	if (nrfx_usbd_is_enabled()) {
+		nrfx_usbd_disable();
+	}
+
+	if (nrfx_usbd_is_initialized()) {
+		nrfx_usbd_uninit();
+	}
+
 	(void) hf_clock_enable(false, false);
 	nrf5_power_usb_power_int_enable(false);
 
@@ -1541,6 +1537,10 @@ int usb_dc_ep_is_stalled(const u8_t ep, u8_t *const stalled)
 		return -EINVAL;
 	}
 
+	if (!stalled) {
+		return -EINVAL;
+	}
+
 	*stalled = (u8_t) nrfx_usbd_ep_stall_check(ep_addr_to_nrfx(ep));
 
 	return 0;
@@ -1628,6 +1628,7 @@ int usb_dc_ep_write(const u8_t ep, const u8_t *const data,
 	struct nrf_usbd_ctx *ctx = get_usbd_ctx();
 	struct nrf_usbd_ep_ctx *ep_ctx;
 	u32_t bytes_to_copy;
+	int result = 0;
 
 	if (!dev_attached() || !dev_ready()) {
 		return -ENODEV;
@@ -1642,6 +1643,10 @@ int usb_dc_ep_write(const u8_t ep, const u8_t *const data,
 		return -EINVAL;
 	}
 
+	if (!ep_ctx->cfg.en) {
+		LOG_ERR("Endpoint 0x%02x is not enabled", ep);
+		return -EINVAL;
+	}
 
 	k_mutex_lock(&ctx->drv_lock, K_FOREVER);
 
@@ -1686,7 +1691,6 @@ int usb_dc_ep_write(const u8_t ep, const u8_t *const data,
 		return 0;
 	}
 
-	int result = 0;
 	ep_ctx->write_in_progress = true;
 	NRFX_USBD_TRANSFER_IN(transfer, ep_ctx->buf.data, ep_ctx->buf.len, 0);
 	nrfx_err_t err = nrfx_usbd_ep_transfer(ep_addr_to_nrfx(ep), &transfer);
@@ -1722,6 +1726,11 @@ int usb_dc_ep_read_wait(u8_t ep, u8_t *data, u32_t max_data_len,
 
 	ep_ctx = endpoint_ctx(ep);
 	if (!ep_ctx) {
+		return -EINVAL;
+	}
+
+	if (!ep_ctx->cfg.en) {
+		LOG_ERR("Endpoint 0x%02x is not enabled", ep);
 		return -EINVAL;
 	}
 
@@ -1764,6 +1773,11 @@ int usb_dc_ep_read_continue(u8_t ep)
 
 	ep_ctx = endpoint_ctx(ep);
 	if (!ep_ctx) {
+		return -EINVAL;
+	}
+
+	if (!ep_ctx->cfg.en) {
+		LOG_ERR("Endpoint 0x%02x is not enabled", ep);
 		return -EINVAL;
 	}
 

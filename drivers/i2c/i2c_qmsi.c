@@ -7,9 +7,9 @@
 #include <errno.h>
 
 #include <device.h>
-#include <i2c.h>
-#include <ioapic.h>
-#include <power.h>
+#include <drivers/i2c.h>
+#include <drivers/interrupt_controller/ioapic.h>
+#include <power/power.h>
 
 #include "qm_i2c.h"
 #include "qm_isr.h"
@@ -157,8 +157,9 @@ static int i2c_qmsi_configure(struct device *dev, u32_t config)
 	qm_i2c_config_t qm_cfg;
 
 	/* This driver only supports master mode. */
-	if (!(I2C_MODE_MASTER & config))
+	if (!(I2C_MODE_MASTER & config)) {
 		return -EINVAL;
+	}
 
 	qm_cfg.mode = QM_I2C_MASTER;
 	if (I2C_ADDR_10_BITS & config) {

@@ -16,6 +16,7 @@
 		zephyr,console = &uart0;
 		zephyr,shell-uart = &uart0;
 		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
@@ -36,17 +37,17 @@
 };
 
 &gpiote {
-	status ="ok";
+	status = "okay";
 };
 
 &gpio0 {
-	status ="ok";
+	status = "okay";
 };
 
 &uart0 {
 	compatible = "nordic,nrf-uart";
 	current-speed = <115200>;
-	status = "ok";
+	status = "okay";
 	tx-pin = <29>;
 	rx-pin = <30>;
 	rts-pin = <2>;
@@ -54,7 +55,7 @@
 };
 
 &i2c0 {
-	status = "ok";
+	status = "okay";
 	sda-pin = <28>;
 	scl-pin = <2>;
 };

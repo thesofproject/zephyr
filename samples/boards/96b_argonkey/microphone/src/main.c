@@ -6,10 +6,10 @@
 
 #include <string.h>
 #include <zephyr.h>
-#include <misc/printk.h>
+#include <sys/printk.h>
 
-#include <gpio.h>
-#include <led.h>
+#include <drivers/gpio.h>
+#include <drivers/led.h>
 
 #include <audio/dmic.h>
 
@@ -50,39 +50,39 @@ void signal_sampling_started(void)
 {
 	static struct device *led0, *led1;
 
-	led0 = device_get_binding(LED0_GPIO_CONTROLLER);
-	gpio_pin_configure(led0, LED0_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led0, LED0_GPIO_PIN, 1);
+	led0 = device_get_binding(DT_ALIAS_LED0_GPIOS_CONTROLLER);
+	gpio_pin_configure(led0, DT_ALIAS_LED0_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led0, DT_ALIAS_LED0_GPIOS_PIN, 1);
 
-	led1 = device_get_binding(LED1_GPIO_CONTROLLER);
-	gpio_pin_configure(led1, LED1_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led1, LED1_GPIO_PIN, 0);
+	led1 = device_get_binding(DT_ALIAS_LED1_GPIOS_CONTROLLER);
+	gpio_pin_configure(led1, DT_ALIAS_LED1_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led1, DT_ALIAS_LED1_GPIOS_PIN, 0);
 }
 
 void signal_sampling_stopped(void)
 {
 	static struct device *led0, *led1;
 
-	led0 = device_get_binding(LED0_GPIO_CONTROLLER);
-	gpio_pin_configure(led0, LED0_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led0, LED0_GPIO_PIN, 1);
+	led0 = device_get_binding(DT_ALIAS_LED0_GPIOS_CONTROLLER);
+	gpio_pin_configure(led0, DT_ALIAS_LED0_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led0, DT_ALIAS_LED0_GPIOS_PIN, 1);
 
-	led1 = device_get_binding(LED1_GPIO_CONTROLLER);
-	gpio_pin_configure(led1, LED1_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led1, LED1_GPIO_PIN, 1);
+	led1 = device_get_binding(DT_ALIAS_LED1_GPIOS_CONTROLLER);
+	gpio_pin_configure(led1, DT_ALIAS_LED1_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led1, DT_ALIAS_LED1_GPIOS_PIN, 1);
 }
 
 void signal_print_stopped(void)
 {
 	static struct device *led0, *led1;
 
-	led0 = device_get_binding(LED0_GPIO_CONTROLLER);
-	gpio_pin_configure(led0, LED0_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led0, LED0_GPIO_PIN, 0);
+	led0 = device_get_binding(DT_ALIAS_LED0_GPIOS_CONTROLLER);
+	gpio_pin_configure(led0, DT_ALIAS_LED0_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led0, DT_ALIAS_LED0_GPIOS_PIN, 0);
 
-	led1 = device_get_binding(LED1_GPIO_CONTROLLER);
-	gpio_pin_configure(led1, LED1_GPIO_PIN, GPIO_DIR_OUT);
-	gpio_pin_write(led1, LED1_GPIO_PIN, 1);
+	led1 = device_get_binding(DT_ALIAS_LED1_GPIOS_CONTROLLER);
+	gpio_pin_configure(led1, DT_ALIAS_LED1_GPIOS_PIN, GPIO_DIR_OUT);
+	gpio_pin_write(led1, DT_ALIAS_LED1_GPIOS_PIN, 1);
 }
 
 void *rx_block[NUM_MS];
@@ -96,10 +96,10 @@ void main(void)
 #ifdef CONFIG_LP3943
 	static struct device *ledc;
 
-	ledc = device_get_binding(DT_TI_LP3943_0_LABEL);
+	ledc = device_get_binding(DT_INST_0_TI_LP3943_LABEL);
 	if (!ledc) {
 		printk("Could not get pointer to %s sensor\n",
-			DT_TI_LP3943_0_LABEL);
+			DT_INST_0_TI_LP3943_LABEL);
 		return;
 	}
 
@@ -121,11 +121,11 @@ void main(void)
 
 	int ret;
 
-	struct device *mic_dev = device_get_binding(DT_ST_MPXXDTYY_0_LABEL);
+	struct device *mic_dev = device_get_binding(DT_INST_0_ST_MPXXDTYY_LABEL);
 
 	if (!mic_dev) {
 		printk("Could not get pointer to %s device\n",
-			DT_ST_MPXXDTYY_0_LABEL);
+			DT_INST_0_ST_MPXXDTYY_LABEL);
 		return;
 	}
 

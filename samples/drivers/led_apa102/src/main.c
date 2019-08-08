@@ -13,10 +13,10 @@
 LOG_MODULE_REGISTER(main);
 
 #include <zephyr.h>
-#include <led_strip.h>
+#include <drivers/led_strip.h>
 #include <device.h>
-#include <spi.h>
-#include <misc/util.h>
+#include <drivers/spi.h>
+#include <sys/util.h>
 
 /*
  * Number of RGB LEDs in the LED strip, adjust as needed.
@@ -56,11 +56,11 @@ void main(void)
 	struct device *strip;
 	size_t i, time;
 
-	strip = device_get_binding(DT_APA_APA102_0_LABEL);
+	strip = device_get_binding(DT_INST_0_APA_APA102_LABEL);
 	if (strip) {
-		LOG_INF("Found LED strip device %s", DT_APA_APA102_0_LABEL);
+		LOG_INF("Found LED strip device %s", DT_INST_0_APA_APA102_LABEL);
 	} else {
-		LOG_ERR("LED strip device %s not found", DT_APA_APA102_0_LABEL);
+		LOG_ERR("LED strip device %s not found", DT_INST_0_APA_APA102_LABEL);
 		return;
 	}
 

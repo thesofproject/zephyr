@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <clock_control.h>
+#include <drivers/clock_control.h>
 #include <kernel.h>
 #include <soc.h>
 #include <errno.h>
-#include <i2c.h>
+#include <drivers/i2c.h>
 
 #define SPEED_100KHZ_BUS    0
 #define SPEED_400KHZ_BUS    1
@@ -278,8 +278,9 @@ static int i2c_xec_poll_read(struct device *dev, struct i2c_msg msg,
 	/* Read dummy byte */
 	byte = MCHP_I2C_SMB_DATA(ba);
 	ret = wait_completion(ba);
-	if (ret)
+	if (ret) {
 		return ret;
+	}
 
 	for (int i = 0U; i < msg.len; i++) {
 		while (MCHP_I2C_SMB_STS_RO(ba) & MCHP_I2C_SMB_STS_PIN) {
@@ -356,10 +357,10 @@ static const struct i2c_driver_api i2c_xec_driver_api = {
 #ifdef CONFIG_I2C_XEC_0
 static struct i2c_xec_data i2c_xec_data_0;
 static const struct i2c_xec_config i2c_xec_config_0 = {
-	.base_addr = DT_MICROCHIP_XEC_I2C_0_BASE_ADDRESS,
-	.port_sel = DT_MICROCHIP_XEC_I2C_0_PORT_SEL,
+	.base_addr = DT_INST_0_MICROCHIP_XEC_I2C_BASE_ADDRESS,
+	.port_sel = DT_INST_0_MICROCHIP_XEC_I2C_PORT_SEL,
 };
-DEVICE_AND_API_INIT(i2c_xec_0, DT_MICROCHIP_XEC_I2C_0_LABEL,
+DEVICE_AND_API_INIT(i2c_xec_0, DT_INST_0_MICROCHIP_XEC_I2C_LABEL,
 			&i2c_xec_init, &i2c_xec_data_0, &i2c_xec_config_0,
 			POST_KERNEL, CONFIG_I2C_INIT_PRIORITY,
 			&i2c_xec_driver_api);
@@ -368,10 +369,10 @@ DEVICE_AND_API_INIT(i2c_xec_0, DT_MICROCHIP_XEC_I2C_0_LABEL,
 #ifdef CONFIG_I2C_XEC_1
 static struct i2c_xec_data i2c_xec_data_1;
 static const struct i2c_xec_config i2c_xec_config_1 = {
-	.base_addr	= DT_MICROCHIP_XEC_I2C_1_BASE_ADDRESS,
-	.port_sel = DT_MICROCHIP_XEC_I2C_1_PORT_SEL,
+	.base_addr	= DT_INST_1_MICROCHIP_XEC_I2C_BASE_ADDRESS,
+	.port_sel = DT_INST_1_MICROCHIP_XEC_I2C_PORT_SEL,
 };
-DEVICE_AND_API_INIT(i2c_xec_1, DT_MICROCHIP_XEC_I2C_1_LABEL,
+DEVICE_AND_API_INIT(i2c_xec_1, DT_INST_1_MICROCHIP_XEC_I2C_LABEL,
 			&i2c_xec_init, &i2c_xec_data_1, &i2c_xec_config_1,
 			POST_KERNEL, CONFIG_I2C_INIT_PRIORITY,
 			&i2c_xec_driver_api);
@@ -380,10 +381,10 @@ DEVICE_AND_API_INIT(i2c_xec_1, DT_MICROCHIP_XEC_I2C_1_LABEL,
 #ifdef CONFIG_I2C_XEC_2
 static struct i2c_xec_data i2c_xec_data_2;
 static const struct i2c_xec_config i2c_xec_config_2 = {
-	.base_addr	= DT_MICROCHIP_XEC_I2C_2_BASE_ADDRESS,
-	.port_sel = DT_MICROCHIP_XEC_I2C_2_PORT_SEL,
+	.base_addr	= DT_INST_2_MICROCHIP_XEC_I2C_BASE_ADDRESS,
+	.port_sel = DT_INST_2_MICROCHIP_XEC_I2C_PORT_SEL,
 };
-DEVICE_AND_API_INIT(i2c_xec_2, DT_MICROCHIP_XEC_I2C_2_LABEL,
+DEVICE_AND_API_INIT(i2c_xec_2, DT_INST_2_MICROCHIP_XEC_I2C_LABEL,
 			&i2c_xec_init, &i2c_xec_data_2, &i2c_xec_config_2,
 			POST_KERNEL, CONFIG_I2C_INIT_PRIORITY,
 			&i2c_xec_driver_api);

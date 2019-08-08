@@ -12,6 +12,11 @@ config HAS_MCUX
 
 if HAS_MCUX
 
+config HAS_MCUX_ADC12
+	bool
+	help
+	  Set if the 12-bit ADC (ADC12) module is present in the SoC.
+
 config HAS_MCUX_ADC16
 	bool
 	help
@@ -43,6 +48,11 @@ config HAS_MCUX_ENET
 	bool
 	help
 	  Set if the ethernet (ENET) module is present in the SoC.
+
+config HAS_MCUX_FLEXCAN
+	bool
+	help
+	  Set if the FlexCAN module is presents in the SoC.
 
 config HAS_MCUX_FTFX
 	bool
@@ -80,6 +90,11 @@ config HAS_MCUX_LPUART
 	help
 	  Set if the low power uart (LPUART) module is present in the SoC.
 
+config HAS_MCUX_GPT
+	bool
+	help
+	  Set if the general purpose timer (GPT) module is present in the SoC.
+
 config HAS_MCUX_RNGA
 	bool
 	help
@@ -90,6 +105,12 @@ config HAS_MCUX_RTC
 	bool
 	help
 	  Set if the real time clock (RTC) modules is present in the SoC.
+
+config HAS_MCUX_SCG
+	bool
+	help
+	  Set if the system clock generator (SCG) module is present in the
+	  SoC.
 
 config HAS_MCUX_SIM
 	bool
@@ -107,5 +128,20 @@ config HAS_MCUX_USB_EHCI
 	bool
 	help
 	  Set if the USB controller EHCI module is present in the SoC.
+
+config HAS_MCUX_USDHC1
+	bool
+	help
+	  Set if the USDHC instance 1 module is present in the SoC.
+
+config HAS_MCUX_USDHC2
+	bool
+	help
+	  Set if the USDHC2 instance 2 module is present in the SoC.
+
+config HAS_MCUX_WDOG32
+	bool
+	help
+	  Set if the watchdog (WDOG32) module is present in the SoC.
 
 endif # HAS_MCUX

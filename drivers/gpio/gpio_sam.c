@@ -9,7 +9,7 @@
 #include <device.h>
 #include <init.h>
 #include <soc.h>
-#include <gpio.h>
+#include <drivers/gpio.h>
 
 #include "gpio_utils.h"
 
@@ -66,7 +66,7 @@ static int gpio_sam_config_pin(Pio * const pio, u32_t mask, int flags)
 		/* Disable the interrupt. */
 		pio->PIO_IDR = mask;
 
-		/* Disable ther additional interrupt modes. */
+		/* Disable their additional interrupt modes. */
 		pio->PIO_AIMDR = mask;
 	}
 

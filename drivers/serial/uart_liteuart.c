@@ -9,7 +9,7 @@
 #include <init.h>
 #include <irq.h>
 #include <device.h>
-#include <uart.h>
+#include <drivers/uart.h>
 #include <zephyr/types.h>
 
 #define UART_EV_TX	(1 << 0)
@@ -54,8 +54,8 @@ struct uart_liteuart_data {
 static void uart_liteuart_poll_out(struct device *dev, unsigned char c)
 {
 	/* wait for space */
-	while (sys_read8(UART_TXFULL))
-		;
+	while (sys_read8(UART_TXFULL)) {
+	}
 
 	sys_write8(c, UART_RXTX);
 }

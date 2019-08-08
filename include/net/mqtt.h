@@ -27,7 +27,7 @@
 #include <zephyr.h>
 #include <zephyr/types.h>
 #include <net/tls_credentials.h>
-#include <misc/mutex.h>
+#include <sys/mutex.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -476,6 +476,11 @@ struct mqtt_client {
 	/** Size of transmit buffer. */
 	u32_t tx_buf_size;
 
+	/** Keepalive interval for this client in seconds.
+	 *  Default is CONFIG_MQTT_KEEPALIVE.
+	 */
+	u16_t keepalive;
+
 	/** MQTT protocol version. */
 	u8_t protocol_version;
 
@@ -514,8 +519,11 @@ void mqtt_client_init(struct mqtt_client *client);
  *
  * @note Default protocol revision used for connection request is 3.1.1. Please
  *       set client.protocol_version = MQTT_VERSION_3_1_0 to use protocol 3.1.0.
- * @note Please modify :option:`CONFIG_MQTT_KEEPALIVE` time to override default
- *       of 1 minute.
+ * @note
+ *       @rst
+ *          Please modify :option:`CONFIG_MQTT_KEEPALIVE` time to override
+ *          default of 1 minute.
+ *       @endrst
  */
 int mqtt_connect(struct mqtt_client *client);
 
@@ -711,6 +719,21 @@ int mqtt_read_publish_payload(struct mqtt_client *client, void *buffer,
  */
 int mqtt_read_publish_payload_blocking(struct mqtt_client *client, void *buffer,
 				       size_t length);
+
+/**
+ * @brief Blocking version of @ref mqtt_read_publish_payload function which
+ *        runs until the required number of bytes are read.
+ *
+ * @param[in] client Client instance for which the procedure is requested.
+ *                   Shall not be NULL.
+ * @param[out] buffer Buffer where payload should be stored.
+ * @param[in] length Number of bytes to read.
+ *
+ * @return 0 if success, otherwise a negative error code (errno.h) indicating
+ *         reason of failure.
+ */
+int mqtt_readall_publish_payload(struct mqtt_client *client, u8_t *buffer,
+				 size_t length);
 
 #ifdef __cplusplus
 }

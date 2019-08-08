@@ -8,8 +8,8 @@
  */
 
 #include <string.h>
-#include <misc/byteorder.h>
-#include <misc/__assert.h>
+#include <sys/byteorder.h>
+#include <sys/__assert.h>
 #include <usb/usbstruct.h>
 #include <usb/usb_device.h>
 #include <usb/usb_common.h>
@@ -302,8 +302,7 @@ __weak u8_t *usb_update_sn_string_descriptor(void)
 	return NULL;
 }
 
-static void
-usb_fix_ascii_sn_string_descriptor(struct usb_sn_descriptor *sn)
+static void usb_fix_ascii_sn_string_descriptor(struct usb_sn_descriptor *sn)
 {
 	u8_t *runtime_sn =  usb_update_sn_string_descriptor();
 	int runtime_sn_len, default_sn_len;

@@ -8,7 +8,7 @@
 #include <ztest.h>
 #include <tc_util.h>
 
-#include <misc/byteorder.h>
+#include <sys/byteorder.h>
 #include <usb/usb_device.h>
 #include <usb/usb_common.h>
 #include <usb_descriptor.h>
@@ -91,7 +91,7 @@ struct usb_test_config {
 	};
 
 #define DEFINE_TEST_CFG_DATA(x, _)				\
-	USBD_CFG_DATA_DEFINE(test_##x)				\
+	USBD_CFG_DATA_DEFINE(primary, test_##x)			\
 	struct usb_cfg_data test_config_##x = {			\
 	.usb_device_description = NULL,				\
 	.interface_config = interface_config,			\

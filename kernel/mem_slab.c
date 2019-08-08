@@ -10,12 +10,9 @@
 #include <toolchain.h>
 #include <linker/sections.h>
 #include <wait_q.h>
-#include <misc/dlist.h>
+#include <sys/dlist.h>
 #include <ksched.h>
 #include <init.h>
-
-extern struct k_mem_slab _k_mem_slab_list_start[];
-extern struct k_mem_slab _k_mem_slab_list_end[];
 
 static struct k_spinlock lock;
 
@@ -35,6 +32,11 @@ static void create_free_list(struct k_mem_slab *slab)
 {
 	u32_t j;
 	char *p;
+
+	/* blocks must be word aligned */
+	__ASSERT(((slab->block_size | (uintptr_t)slab->buffer)
+					& (sizeof(void *) - 1)) == 0,
+		 "slab at %p not word aligned", slab);
 
 	slab->free_list = NULL;
 	p = slab->buffer;
@@ -57,11 +59,7 @@ static int init_mem_slab_module(struct device *dev)
 {
 	ARG_UNUSED(dev);
 
-	struct k_mem_slab *slab;
-
-	for (slab = _k_mem_slab_list_start;
-	     slab < _k_mem_slab_list_end;
-	     slab++) {
+	Z_STRUCT_SECTION_FOREACH(k_mem_slab, slab) {
 		create_free_list(slab);
 		SYS_TRACING_OBJ_INIT(k_mem_slab, slab);
 		z_object_init(slab);
@@ -75,10 +73,6 @@ SYS_INIT(init_mem_slab_module, PRE_KERNEL_1,
 void k_mem_slab_init(struct k_mem_slab *slab, void *buffer,
 		    size_t block_size, u32_t num_blocks)
 {
-	/* block size must be word aligned */
-	__ASSERT((slab->block_size & (sizeof(void *) - 1)) == 0,
-		 "block size not word aligned");
-
 	slab->num_blocks = num_blocks;
 	slab->block_size = block_size;
 	slab->buffer = buffer;
@@ -94,10 +88,6 @@ int k_mem_slab_alloc(struct k_mem_slab *slab, void **mem, s32_t timeout)
 {
 	k_spinlock_key_t key = k_spin_lock(&lock);
 	int result;
-
-	/* block size must be word aligned */
-	__ASSERT((slab->block_size & (sizeof(void *) - 1)) == 0,
-		 "block size not word aligned");
 
 	if (slab->free_list != NULL) {
 		/* take a free block */

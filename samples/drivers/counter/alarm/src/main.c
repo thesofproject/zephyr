@@ -7,8 +7,8 @@
 #include <zephyr.h>
 
 #include <device.h>
-#include <counter.h>
-#include <misc/printk.h>
+#include <drivers/counter.h>
+#include <sys/printk.h>
 
 #define DELAY 2000000
 #define ALARM_CHANNEL_ID 0
@@ -26,7 +26,7 @@ static void test_counter_interrupt_fn(struct device *counter_dev,
 	printk("!!! Alarm !!!\n");
 	printk("Now: %u\n", now_sec);
 
-	/* Set a new alarm with a double lenght duration */
+	/* Set a new alarm with a double length duration */
 	config->ticks = config->ticks * 2U;
 
 	printk("Set alarm in %u sec\n", config->ticks);
@@ -40,10 +40,14 @@ void main(void)
 
 	printk("Counter alarm sample\n\n");
 	counter_dev = device_get_binding(DT_RTC_0_NAME);
+	if (counter_dev == NULL) {
+		printk("Device not found\n");
+		return;
+	}
 
 	counter_start(counter_dev);
 
-	alarm_cfg.absolute = false;
+	alarm_cfg.flags = 0;
 	alarm_cfg.ticks = counter_us_to_ticks(counter_dev, DELAY);
 	alarm_cfg.callback = test_counter_interrupt_fn;
 	alarm_cfg.user_data = &alarm_cfg;

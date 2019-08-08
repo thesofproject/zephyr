@@ -5,11 +5,11 @@
  */
 
 #include <device.h>
-#include <i2c.h>
-#include <misc/__assert.h>
-#include <misc/util.h>
+#include <drivers/i2c.h>
+#include <sys/__assert.h>
+#include <sys/util.h>
 #include <kernel.h>
-#include <sensor.h>
+#include <drivers/sensor.h>
 
 #include "lis3mdl.h"
 
@@ -126,7 +126,7 @@ int lis3mdl_init_interrupt(struct device *dev)
 	}
 
 	/* enable interrupt */
-	if (i2c_reg_write_byte(drv_data->i2c, DT_ST_LIS3MDL_MAGN_0_BASE_ADDRESS,
+	if (i2c_reg_write_byte(drv_data->i2c, DT_INST_0_ST_LIS3MDL_MAGN_BASE_ADDRESS,
 			       LIS3MDL_REG_INT_CFG, LIS3MDL_INT_XYZ_EN) < 0) {
 		LOG_DBG("Could not enable interrupt.");
 		return -EIO;

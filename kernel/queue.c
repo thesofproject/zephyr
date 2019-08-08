@@ -18,13 +18,10 @@
 #include <linker/sections.h>
 #include <wait_q.h>
 #include <ksched.h>
-#include <misc/sflist.h>
+#include <sys/sflist.h>
 #include <init.h>
 #include <syscall_handler.h>
 #include <kernel_internal.h>
-
-extern struct k_queue _k_queue_list_start[];
-extern struct k_queue _k_queue_list_end[];
 
 struct alloc_node {
 	sys_sfnode_t node;
@@ -49,7 +46,7 @@ void *z_queue_node_peek(sys_sfnode_t *node, bool needs_free)
 			k_free(anode);
 		}
 	} else {
-		/* Data was directly placed in the queue, the first 4 bytes
+		/* Data was directly placed in the queue, the first word
 		 * reserved for the linked list. User mode isn't allowed to
 		 * do this, although it can get data sent this way.
 		 */
@@ -70,9 +67,7 @@ static int init_queue_module(struct device *dev)
 {
 	ARG_UNUSED(dev);
 
-	struct k_queue *queue;
-
-	for (queue = _k_queue_list_start; queue < _k_queue_list_end; queue++) {
+	Z_STRUCT_SECTION_FOREACH(k_queue, queue) {
 		SYS_TRACING_OBJ_INIT(k_queue, queue);
 	}
 	return 0;

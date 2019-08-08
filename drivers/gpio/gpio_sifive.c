@@ -12,8 +12,8 @@
 #include <kernel.h>
 #include <device.h>
 #include <soc.h>
-#include <gpio.h>
-#include <misc/util.h>
+#include <drivers/gpio.h>
+#include <sys/util.h>
 
 #include "gpio_utils.h"
 
@@ -79,14 +79,15 @@ static void gpio_sifive_irq_handler(void *arg)
 	 * to indicate to GPIO controller that interrupt for the corresponding
 	 * pin has been handled.
 	 */
-	if (gpio->rise_ip & pin_mask)
+	if (gpio->rise_ip & pin_mask) {
 		gpio->rise_ip = pin_mask;
-	else if (gpio->fall_ip & pin_mask)
+	} else if (gpio->fall_ip & pin_mask) {
 		gpio->fall_ip = pin_mask;
-	else if (gpio->high_ip & pin_mask)
+	} else if (gpio->high_ip & pin_mask) {
 		gpio->high_ip = pin_mask;
-	else if (gpio->low_ip & pin_mask)
+	} else if (gpio->low_ip & pin_mask) {
 		gpio->low_ip = pin_mask;
+	}
 }
 
 /**
@@ -106,11 +107,13 @@ static int gpio_sifive_config(struct device *dev,
 {
 	volatile struct gpio_sifive_t *gpio = DEV_GPIO(dev);
 
-	if (access_op != GPIO_ACCESS_BY_PIN)
+	if (access_op != GPIO_ACCESS_BY_PIN) {
 		return -ENOTSUP;
+	}
 
-	if (pin >= SIFIVE_PINMUX_PINS)
+	if (pin >= SIFIVE_PINMUX_PINS) {
 		return -EINVAL;
+	}
 
 	/* Configure gpio direction */
 	if (flags & GPIO_DIR_OUT) {
@@ -121,29 +124,33 @@ static int gpio_sifive_config(struct device *dev,
 		 * Account for polarity only for GPIO_DIR_OUT.
 		 * invert register handles only output gpios
 		 */
-		if (flags & GPIO_POL_INV)
+		if (flags & GPIO_POL_INV) {
 			gpio->invert |= BIT(pin);
-		else
+		} else {
 			gpio->invert &= ~BIT(pin);
+		}
 	} else {
 		gpio->out_en &= ~BIT(pin);
 		gpio->in_en |= BIT(pin);
 
 		/* Polarity inversion is not supported for input gpio */
-		if (flags & GPIO_POL_INV)
+		if (flags & GPIO_POL_INV) {
 			return -EINVAL;
+		}
 
 		/*
 		 * Pull-up can be configured only for input gpios.
 		 * Only Pull-up can be enabled or disabled.
 		 */
-		if ((flags & GPIO_PUD_MASK) == GPIO_PUD_PULL_DOWN)
+		if ((flags & GPIO_PUD_MASK) == GPIO_PUD_PULL_DOWN) {
 			return -EINVAL;
+		}
 
-		if ((flags & GPIO_PUD_MASK) == GPIO_PUD_PULL_UP)
+		if ((flags & GPIO_PUD_MASK) == GPIO_PUD_PULL_UP) {
 			gpio->pue |= BIT(pin);
-		else
+		} else {
 			gpio->pue &= ~BIT(pin);
+		}
 	}
 
 	/*
@@ -155,14 +162,16 @@ static int gpio_sifive_config(struct device *dev,
 	 * 1) enabled only via a call to gpio_sifive_enable_callback.
 	 * 2) disabled only via a call to gpio_sifive_disabled_callback.
 	 */
-	if (!(flags & GPIO_INT))
+	if (!(flags & GPIO_INT)) {
 		return 0;
+	}
 
 	/*
 	 * Interrupt cannot be set for GPIO_DIR_OUT
 	 */
-	if (flags & GPIO_DIR_OUT)
+	if (flags & GPIO_DIR_OUT) {
 		return -EINVAL;
+	}
 
 	/* Edge or Level triggered ? */
 	if (flags & GPIO_INT_EDGE) {
@@ -214,20 +223,23 @@ static int gpio_sifive_write(struct device *dev,
 {
 	volatile struct gpio_sifive_t *gpio = DEV_GPIO(dev);
 
-	if (access_op != GPIO_ACCESS_BY_PIN)
+	if (access_op != GPIO_ACCESS_BY_PIN) {
 		return -ENOTSUP;
+	}
 
 	if (pin >= SIFIVE_PINMUX_PINS)
 		return -EINVAL;
 
 	/* If pin is configured as input return with error */
-	if (gpio->in_en & BIT(pin))
+	if (gpio->in_en & BIT(pin)) {
 		return -EINVAL;
+	}
 
-	if (value)
+	if (value) {
 		gpio->out_val |= BIT(pin);
-	else
+	} else {
 		gpio->out_val &= ~BIT(pin);
+	}
 
 	return 0;
 }
@@ -249,21 +261,24 @@ static int gpio_sifive_read(struct device *dev,
 {
 	volatile struct gpio_sifive_t *gpio = DEV_GPIO(dev);
 
-	if (access_op != GPIO_ACCESS_BY_PIN)
+	if (access_op != GPIO_ACCESS_BY_PIN) {
 		return -ENOTSUP;
+	}
 
-	if (pin >= SIFIVE_PINMUX_PINS)
+	if (pin >= SIFIVE_PINMUX_PINS) {
 		return -EINVAL;
+	}
 
 	/*
 	 * If gpio is configured as output,
 	 * read gpio value from out_val register,
 	 * otherwise read gpio value from in_val register
 	 */
-	if (gpio->out_en & BIT(pin))
+	if (gpio->out_en & BIT(pin)) {
 		*value = !!(gpio->out_val & BIT(pin));
-	else
+	} else {
 		*value = !!(gpio->in_val & BIT(pin));
+	}
 
 	return 0;
 }
@@ -283,11 +298,13 @@ static int gpio_sifive_enable_callback(struct device *dev,
 {
 	const struct gpio_sifive_config *cfg = DEV_GPIO_CFG(dev);
 
-	if (access_op != GPIO_ACCESS_BY_PIN)
+	if (access_op != GPIO_ACCESS_BY_PIN) {
 		return -ENOTSUP;
+	}
 
-	if (pin >= SIFIVE_PINMUX_PINS)
+	if (pin >= SIFIVE_PINMUX_PINS) {
 		return -EINVAL;
+	}
 
 	/* Enable interrupt for the pin at PLIC level */
 	irq_enable(cfg->gpio_irq_base + pin);
@@ -301,11 +318,13 @@ static int gpio_sifive_disable_callback(struct device *dev,
 {
 	const struct gpio_sifive_config *cfg = DEV_GPIO_CFG(dev);
 
-	if (access_op != GPIO_ACCESS_BY_PIN)
+	if (access_op != GPIO_ACCESS_BY_PIN) {
 		return -ENOTSUP;
+	}
 
-	if (pin >= SIFIVE_PINMUX_PINS)
+	if (pin >= SIFIVE_PINMUX_PINS) {
 		return -EINVAL;
+	}
 
 	/* Disable interrupt for the pin at PLIC level */
 	irq_disable(cfg->gpio_irq_base + pin);
@@ -355,21 +374,21 @@ static int gpio_sifive_init(struct device *dev)
 static void gpio_sifive_cfg_0(void);
 
 static const struct gpio_sifive_config gpio_sifive_config0 = {
-	.gpio_base_addr    = DT_SIFIVE_GPIO0_0_BASE_ADDRESS,
-	.gpio_irq_base     = RISCV_MAX_GENERIC_IRQ + DT_SIFIVE_GPIO0_0_IRQ_0,
+	.gpio_base_addr    = DT_INST_0_SIFIVE_GPIO0_BASE_ADDRESS,
+	.gpio_irq_base     = RISCV_MAX_GENERIC_IRQ + DT_INST_0_SIFIVE_GPIO0_IRQ_0,
 	.gpio_cfg_func     = gpio_sifive_cfg_0,
 };
 
 static struct gpio_sifive_data gpio_sifive_data0;
 
-DEVICE_AND_API_INIT(gpio_sifive_0, DT_SIFIVE_GPIO0_0_LABEL,
+DEVICE_AND_API_INIT(gpio_sifive_0, DT_INST_0_SIFIVE_GPIO0_LABEL,
 		    gpio_sifive_init,
 		    &gpio_sifive_data0, &gpio_sifive_config0,
 		    POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,
 		    &gpio_sifive_driver);
 
 #define		IRQ_INIT(n)					\
-IRQ_CONNECT(RISCV_MAX_GENERIC_IRQ + DT_SIFIVE_GPIO0_0_IRQ_##n,	\
+IRQ_CONNECT(RISCV_MAX_GENERIC_IRQ + DT_INST_0_SIFIVE_GPIO0_IRQ_##n,	\
 		CONFIG_GPIO_SIFIVE_##n##_PRIORITY,		\
 		gpio_sifive_irq_handler,			\
 		DEVICE_GET(gpio_sifive_0),			\
@@ -377,100 +396,100 @@ IRQ_CONNECT(RISCV_MAX_GENERIC_IRQ + DT_SIFIVE_GPIO0_0_IRQ_##n,	\
 
 static void gpio_sifive_cfg_0(void)
 {
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_0
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_0
 	IRQ_INIT(0);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_1
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_1
 	IRQ_INIT(1);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_2
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_2
 	IRQ_INIT(2);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_3
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_3
 	IRQ_INIT(3);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_4
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_4
 	IRQ_INIT(4);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_5
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_5
 	IRQ_INIT(5);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_6
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_6
 	IRQ_INIT(6);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_7
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_7
 	IRQ_INIT(7);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_8
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_8
 	IRQ_INIT(8);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_9
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_9
 	IRQ_INIT(9);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_10
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_10
 	IRQ_INIT(10);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_11
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_11
 	IRQ_INIT(11);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_12
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_12
 	IRQ_INIT(12);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_13
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_13
 	IRQ_INIT(13);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_14
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_14
 	IRQ_INIT(14);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_15
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_15
 	IRQ_INIT(15);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_16
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_16
 	IRQ_INIT(16);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_17
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_17
 	IRQ_INIT(17);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_18
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_18
 	IRQ_INIT(18);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_19
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_19
 	IRQ_INIT(19);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_20
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_20
 	IRQ_INIT(20);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_21
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_21
 	IRQ_INIT(21);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_22
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_22
 	IRQ_INIT(22);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_23
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_23
 	IRQ_INIT(23);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_24
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_24
 	IRQ_INIT(24);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_25
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_25
 	IRQ_INIT(25);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_26
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_26
 	IRQ_INIT(26);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_27
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_27
 	IRQ_INIT(27);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_28
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_28
 	IRQ_INIT(28);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_29
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_29
 	IRQ_INIT(29);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_30
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_30
 	IRQ_INIT(30);
 #endif
-#ifdef DT_SIFIVE_GPIO0_0_IRQ_31
+#ifdef DT_INST_0_SIFIVE_GPIO0_IRQ_31
 	IRQ_INIT(31);
 #endif
 }

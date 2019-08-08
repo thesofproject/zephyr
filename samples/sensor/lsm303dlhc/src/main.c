@@ -6,9 +6,9 @@
 
 #include <zephyr.h>
 #include <device.h>
-#include <sensor.h>
+#include <drivers/sensor.h>
 #include <stdio.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 static s32_t read_sensor(struct device *sensor, enum sensor_channel channel)
 {
@@ -38,19 +38,19 @@ end:
 void main(void)
 {
 	struct device *accelerometer = device_get_binding(
-						DT_ST_LIS2DH_0_LABEL);
+						DT_INST_0_ST_LIS2DH_LABEL);
 	struct device *magnetometer = device_get_binding(
-						DT_ST_LSM303DLHC_MAGN_0_LABEL);
+						DT_INST_0_ST_LSM303DLHC_MAGN_LABEL);
 
 	if (accelerometer == NULL) {
 		printf("Could not get %s device\n",
-				DT_ST_LIS2DH_0_LABEL);
+				DT_INST_0_ST_LIS2DH_LABEL);
 		return;
 	}
 
 	if (magnetometer == NULL) {
 		printf("Could not get %s device\n",
-				DT_ST_LSM303DLHC_MAGN_0_LABEL);
+				DT_INST_0_ST_LSM303DLHC_MAGN_LABEL);
 		return;
 	}
 

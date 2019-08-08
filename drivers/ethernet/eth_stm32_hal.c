@@ -11,8 +11,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #include <kernel.h>
 #include <device.h>
-#include <misc/__assert.h>
-#include <misc/util.h>
+#include <sys/__assert.h>
+#include <sys/util.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <net/net_pkt.h>
@@ -20,8 +20,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <net/ethernet.h>
 #include <ethernet/eth_stats.h>
 #include <soc.h>
-#include <misc/printk.h>
-#include <clock_control.h>
+#include <sys/printk.h>
+#include <drivers/clock_control.h>
 #include <clock_control/stm32_clock_control.h>
 
 #include "eth_stm32_hal_priv.h"

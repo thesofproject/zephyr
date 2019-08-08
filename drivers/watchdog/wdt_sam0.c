@@ -6,13 +6,13 @@
  */
 
 #include <soc.h>
-#include <watchdog.h>
+#include <drivers/watchdog.h>
 
 #define LOG_LEVEL CONFIG_WDT_LOG_LEVEL
 #include <logging/log.h>
 LOG_MODULE_REGISTER(wdt_sam0);
 
-#define WDT_REGS ((Wdt *)DT_ATMEL_SAM0_WATCHDOG_0_BASE_ADDRESS)
+#define WDT_REGS ((Wdt *)DT_INST_0_ATMEL_SAM0_WATCHDOG_BASE_ADDRESS)
 
 struct wdt_sam0_dev_data {
 	wdt_callback_t cb;
@@ -38,8 +38,9 @@ static u32_t wdt_sam0_timeout_to_wdt_period(u32_t timeout_ms)
 	cycles = (timeout_ms * 1024U) / 1000;
 
 	/* Minimum wdt period is 8 clock cycles (register value 0) */
-	if (cycles <= 8U)
+	if (cycles <= 8U) {
 		return 0;
+	}
 
 	/* Round up to next pow2 and calculate the register value */
 	next_pow2 = (1ULL << 32) >> __builtin_clz(cycles - 1);
@@ -51,6 +52,7 @@ static void wdt_sam0_isr(struct device *dev)
 	struct wdt_sam0_dev_data *data = dev->driver_data;
 
 	WDT_REGS->INTFLAG.reg = WDT_INTFLAG_EW;
+
 	if (data->cb != NULL) {
 		data->cb(dev, 0);
 	}
@@ -213,16 +215,16 @@ static int wdt_sam0_init(struct device *dev)
 		| GCLK_CLKCTRL_GEN_GCLK2
 		| GCLK_CLKCTRL_CLKEN;
 
-	IRQ_CONNECT(DT_ATMEL_SAM0_WATCHDOG_0_IRQ_0,
-		    DT_ATMEL_SAM0_WATCHDOG_0_IRQ_0_PRIORITY, wdt_sam0_isr,
+	IRQ_CONNECT(DT_INST_0_ATMEL_SAM0_WATCHDOG_IRQ_0,
+		    DT_INST_0_ATMEL_SAM0_WATCHDOG_IRQ_0_PRIORITY, wdt_sam0_isr,
 		    DEVICE_GET(wdt_sam0), 0);
-	irq_enable(DT_ATMEL_SAM0_WATCHDOG_0_IRQ_0);
+	irq_enable(DT_INST_0_ATMEL_SAM0_WATCHDOG_IRQ_0);
 
 	return 0;
 }
 
 static struct wdt_sam0_dev_data wdt_sam0_data;
 
-DEVICE_AND_API_INIT(wdt_sam0, DT_ATMEL_SAM0_WATCHDOG_0_LABEL, wdt_sam0_init,
+DEVICE_AND_API_INIT(wdt_sam0, DT_INST_0_ATMEL_SAM0_WATCHDOG_LABEL, wdt_sam0_init,
 		    &wdt_sam0_data, NULL, PRE_KERNEL_1,
 		    CONFIG_KERNEL_INIT_PRIORITY_DEVICE, &wdt_sam0_api);

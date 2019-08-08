@@ -93,8 +93,8 @@ int spi_config(struct device *dev, u32_t frequency, u16_t operation)
 
 void spi_sifive_send(struct device *dev, u16_t frame)
 {
-	while (SPI_REG(dev, REG_TXDATA) & SF_TXDATA_FULL)
-		;
+	while (SPI_REG(dev, REG_TXDATA) & SF_TXDATA_FULL) {
+	}
 
 	sys_write32((u32_t) frame, SPI_REG(dev, REG_TXDATA));
 }
@@ -103,8 +103,8 @@ u16_t spi_sifive_recv(struct device *dev)
 {
 	u32_t val;
 
-	while ((val = sys_read32(SPI_REG(dev, REG_RXDATA))) & SF_RXDATA_EMPTY)
-		;
+	while ((val = sys_read32(SPI_REG(dev, REG_RXDATA))) & SF_RXDATA_EMPTY) {
+	}
 
 	return (u16_t) val;
 }
@@ -241,11 +241,11 @@ static struct spi_driver_api spi_sifive_api = {
 		SPI_CONTEXT_INIT_SYNC(spi_sifive_data_##n, ctx), \
 	}; \
 	static struct spi_sifive_cfg spi_sifive_cfg_##n = { \
-		.base = DT_SIFIVE_SPI0_##n##_CONTROL_BASE_ADDRESS, \
-		.f_sys = DT_SIFIVE_SPI0_##n##_CLOCK_FREQUENCY, \
+		.base = DT_INST_##n##_SIFIVE_SPI0_CONTROL_BASE_ADDRESS, \
+		.f_sys = DT_INST_##n##_SIFIVE_SPI0_CLOCK_FREQUENCY, \
 	}; \
 	DEVICE_AND_API_INIT(spi_##n, \
-			DT_SIFIVE_SPI0_##n##_LABEL, \
+			DT_INST_##n##_SIFIVE_SPI0_LABEL, \
 			spi_sifive_init, \
 			&spi_sifive_data_##n, \
 			&spi_sifive_cfg_##n, \
@@ -254,22 +254,22 @@ static struct spi_driver_api spi_sifive_api = {
 			&spi_sifive_api)
 
 #ifndef CONFIG_SIFIVE_SPI_0_ROM
-#ifdef DT_SIFIVE_SPI0_0_LABEL
+#ifdef DT_INST_0_SIFIVE_SPI0_LABEL
 
 SPI_INIT(0);
 
-#endif /* DT_SIFIVE_SPI0_0_LABEL */
+#endif /* DT_INST_0_SIFIVE_SPI0_LABEL */
 #endif /* !DT_SIFIVE_SPI0_0_ROM */
 
-#ifdef DT_SIFIVE_SPI0_1_LABEL
+#ifdef DT_INST_1_SIFIVE_SPI0_LABEL
 
 SPI_INIT(1);
 
-#endif /* DT_SIFIVE_SPI0_1_LABEL */
+#endif /* DT_INST_1_SIFIVE_SPI0_LABEL */
 
-#ifdef DT_SIFIVE_SPI0_2_LABEL
+#ifdef DT_INST_2_SIFIVE_SPI0_LABEL
 
 SPI_INIT(2);
 
-#endif /* DT_SIFIVE_SPI0_2_LABEL */
+#endif /* DT_INST_2_SIFIVE_SPI0_LABEL */
 

@@ -28,7 +28,6 @@
 			compatible = "nxp,kw41z-mcg";
 			reg = <0x40064000 0x13>;
 			system-clock-frequency = <48000000>;
-			clock-controller;
 		};
 
 		clock-controller@40065000 {
@@ -48,7 +47,6 @@
 			reg = <0x40047000 0x1060>;
 			label = "SIM";
 
-			clock-controller;
 			#clock-cells = <3>;
 		};
 
@@ -248,7 +246,7 @@
 		trng: random@40029000 {
 			compatible = "nxp,kinetis-trng";
 			reg = <0x40029000 0x1000>;
-			status = "ok";
+			status = "okay";
 			interrupts = <13 0>;
 			label = "TRNG";
 		};

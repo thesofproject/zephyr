@@ -14,10 +14,10 @@
 
 #include <kernel.h>
 #include <arch/cpu.h>
-#include <misc/__assert.h>
+#include <sys/__assert.h>
 #include <soc.h>
 #include <init.h>
-#include <uart.h>
+#include <drivers/uart.h>
 #include <uart_imx.h>
 
 #define DEV_CFG(dev) \
@@ -98,8 +98,8 @@ static void uart_imx_poll_out(struct device *dev, unsigned char c)
 {
 	UART_Type *uart = UART_STRUCT(dev);
 
-	while (!UART_GetStatusFlag(uart, uartStatusTxReady))
-		;
+	while (!UART_GetStatusFlag(uart, uartStatusTxReady)) {
+	}
 	UART_Putchar(uart, c);
 }
 
@@ -107,8 +107,8 @@ static int uart_imx_poll_in(struct device *dev, unsigned char *c)
 {
 	UART_Type *uart = UART_STRUCT(dev);
 
-	while (!UART_GetStatusFlag(uart, uartStatusRxDataReady))
-		;
+	while (!UART_GetStatusFlag(uart, uartStatusRxDataReady)) {
+	}
 	*c = UART_Getchar(uart);
 
 	if (UART_GetStatusFlag(uart, uartStatusRxOverrun)) {

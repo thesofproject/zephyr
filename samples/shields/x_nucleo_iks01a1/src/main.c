@@ -6,18 +6,18 @@
 
 #include <zephyr.h>
 #include <device.h>
-#include <sensor.h>
+#include <drivers/sensor.h>
 #include <stdio.h>
-#include <misc/util.h>
+#include <sys/util.h>
 
 void main(void)
 {
 	struct sensor_value temp, hum, press;
 	struct sensor_value magn_xyz[3], accel_xyz[3];
-	struct device *hts221 = device_get_binding(DT_ST_HTS221_0_LABEL);
-	struct device *lis3mdl = device_get_binding(DT_ST_LIS3MDL_MAGN_0_LABEL);
-	struct device *lsm6ds0 = device_get_binding(DT_ST_LSM6DS0_0_LABEL);
-	struct device *lps25hb = device_get_binding(DT_ST_LPS25HB_PRESS_0_LABEL);
+	struct device *hts221 = device_get_binding(DT_INST_0_ST_HTS221_LABEL);
+	struct device *lis3mdl = device_get_binding(DT_INST_0_ST_LIS3MDL_MAGN_LABEL);
+	struct device *lsm6ds0 = device_get_binding(DT_INST_0_ST_LSM6DS0_LABEL);
+	struct device *lps25hb = device_get_binding(DT_INST_0_ST_LPS25HB_PRESS_LABEL);
 
 	if (hts221 == NULL) {
 		printf("Could not get HTS221 device\n");

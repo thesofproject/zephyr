@@ -6,15 +6,15 @@
 
 #include <device.h>
 #include <errno.h>
-#include <led.h>
-#include <misc/util.h>
+#include <drivers/led.h>
+#include <sys/util.h>
 #include <zephyr.h>
 
 #define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include <logging/log.h>
 LOG_MODULE_REGISTER(main);
 
-#define LED_DEV_NAME DT_NXP_PCA9633_0_LABEL
+#define LED_DEV_NAME DT_INST_0_NXP_PCA9633_LABEL
 #define NUM_LEDS 4
 #define MAX_BRIGHTNESS 100
 #define HALF_BRIGHTNESS (MAX_BRIGHTNESS / 2)

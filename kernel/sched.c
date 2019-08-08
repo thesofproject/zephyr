@@ -11,7 +11,7 @@
 #include <kswap.h>
 #include <kernel_arch_func.h>
 #include <syscall_handler.h>
-#include <drivers/system_timer.h>
+#include <drivers/timer/system_timer.h>
 #include <stdbool.h>
 
 #if defined(CONFIG_SCHED_DUMB)
@@ -255,9 +255,10 @@ static void reset_time_slice(void)
 	 * slice count, as we'll see those "expired" ticks arrive in a
 	 * FUTURE z_time_slice() call.
 	 */
-	_current_cpu->slice_ticks = slice_time + z_clock_elapsed();
-
-	z_set_timeout_expiry(slice_time, false);
+	if (slice_time != 0) {
+		_current_cpu->slice_ticks = slice_time + z_clock_elapsed();
+		z_set_timeout_expiry(slice_time, false);
+	}
 }
 
 void k_sched_time_slice_set(s32_t slice, int prio)
@@ -961,8 +962,6 @@ s32_t z_impl_k_sleep(int ms)
 {
 	s32_t ticks;
 
-	__ASSERT(ms != K_FOREVER, "");
-
 	ticks = z_ms_to_ticks(ms);
 	ticks = z_tick_sleep(ticks);
 	return __ticks_to_ms(ticks);
@@ -971,12 +970,6 @@ s32_t z_impl_k_sleep(int ms)
 #ifdef CONFIG_USERSPACE
 Z_SYSCALL_HANDLER(k_sleep, ms)
 {
-	/* FIXME there were some discussions recently on whether we should
-	 * relax this, thread would be unscheduled until k_wakeup issued
-	 */
-	Z_OOPS(Z_SYSCALL_VERIFY_MSG(ms != K_FOREVER,
-				    "sleeping forever not allowed"));
-
 	return z_impl_k_sleep(ms);
 }
 #endif

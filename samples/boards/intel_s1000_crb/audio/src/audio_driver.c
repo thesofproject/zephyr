@@ -12,14 +12,11 @@ LOG_MODULE_REGISTER(audio_io);
 
 #include <soc.h>
 #include <device.h>
-#include <i2s.h>
+#include <drivers/i2s.h>
 
 #include <audio/codec.h>
 #include <audio/dmic.h>
 #include "audio_core.h"
-
-#define LP_SRAM_BASE		0xBE800000
-#define LP_SRAM_SIZE		(16 << 10)
 
 #define DMIC_DEV_NAME		"PDM"
 #define SPK_OUT_DEV_NAME	"I2S_1"
@@ -44,24 +41,13 @@ LOG_MODULE_REGISTER(audio_io);
 #define MIC_IN_BUF_COUNT	2
 #define HOST_INOUT_BUF_COUNT	4 /* 2 for TX and 2 for RX */
 
-static void audio_drv_thread(void *unused1, void *unused2, void *unused3);
+static void audio_drv_thread(void);
 
-static struct _audio_buffers {
+__attribute__((section(".dma_buffers"))) static struct {
 	s32_t	host_inout[HOST_INOUT_BUF_COUNT][HOST_FRAME_SAMPLES];
 	s32_t	spk_out[SPK_OUT_BUF_COUNT][SPK_FRAME_SAMPLES];
 	s32_t	mic_in[MIC_IN_BUF_COUNT][MIC_FRAME_SAMPLES];
-} *audio_buffers = (struct _audio_buffers *)LP_SRAM_BASE;
-
-#define HOST_AUDIO_BUF_SIZE	(HOST_INOUT_BUF_COUNT * HOST_FRAME_SAMPLES)
-#define MIC_IN_BUF_SIZE		(MIC_IN_BUF_COUNT * MIC_FRAME_SAMPLES)
-#define SPK_OUT_BUF_SIZE	(SPK_OUT_BUF_COUNT * SPK_FRAME_SAMPLES)
-
-#define PERIPH_AUDIO_BUF_SIZE	(SPK_OUT_BUF_SIZE + MIC_IN_BUF_SIZE)
-#define TOTAL_AUDIO_BUF_SIZE	(PERIPH_AUDIO_BUF_SIZE + HOST_AUDIO_BUF_SIZE)
-
-#if (TOTAL_AUDIO_BUF_SIZE > LP_SRAM_SIZE)
-#error "Audio Buffers exceed LP_SRAM_SIZE"
-#endif
+} audio_buffers;
 
 static struct device *codec_dev;
 static struct device *i2s_spk_out_dev;
@@ -73,6 +59,7 @@ static struct k_mem_slab host_inout_mem_slab;
 static struct k_mem_slab spk_out_mem_slab;
 
 K_SEM_DEFINE(audio_drv_sync_sem, 0, 1);
+static bool audio_io_started;
 
 K_THREAD_DEFINE(audio_drv_thread_id, AUDIO_DRIVER_THREAD_STACKSIZE,
 		audio_drv_thread, NULL, NULL, NULL,
@@ -184,7 +171,7 @@ static int audio_driver_start_host_streams(void)
 {
 	int ret = 0;
 
-	/* trigger transmision */
+	/* trigger transmission */
 	ret = i2s_trigger(i2s_host_dev, I2S_DIR_TX, I2S_TRIGGER_START);
 	if (ret) {
 		LOG_ERR("I2S TX failed with code %d", ret);
@@ -203,7 +190,7 @@ static int audio_driver_stop_host_streams(void)
 {
 	int ret;
 
-	/* stop transmision */
+	/* stop transmission */
 	ret = i2s_trigger(i2s_host_dev, I2S_DIR_TX, I2S_TRIGGER_STOP);
 	if (ret) {
 		LOG_ERR("I2S TX failed with code %d", ret);
@@ -239,7 +226,7 @@ static void audio_driver_config_host_streams(void)
 	i2s_cfg.mem_slab = &host_inout_mem_slab;
 	i2s_cfg.timeout = K_NO_WAIT;
 
-	k_mem_slab_init(&host_inout_mem_slab, &audio_buffers->host_inout[0][0],
+	k_mem_slab_init(&host_inout_mem_slab, &audio_buffers.host_inout[0][0],
 			HOST_FRAME_BYTES, HOST_INOUT_BUF_COUNT);
 
 	/* Configure host input/output I2S */
@@ -298,7 +285,7 @@ static void audio_driver_config_periph_streams(void)
 		},
 	};
 
-	k_mem_slab_init(&mic_in_mem_slab, &audio_buffers->mic_in[0][0],
+	k_mem_slab_init(&mic_in_mem_slab, &audio_buffers.mic_in[0][0],
 			MIC_FRAME_BYTES, MIC_IN_BUF_COUNT);
 	dmic_device = device_get_binding(DMIC_DEV_NAME);
 	if (!dmic_device) {
@@ -317,9 +304,9 @@ static void audio_driver_config_periph_streams(void)
 		return;
 	}
 
-	codec_dev = device_get_binding(DT_TI_TLV320DAC_0_LABEL);
+	codec_dev = device_get_binding(DT_INST_0_TI_TLV320DAC_LABEL);
 	if (!codec_dev) {
-		LOG_ERR("unable to find device %s", DT_TI_TLV320DAC_0_LABEL);
+		LOG_ERR("unable to find device %s", DT_INST_0_TI_TLV320DAC_LABEL);
 		return;
 	}
 
@@ -332,7 +319,7 @@ static void audio_driver_config_periph_streams(void)
 	i2s_cfg.block_size = SPK_FRAME_BYTES;
 	i2s_cfg.mem_slab = &spk_out_mem_slab;
 	i2s_cfg.timeout = K_NO_WAIT;
-	k_mem_slab_init(&spk_out_mem_slab, &audio_buffers->spk_out[0][0],
+	k_mem_slab_init(&spk_out_mem_slab, &audio_buffers.spk_out[0][0],
 			SPK_FRAME_BYTES, SPK_OUT_BUF_COUNT);
 
 	ret = i2s_configure(i2s_spk_out_dev, I2S_DIR_TX, &i2s_cfg);
@@ -372,7 +359,7 @@ static void audio_driver_stop_periph_streams(void)
 		LOG_ERR("I2S TX failed with code %d", ret);
 	}
 
-	/* trigger transmision */
+	/* trigger transmission */
 	ret = dmic_trigger(dmic_device, DMIC_TRIGGER_STOP);
 	if (ret) {
 		LOG_ERR("dmic_trigger failed with code %d", ret);
@@ -381,7 +368,13 @@ static void audio_driver_stop_periph_streams(void)
 
 int audio_driver_start(void)
 {
+	if (audio_io_started == true) {
+		LOG_INF("Audio I/O already started ...");
+		return 0;
+	}
+
 	LOG_INF("Starting Audio I/O...");
+
 	/*
 	 * start the playback path first followed by the capture path
 	 * This ensures that by the time the capture frame tick is
@@ -394,6 +387,7 @@ int audio_driver_start(void)
 	audio_driver_start_host_streams();
 	audio_driver_start_periph_streams();
 
+	audio_io_started = true;
 	k_sem_give(&audio_drv_sync_sem);
 
 	return 0;
@@ -401,21 +395,23 @@ int audio_driver_start(void)
 
 int audio_driver_stop(void)
 {
+	if (audio_io_started == false) {
+		LOG_INF("Audio I/O already stopped ...");
+		return 0;
+	}
+
 	k_sem_take(&audio_drv_sync_sem, K_FOREVER);
 	audio_driver_stop_host_streams();
 	audio_driver_stop_periph_streams();
+	audio_io_started = false;
 	LOG_INF("Stopped Audio I/O...");
 
 	return 0;
 }
 
-static void audio_drv_thread(void *unused1, void *unused2, void *unused3)
+static void audio_drv_thread(void)
 {
-	ARG_UNUSED(unused1);
-	ARG_UNUSED(unused2);
-	ARG_UNUSED(unused3);
-
-	LOG_INF("Starting Audio Driver thread (%p)", audio_drv_thread_id);
+	LOG_INF("Starting Audio Driver thread ,,,");
 
 	LOG_INF("Configuring Host Audio Streams ...");
 	audio_driver_config_host_streams();
