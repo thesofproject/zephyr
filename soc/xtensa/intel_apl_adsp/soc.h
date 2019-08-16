@@ -3,6 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <string.h>
+#include <errno.h>
+
+#include <sys/sys_io.h>
+
+#include "memory.h"
+
 #ifndef __INC_SOC_H
 #define __INC_SOC_H
 
@@ -96,8 +103,6 @@
 #define I2S2_CAVS_IRQ				I2S_CAVS_IRQ(2)
 #define I2S3_CAVS_IRQ				I2S_CAVS_IRQ(3)
 
-#define SSP_SIZE				0x0000200
-#define SSP_BASE(x)				(0x00008000 + (x) * SSP_SIZE)
 #define SSP_MN_DIV_SIZE				(8)
 #define SSP_MN_DIV_BASE(x)			\
 	(0x00078D00 + ((x) * SSP_MN_DIV_SIZE))

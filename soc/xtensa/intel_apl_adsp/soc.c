@@ -257,85 +257,18 @@ static inline void soc_read_bootstraps(void)
 	}
 }
 
-#if 0
 static int soc_init(struct device *dev)
 {
+#if 0
 	soc_read_bootstraps();
 
 	LOG_INF("Reference clock frequency: %u Hz", ref_clk_freq);
 
 	soc_set_resource_ownership();
 	soc_set_power_and_clock();
+#endif
 
 	return 0;
 }
 
 SYS_INIT(soc_init, PRE_KERNEL_1, 99);
-#endif
-
-#define SOF_GLB_TYPE_SHIFT			28
-#define SOF_GLB_TYPE(x)				((x) << SOF_GLB_TYPE_SHIFT)
-#define SOF_IPC_FW_READY			SOF_GLB_TYPE(0x7U)
-
-struct sof_ipc_hdr {
-	uint32_t size;			/**< size of structure */
-} __attribute__((packed));
-
-struct sof_ipc_cmd_hdr {
-	uint32_t size;			/**< size of structure */
-	uint32_t cmd;			/**< SOF_IPC_GLB_ + cmd */
-} __attribute__((packed));
-
-/* FW version - SOF_IPC_GLB_VERSION */
-struct sof_ipc_fw_version {
-	struct sof_ipc_hdr hdr;
-	uint16_t major;
-	uint16_t minor;
-	uint16_t micro;
-	uint16_t build;
-	uint8_t date[12];
-	uint8_t time[10];
-	uint8_t tag[6];
-	uint32_t abi_version;
-
-	/* reserved for future use */
-	uint32_t reserved[4];
-} __attribute__((packed));
-
-/* FW ready Message - sent by firmware when boot has completed */
-struct sof_ipc_fw_ready {
-	struct sof_ipc_cmd_hdr hdr;
-	uint32_t dspbox_offset;	 /* dsp initiated IPC mailbox */
-	uint32_t hostbox_offset; /* host initiated IPC mailbox */
-	uint32_t dspbox_size;
-	uint32_t hostbox_size;
-	struct sof_ipc_fw_version version;
-
-	/* Miscellaneous flags */
-	uint64_t flags;
-
-	/* reserved for future use */
-	uint32_t reserved[4];
-} __attribute__((packed));
-
-static const struct sof_ipc_fw_ready fw_ready_apl
-	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
-	.hdr = {
-		.cmd = SOF_IPC_FW_READY,
-		.size = sizeof(struct sof_ipc_fw_ready),
-	},
-	.version = {
-		.hdr.size = sizeof(struct sof_ipc_fw_version),
-		.micro = 3,
-		.minor = 2,
-		.major = 1,
-#ifdef CONFIG_DEBUG
-		/* only added in debug for reproducability in releases */
-		.date = __DATE__,
-		.time = __TIME__,
-#endif
-		.tag = "1234",
-		.abi_version = 0x1234,
-	},
-	.flags = 0,
-};

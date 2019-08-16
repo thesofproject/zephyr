@@ -96,4 +96,6 @@
 #define LPRAM_BASE				(DT_LP_SRAM_BASE)
 #define LPRAM_SIZE				(DT_LP_SRAM_SIZE)
 
+#include <platform/memory.h>
+
 #endif /* __INC_MEMORY_H */
