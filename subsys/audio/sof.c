@@ -320,6 +320,9 @@ static int sof_init(struct device *unused)
 {
 	int ret;
 
+	/* platform interrupt init */
+	platform_interrupt_init();
+
 	/* prepare host windows */
 	prepare_host_windows();
 
