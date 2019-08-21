@@ -16,13 +16,29 @@
 /* for _soc_irq_*() */
 #include <soc.h>
 
+#ifdef CONFIG_2ND_LEVEL_INTERRUPTS
+#ifdef CONFIG_3RD_LEVEL_INTERRUPTS
 #define CONFIG_NUM_IRQS (XCHAL_NUM_INTERRUPTS +\
 			(CONFIG_NUM_2ND_LEVEL_AGGREGATORS +\
 			CONFIG_NUM_3RD_LEVEL_AGGREGATORS) *\
 			CONFIG_MAX_IRQ_PER_AGGREGATOR)
+#else
+#define CONFIG_NUM_IRQS (XCHAL_NUM_INTERRUPTS +\
+			CONFIG_NUM_2ND_LEVEL_AGGREGATORS *\
+			CONFIG_MAX_IRQ_PER_AGGREGATOR)
+#endif
+#else
+#define CONFIG_NUM_IRQS XCHAL_NUM_INTERRUPTS
+#endif
 
 #define z_arch_irq_enable(irq)	z_soc_irq_enable(irq)
 #define z_arch_irq_disable(irq)	z_soc_irq_disable(irq)
+
+#ifdef CONFIG_DYNAMIC_INTERRUPTS
+extern int z_soc_irq_connect_dynamic(unsigned int irq, unsigned int priority,
+				     void (*routine)(void *parameter),
+				     void *parameter, u32_t flags);
+#endif
 
 #else
 

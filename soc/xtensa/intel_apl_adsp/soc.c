@@ -13,6 +13,10 @@
 
 #include "soc.h"
 
+#ifdef CONFIG_DYNAMIC_INTERRUPTS
+#include <sw_isr_table.h>
+#endif
+
 #define LOG_LEVEL CONFIG_SOC_LOG_LEVEL
 #include <logging/log.h>
 LOG_MODULE_REGISTER(soc);
@@ -21,7 +25,7 @@ static u32_t ref_clk_freq;
 
 void z_soc_irq_enable(u32_t irq)
 {
-	struct device *dev_cavs, *dev_ictl;
+	struct device *dev_cavs;
 
 	switch (XTENSA_IRQ_NUMBER(irq)) {
 	case DT_CAVS_ICTL_0_IRQ:
@@ -47,37 +51,19 @@ void z_soc_irq_enable(u32_t irq)
 		return;
 	}
 
-	/* If the control comes here it means the specified interrupt
-	 * is in either CAVS interrupt logic or DW interrupt controller
+	/*
+	 * The specified interrupt is in CAVS interrupt controller.
+	 * So enable core interrupt first.
 	 */
 	z_xtensa_irq_enable(XTENSA_IRQ_NUMBER(irq));
 
-	switch (CAVS_IRQ_NUMBER(irq)) {
-	default:
-		/* The source of the interrupt is in CAVS interrupt logic */
-		irq_enable_next_level(dev_cavs, CAVS_IRQ_NUMBER(irq));
-		return;
-	}
-
-	if (!dev_ictl) {
-		LOG_DBG("board: DW intr_control device binding failed");
-		return;
-	}
-
-	/* If the control comes here it means the specified interrupt
-	 * is in DW interrupt controller
-	 */
+	/* Then enable the interrupt in CAVS interrupt controller */
 	irq_enable_next_level(dev_cavs, CAVS_IRQ_NUMBER(irq));
-
-	/* Manipulate the relevant bit in the interrupt controller
-	 * register as needed
-	 */
-	irq_enable_next_level(dev_ictl, INTR_CNTL_IRQ_NUM(irq));
 }
 
 void z_soc_irq_disable(u32_t irq)
 {
-	struct device *dev_cavs, *dev_ictl;
+	struct device *dev_cavs;
 
 	switch (XTENSA_IRQ_NUMBER(irq)) {
 	case DT_CAVS_ICTL_0_IRQ:
@@ -103,43 +89,71 @@ void z_soc_irq_disable(u32_t irq)
 		return;
 	}
 
-	/* If the control comes here it means the specified interrupt
-	 * is in either CAVS interrupt logic or DW interrupt controller
+	/*
+	 * The specified interrupt is in CAVS interrupt controller.
+	 * So disable the interrupt in CAVS interrupt controller.
 	 */
+	irq_disable_next_level(dev_cavs, CAVS_IRQ_NUMBER(irq));
 
-	switch (CAVS_IRQ_NUMBER(irq)) {
-	default:
-		/* The source of the interrupt is in CAVS interrupt logic */
-		irq_disable_next_level(dev_cavs, CAVS_IRQ_NUMBER(irq));
-
-		/* Disable the parent IRQ if all children are disabled */
-		if (!irq_is_enabled_next_level(dev_cavs)) {
-			z_xtensa_irq_disable(XTENSA_IRQ_NUMBER(irq));
-		}
-		return;
-	}
-
-	if (!dev_ictl) {
-		LOG_DBG("board: DW intr_control device binding failed");
-		return;
-	}
-
-	/* If the control comes here it means the specified interrupt
-	 * is in DW interrupt controller.
-	 * Manipulate the relevant bit in the interrupt controller
-	 * register as needed
-	 */
-	irq_disable_next_level(dev_ictl, INTR_CNTL_IRQ_NUM(irq));
-
-	/* Disable the parent IRQ if all children are disabled */
-	if (!irq_is_enabled_next_level(dev_ictl)) {
-		irq_disable_next_level(dev_cavs, CAVS_IRQ_NUMBER(irq));
-
-		if (!irq_is_enabled_next_level(dev_cavs)) {
-			z_xtensa_irq_disable(XTENSA_IRQ_NUMBER(irq));
-		}
+	/* Then disable the parent IRQ if all children are disabled */
+	if (!irq_is_enabled_next_level(dev_cavs)) {
+		z_xtensa_irq_disable(XTENSA_IRQ_NUMBER(irq));
 	}
 }
+
+#ifdef CONFIG_DYNAMIC_INTERRUPTS
+int z_soc_irq_connect_dynamic(unsigned int irq, unsigned int priority,
+			      void (*routine)(void *parameter),
+			      void *parameter, u32_t flags)
+{
+	uint32_t table_idx;
+	uint32_t cavs_irq;
+	int ret;
+
+        ARG_UNUSED(flags);
+        ARG_UNUSED(priority);
+
+	/* extract 2nd level interrupt number */
+	cavs_irq = CAVS_IRQ_NUMBER(irq);
+	ret = irq;
+
+	if (cavs_irq == 0) {
+		/* Not affecting 2nd level interrupts */
+		z_isr_install(irq, routine, parameter);
+		goto irq_connect_out;
+	}
+
+	/* Figure out the base index. */
+	switch (XTENSA_IRQ_NUMBER(irq)) {
+	case DT_CAVS_ICTL_0_IRQ:
+		table_idx = CONFIG_CAVS_ISR_TBL_OFFSET;
+		break;
+	case DT_CAVS_ICTL_1_IRQ:
+		table_idx = CONFIG_CAVS_ISR_TBL_OFFSET +
+			    CONFIG_MAX_IRQ_PER_AGGREGATOR;
+		break;
+	case DT_CAVS_ICTL_2_IRQ:
+		table_idx = CONFIG_CAVS_ISR_TBL_OFFSET +
+			    CONFIG_MAX_IRQ_PER_AGGREGATOR * 2;
+		break;
+	case DT_CAVS_ICTL_3_IRQ:
+		table_idx = CONFIG_CAVS_ISR_TBL_OFFSET +
+			    CONFIG_MAX_IRQ_PER_AGGREGATOR * 3;
+		break;
+	default:
+		ret = -EINVAL;
+		goto irq_connect_out;
+	}
+
+	table_idx += cavs_irq;
+
+	_sw_isr_table[table_idx].arg = parameter;
+        _sw_isr_table[table_idx].isr = routine;
+
+irq_connect_out:
+	return ret;
+}
+#endif
 
 static inline void soc_set_resource_ownership(void)
 {
@@ -201,23 +215,6 @@ static inline void soc_set_dmic_power(void)
 #endif
 }
 
-static inline void soc_set_gna_power(void)
-{
-#if (CONFIG_INTEL_GNA)
-	volatile struct soc_global_regs *regs =
-		(volatile struct soc_global_regs *)SOC_S1000_GLB_CTRL_BASE;
-
-	/* power on GNA block */
-	regs->gna_power_control |= SOC_GNA_POWER_CONTROL_SPA;
-	while ((regs->gna_power_control & SOC_GNA_POWER_CONTROL_CPA) == 0U) {
-		/* wait for power status */
-	}
-
-	/* enable clock for GNA block */
-	regs->gna_power_control |= SOC_GNA_POWER_CONTROL_CLK_EN;
-#endif
-}
-
 static inline void soc_set_power_and_clock(void)
 {
 	volatile struct soc_dsp_shim_regs *dsp_shim_regs =
@@ -229,32 +226,7 @@ static inline void soc_set_power_and_clock(void)
 		SOC_PWRCTL_DISABLE_PWR_GATING_DSP0;
 
 	soc_set_dmic_power();
-	soc_set_gna_power();
 	soc_set_audio_mclk();
-}
-
-static inline void soc_read_bootstraps(void)
-{
-	volatile struct soc_global_regs *regs =
-		(volatile struct soc_global_regs *)SOC_S1000_GLB_CTRL_BASE;
-	u32_t bootstrap;
-
-	bootstrap = regs->straps;
-
-	bootstrap &= SOC_S1000_STRAP_REF_CLK;
-
-	switch (bootstrap) {
-	case SOC_S1000_STRAP_REF_CLK_19P2:
-		ref_clk_freq = 19200000U;
-		break;
-	case SOC_S1000_STRAP_REF_CLK_24P576:
-		ref_clk_freq = 24576000U;
-		break;
-	case SOC_S1000_STRAP_REF_CLK_38P4:
-	default:
-		ref_clk_freq = 38400000U;
-		break;
-	}
 }
 
 static int soc_init(struct device *dev)

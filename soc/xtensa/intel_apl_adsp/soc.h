@@ -16,30 +16,26 @@
 /* macros related to interrupt handling */
 #define XTENSA_IRQ_NUM_SHIFT			0
 #define CAVS_IRQ_NUM_SHIFT			8
-#define INTR_CNTL_IRQ_NUM_SHIFT			16
 #define XTENSA_IRQ_NUM_MASK			0xff
 #define CAVS_IRQ_NUM_MASK			0xff
-#define INTR_CNTL_IRQ_NUM_MASK			0xff
 
 /*
- * IRQs are mapped on 3 levels. 4th level is left 0x00.
+ * IRQs are mapped on 2 levels. 3rd and 4th level are left as 0x00.
  *
  * 1. Peripheral Register bit offset.
  * 2. CAVS logic bit offset.
- * 3. Core interrupt number.
  */
 #define XTENSA_IRQ_NUMBER(_irq) \
 	((_irq >> XTENSA_IRQ_NUM_SHIFT) & XTENSA_IRQ_NUM_MASK)
 #define CAVS_IRQ_NUMBER(_irq) \
 	(((_irq >> CAVS_IRQ_NUM_SHIFT) & CAVS_IRQ_NUM_MASK) - 1)
-#define INTR_CNTL_IRQ_NUM(_irq) \
-	(((_irq >> INTR_CNTL_IRQ_NUM_SHIFT) & INTR_CNTL_IRQ_NUM_MASK) - 1)
 
-/* Macro that aggregates the tri-level interrupt into an IRQ number */
-#define SOC_AGGREGATE_IRQ(ictl_irq, cavs_irq, core_irq)		\
-	(((core_irq & XTENSA_IRQ_NUM_MASK) << XTENSA_IRQ_NUM_SHIFT) |	\
-	(((cavs_irq) & CAVS_IRQ_NUM_MASK) << CAVS_IRQ_NUM_SHIFT) |	\
-	(((ictl_irq) & INTR_CNTL_IRQ_NUM_MASK) << INTR_CNTL_IRQ_NUM_SHIFT))
+/* Macro that aggregates the bi-level interrupt into an IRQ number */
+#define SOC_AGGREGATE_IRQ(cavs_irq, core_irq)		\
+	( \
+	 ((core_irq & XTENSA_IRQ_NUM_MASK) << XTENSA_IRQ_NUM_SHIFT) | \
+	 (((cavs_irq + 1) & CAVS_IRQ_NUM_MASK) << CAVS_IRQ_NUM_SHIFT) \
+	)
 
 #define CAVS_L2_AGG_INT_LEVEL2			DT_CAVS_ICTL_0_IRQ
 #define CAVS_L2_AGG_INT_LEVEL3			DT_CAVS_ICTL_1_IRQ
@@ -48,13 +44,6 @@
 
 #define IOAPIC_EDGE				0
 #define IOAPIC_HIGH				0
-
-/* DW interrupt controller */
-#define DW_ICTL_IRQ_CAVS_OFFSET			CAVS_IRQ_NUMBER(DT_DW_ICTL_IRQ)
-#define DW_ICTL_NUM_IRQS			9
-
-/* GPIO */
-#define GPIO_DW_PORT_0_INT_MASK			0
 
 /* low power DMACs */
 #define LP_GP_DMA_SIZE				0x00001000
@@ -96,7 +85,7 @@
 
 /* I2S */
 #define I2S_CAVS_IRQ(i2s_num)			\
-	SOC_AGGREGATE_IRQ(0, (i2s_num) + 1, CAVS_L2_AGG_INT_LEVEL5)
+	SOC_AGGREGATE_IRQ(0, (i2s_num), CAVS_L2_AGG_INT_LEVEL5)
 
 #define I2S0_CAVS_IRQ				I2S_CAVS_IRQ(0)
 #define I2S1_CAVS_IRQ				I2S_CAVS_IRQ(1)
@@ -185,28 +174,6 @@ struct soc_dsp_shim_regs {
 	u32_t	lpsdmas0;
 	u32_t	lpsdmas1;
 	u32_t	reserved3[22];
-};
-
-#define USB_DW_BASE				0x000A0000
-#define USB_DW_IRQ				0x00000806
-
-/* Global Control registers */
-#define SOC_S1000_GLB_CTRL_BASE			(0x00081C00)
-
-#define SOC_GNA_POWER_CONTROL_SPA		(BIT(0))
-#define SOC_GNA_POWER_CONTROL_CPA		(BIT(8))
-#define SOC_GNA_POWER_CONTROL_CLK_EN		(BIT(16))
-
-#define SOC_S1000_STRAP_REF_CLK			(BIT_MASK(2) << 3)
-#define SOC_S1000_STRAP_REF_CLK_38P4		(0 << 3)
-#define SOC_S1000_STRAP_REF_CLK_19P2		(1 << 3)
-#define SOC_S1000_STRAP_REF_CLK_24P576		(2 << 3)
-
-struct soc_global_regs {
-	u32_t	reserved1[8];
-	u32_t	gna_power_control;
-	u32_t	reserved2[7];
-	u32_t	straps;
 };
 
 /* macros for data cache operations */

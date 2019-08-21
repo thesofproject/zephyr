@@ -10,6 +10,7 @@ zephyr_sources(
 zephyr_sources_ifdef(CONFIG_XTENSA_ASM2
 	xtensa-asm2-util.S
 	xtensa-asm2.c
+	irq_manage.c
 	)
 
 zephyr_sources_ifndef(CONFIG_XTENSA_ASM2
