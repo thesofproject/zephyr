@@ -224,5 +224,6 @@ struct soc_dsp_shim_regs {
 
 extern void z_soc_irq_enable(u32_t irq);
 extern void z_soc_irq_disable(u32_t irq);
+extern int z_soc_irq_is_enabled(unsigned int irq);
 
 #endif /* __INC_SOC_H */
