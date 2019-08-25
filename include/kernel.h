@@ -18,6 +18,8 @@
 #include <errno.h>
 #include <stdbool.h>
 
+#include "sys_clock.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2902,7 +2904,42 @@ extern void k_delayed_work_init(struct k_delayed_work *work,
 				k_work_handler_t handler);
 
 /**
- * @brief Submit a delayed work item.
+ * @brief Submit a delayed work item (with delay in microseconds).
+ *
+ * This routine schedules work item @a work to be processed by workqueue
+ * @a work_q after a delay of @a delay milliseconds. The routine initiates
+ * an asynchronous countdown for the work item and then returns to the caller.
+ * Only when the countdown completes is the work item actually submitted to
+ * the workqueue and becomes pending.
+ *
+ * Submitting a previously submitted delayed work item that is still
+ * counting down cancels the existing submission and restarts the
+ * countdown using the new delay.  Note that this behavior is
+ * inherently subject to race conditions with the pre-existing
+ * timeouts and work queue, so care must be taken to synchronize such
+ * resubmissions externally.
+ *
+ * @warning
+ * A delayed work item must not be modified until it has been processed
+ * by the workqueue.
+ *
+ * @note Can be called by ISRs.
+ *
+ * @param work_q Address of workqueue.
+ * @param work Address of delayed work item.
+ * @param delay Delay before submitting the work item (in microseconds).
+ *
+ * @retval 0 Work item countdown started.
+ * @retval -EINVAL Work item is being processed or has completed its work.
+ * @retval -EADDRINUSE Work item is pending on a different workqueue.
+ * @req K-DWORK-001
+ */
+extern int k_delayed_work_submit_to_queue_us(struct k_work_q *work_q,
+					     struct k_delayed_work *work,
+					     s32_t us_delay);
+
+/**
+ * @brief Submit a delayed work item (with delay in milliseconds).
  *
  * This routine schedules work item @a work to be processed by workqueue
  * @a work_q after a delay of @a delay milliseconds. The routine initiates
@@ -2932,9 +2969,13 @@ extern void k_delayed_work_init(struct k_delayed_work *work,
  * @retval -EADDRINUSE Work item is pending on a different workqueue.
  * @req K-DWORK-001
  */
-extern int k_delayed_work_submit_to_queue(struct k_work_q *work_q,
-					  struct k_delayed_work *work,
-					  s32_t delay);
+static inline int k_delayed_work_submit_to_queue(struct k_work_q *work_q,
+						 struct k_delayed_work *work,
+						 s32_t delay)
+{
+	return k_delayed_work_submit_to_queue_us(work_q, work,
+						 (delay * USEC_PER_MSEC));
+}
 
 /**
  * @brief Cancel a delayed work item.
