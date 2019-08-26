@@ -23,11 +23,14 @@ extern "C" {
  */
 typedef void (*irq_next_level_func_t)(struct device *dev, unsigned int irq);
 typedef unsigned int (*irq_next_level_get_state_t)(struct device *dev);
+typedef int (*irq_next_level_get_line_state_t)(struct device *dev,
+					       unsigned int irq);
 
 struct irq_next_level_api {
 	irq_next_level_func_t intr_enable;
 	irq_next_level_func_t intr_disable;
 	irq_next_level_get_state_t intr_get_state;
+	irq_next_level_get_line_state_t intr_get_line_state;
 };
 /**
  * @endcond
@@ -82,6 +85,24 @@ static inline unsigned int irq_is_enabled_next_level(struct device *dev)
 	const struct irq_next_level_api *api = dev->driver_api;
 
 	return api->intr_get_state(dev);
+}
+
+/**
+ * @brief Get IRQ line enable state.
+ *
+ * Query if a particular IRQ line is enabled.
+ *
+ * @param dev Pointer to the device structure for the driver instance.
+ * @param irq IRQ line to be queried.
+ *
+ * @return interrupt enable state, true or false
+ */
+static inline unsigned int irq_line_is_enabled_next_level(struct device *dev,
+							  unsigned int irq)
+{
+	const struct irq_next_level_api *api = dev->driver_api;
+
+	return api->intr_get_line_state(dev, irq);
 }
 
 /**
