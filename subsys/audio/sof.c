@@ -13,8 +13,12 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sof, CONFIG_SOF_LOG_LEVEL);
 
+#include <platform/dai.h>
+#include <platform/dma.h>
 #include <platform/shim.h>
+#include <platform/timer.h>
 #include <sof/clk.h>
+#include <sof/interrupt.h>
 #include <sof/mailbox.h>
 #include <sof/notifier.h>
 #include <sof/timer.h>
@@ -212,49 +216,6 @@ void debug_print(char *message)
 	LOG_DBG("%s", message);
 }
 
-/* FIXME: The following definitions are to satisfy linker errors */
-struct dai dai;
-
-/* Make use of dai_install to register DAI drivers, there maybe common code
- * from i2s_cavs.c and codec.h */
-struct dai *dai_get(uint32_t type, uint32_t index, uint32_t flags)
-{
-	return &dai;
-}
-
-void dai_put(struct dai *dai)
-{
-}
-
-int dai_init(void)
-{
-	return 0;
-}
-
-struct dma dma;
-
-struct dma *dma_get(uint32_t dir, uint32_t caps, uint32_t dev, uint32_t flags)
-{
-	return &dma;
-}
-
-void dma_put(struct dma *dma)
-{
-}
-
-int dma_sg_alloc(struct dma_sg_elem_array *elem_array,
-		 int zone,
-		 uint32_t direction,
-		 uint32_t buffer_count, uint32_t buffer_bytes,
-		 uintptr_t dma_buffer_addr, uintptr_t external_addr)
-{
-	return 0;
-}
-
-void dma_sg_free(struct dma_sg_elem_array *elem_array)
-{
-}
-
 static void prepare_host_windows()
 {
 	/* window0, for fw status & outbox/uplink mbox */
@@ -329,6 +290,8 @@ static int sof_init(struct device *unused)
 {
 	int ret;
 
+	platform_interrupt_init();
+
 	/* prepare host windows */
 	prepare_host_windows();
 
@@ -340,8 +303,26 @@ static int sof_init(struct device *unused)
 	/* init static modules */
 	sys_module_init();
 
+	/* start DSP wall clock */
+	platform_timer_start(platform_timer);
+
 	/* init clocks in SOF */
 	clock_init();
+
+	/* init scheduler */
+	ret = scheduler_init();
+	if (ret < 0) {
+		LOG_ERR("scheduler init: %d", ret);
+		return ret;
+	}
+
+	LOG_INF("scheduler initialized");
+
+	/* init DMAC */
+	ret = dmac_init();
+	if (ret < 0) {
+		return ret;
+	}
 
 	/* init IPC */
 	ret = ipc_init(&sof);
@@ -359,15 +340,6 @@ static int sof_init(struct device *unused)
 		return ret;
 	}
 
-	/* init scheduler */
-	ret = scheduler_init();
-	if (ret < 0) {
-		LOG_ERR("scheduler init: %d", ret);
-		return ret;
-	}
-
-	LOG_INF("scheduler initialized");
-
 #if defined(CONFIG_SOF_STATIC_PIPELINE)
 	/* init static pipeline */
 	ret = init_static_pipeline(sof.ipc);
@@ -378,8 +350,6 @@ static int sof_init(struct device *unused)
 
 	LOG_INF("pipeline initialized");
 #endif /* CONFIG_SOF_STATIC_PIPELINE */
-
-	mailbox_sw_reg_write(SRAM_REG_ROM_STATUS, 0xabbac0fe);
 
 	sof_boot_complete();
 
