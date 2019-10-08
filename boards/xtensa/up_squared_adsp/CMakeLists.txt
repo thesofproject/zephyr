@@ -1,9 +1,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
+set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
+
 add_custom_target(
-  process_elf ALL
+  process_elf
   DEPENDS sof_base_module
   DEPENDS ${ZEPHYR_FINAL_EXECUTABLE}
   COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/modules/sof/libsof_base_module.a
   COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-apl.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf.sof
+  )
+
+add_custom_target(
+  process_bootloader
+  DEPENDS bootloader sof_boot_module
+  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/modules/sof/libsof_boot_module.a
+  COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/modules/sof/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof
+  )
+
+add_custom_target(
+  process_rimage
+  DEPENDS process_bootloader process_elf rimage
+  COMMAND ${CMAKE_BINARY_DIR}/zephyr/rimage_ep/build/rimage -o ${CMAKE_BINARY_DIR}/zephyr/sof-apl.ri -m apl -k ${sof_module}/rimage/keys/otc_private_key.pem -i 3 ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf.sof
   )
