@@ -1,4 +1,16 @@
+# Copyright (c) 2019 Intel Corporation
+#
 # SPDX-License-Identifier: Apache-2.0
+
+if(EXISTS ${BOARD_DIR}/bootloader/CMakeLists.txt)
+  if(USING_OUT_OF_TREE_BOARD)
+    set(build_dir boards/${ARCH}/${BOARD}/bootloader)
+  else()
+    unset(build_dir)
+  endif()
+
+  add_subdirectory(${BOARD_DIR}/bootloader ${build_dir})
+endif()
 
 set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
 
