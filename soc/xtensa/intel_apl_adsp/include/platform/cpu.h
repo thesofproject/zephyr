@@ -9,6 +9,10 @@
 #ifndef __INCLUDE_ARCH_CPU__
 #define __INCLUDE_ARCH_CPU__
 
+/* FIXME workaround for includes */
+#ifndef __SOF_CPU_H__
+#define __SOF_CPU_H__
+
 #include <xtensa/config/core.h>
 
 #define PLATFORM_CORE_COUNT 1
@@ -52,7 +56,6 @@ static inline int cpu_read_threadptr(void)
 	return threadptr;
 }
 
-#endif
 
 static inline int cpu_get_id(void)
 {
@@ -71,3 +74,7 @@ static inline void cpu_enable_core(int id)
 static inline void cpu_disable_core(int id)
 {
 }
+
+#endif
+
+#endif
