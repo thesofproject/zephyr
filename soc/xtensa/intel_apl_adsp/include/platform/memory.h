@@ -9,11 +9,7 @@
 #ifndef __PLATFORM_MEMORY_H__
 #define __PLATFORM_MEMORY_H__
 
-#ifdef CONFIG_SOF
 #include <config.h>
-#include <cavs/memory.h>
-#include <cavs/mailbox.h>
-#endif
 
 /*  ===== Begin - from SOF cavs/memory.h ===== */
 

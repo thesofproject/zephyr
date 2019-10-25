@@ -26,7 +26,7 @@
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
-#include <sof/platform.h>
+#include <platform/mailbox.h>
 #include <platform/clk.h>
 #include <platform/shim.h>
 #include <platform/interrupt.h>
@@ -147,18 +147,6 @@ struct sof;
 
 /* timer driven scheduling start offset in microseconds */
 #define PLATFORM_TIMER_START_OFFSET	100
-
-/* Platform defined panic code */
-static inline void platform_panic(uint32_t p)
-{
-	mailbox_sw_reg_write(SRAM_REG_FW_STATUS, p & 0x3fffffff);
-	ipc_write(IPC_DIPCIE, MAILBOX_EXCEPTION_OFFSET + 2 * 0x20000);
-	ipc_write(IPC_DIPCI, 0x80000000 | (p & 0x3fffffff));
-}
-
-/* Platform defined trace code */
-#define platform_trace_point(__x) \
-	mailbox_sw_reg_write(SRAM_REG_FW_TRACEP, (__x))
 
 extern struct timer *platform_timer;
 
