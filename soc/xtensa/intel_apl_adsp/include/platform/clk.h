@@ -9,8 +9,8 @@
 #ifndef __PLATFORM_CLOCK__
 #define __PLATFORM_CLOCK__
 
-#include <sof/cpu.h>
-#include <sof/io.h>
+#include <platform/cpu.h>
+#include <platform/io.h>
 #include <platform/shim.h>
 
 /** \brief Core(s) settings, up to PLATFORM_CORE_COUNT */

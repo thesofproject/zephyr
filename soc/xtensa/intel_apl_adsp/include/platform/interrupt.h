@@ -10,7 +10,6 @@
 #define __INCLUDE_PLATFORM_INTERRUPT__
 
 #include <stdint.h>
-#include <sof/interrupt-map.h>
 
 #define PLATFORM_IRQ_CHILDREN	32
 
