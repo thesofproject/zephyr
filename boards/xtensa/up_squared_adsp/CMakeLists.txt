@@ -16,17 +16,17 @@ set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
 
 add_custom_target(
   process_elf
-  DEPENDS sof_base_module
+  DEPENDS base_module
   DEPENDS ${ZEPHYR_FINAL_EXECUTABLE}
-  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/modules/sof/libsof_base_module.a
+  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/libbase_module.a
   COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-apl.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf.sof
   )
 
 add_custom_target(
   process_bootloader
-  DEPENDS bootloader sof_boot_module
-  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/modules/sof/libsof_boot_module.a
-  COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/modules/sof/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof
+  DEPENDS bootloader boot_module
+  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/libboot_module.a
+  COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof
   )
 
 add_custom_target(
