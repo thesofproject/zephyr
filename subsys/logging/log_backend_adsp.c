@@ -27,8 +27,8 @@ static u16_t log_id;
 
 static void init(void)
 {
-	ring_buf_init(&ringbuf, MAILBOX_TRACE_SIZE,
-		      (void *)MAILBOX_TRACE_BASE);
+	ring_buf_init(&ringbuf, CONFIG_LOG_BACKEND_ADSP_RINGBUF_SIZE,
+		      (void *)CONFIG_LOG_BACKEND_ADSP_RINGBUF_BASE);
 }
 
 static inline void dcache_writeback_region(void *addr, size_t size)

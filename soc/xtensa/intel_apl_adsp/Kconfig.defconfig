@@ -36,4 +36,17 @@ config DYNAMIC_INTERRUPTS
 
 endif
 
+if LOG
+
+config LOG_BACKEND_ADSP
+	default y
+
+config LOG_BACKEND_ADSP_RINGBUF_BASE
+	default "0xBE008000"
+
+config LOG_BACKEND_ADSP_RINGBUF_SIZE
+	default "0x2000"
+
+endif # LOG
+
 endif
