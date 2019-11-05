@@ -18,15 +18,15 @@ add_custom_target(
   process_elf
   DEPENDS base_module
   DEPENDS ${ZEPHYR_FINAL_EXECUTABLE}
-  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/libbase_module.a
+  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/libbase_module.a
   COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-apl.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf.sof
   )
 
 add_custom_target(
   process_bootloader
   DEPENDS bootloader boot_module
-  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/libboot_module.a
-  COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/up_squared_adsp/bootloader/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof
+  COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/libboot_module.a
+  COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.sof
   )
 
 add_custom_target(
