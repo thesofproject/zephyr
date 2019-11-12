@@ -16,45 +16,36 @@ MAGIC = 0x55aa
 SLOT_LEN = 64
 SLOT_NUM = int(8192 / SLOT_LEN)
 
-loglist = []
 
-def read_id(f):
-    """Get id"""
+def read_bytes(buffer):
+    return int.from_bytes(buffer, byteorder='little')
 
-    buf = f.read(2)
-    return int.from_bytes(buf, byteorder='little')
 
-def read_magic(f):
-    """Get magic"""
+class Loglist:
+    """Loglist class"""
+    def __init__(self, etrace):
+        self.loglist = []
+        f = open(etrace, "rb")
+        self.buffer = f.read(SLOT_NUM * SLOT_LEN)
+        self.parse()
 
-    buf = f.read(2)
-    return int.from_bytes(buf, byteorder='little')
+    def parse_slot(self, slot):
+        magic = read_bytes(slot[0:2])
 
-def read_log_slot(f):
-    """Read log slots"""
+        if magic == MAGIC:
+            id_num = read_bytes(slot[2:4])
+            logstr = slot[4:].decode(errors='replace').split('\r', 1)[0]
+            self.loglist.append((id_num, logstr))
 
-    magic = read_magic(f)
+    def parse(self):
+        for x in range(0, SLOT_NUM):
+            slot = self.buffer[x * SLOT_LEN : (x + 1) * SLOT_LEN]
+            self.parse_slot(slot)
 
-    if magic == MAGIC:
-        id = read_id(f)
-        slot = f.read(SLOT_LEN - 4)
-        logstr = slot.decode(errors='replace').split('\r', 1)[0]
-        loglist.append((id, logstr))
+    def print(self):
+        for pair in sorted(self.loglist):
+            print('{} : {}'.format(*pair))
 
-def read_logs(etrace, offset):
-    """Read logs"""
-
-    f = open(etrace, "rb")
-
-    for x in range(0, SLOT_NUM):
-        f.seek(offset + x * SLOT_LEN)
-        read_log_slot(f)
-
-def loglist_print():
-    """Print sorted loglist"""
-
-    for pair in sorted(loglist):
-        print('{} : {}'.format(*pair))
 
 def parse_args():
     """Parsing command line arguments"""
@@ -88,9 +79,8 @@ def main():
             etrace = QEMU_ETRACE
             offset = QEMU_OFFSET
 
-    read_logs(etrace, offset)
-
-    loglist_print()
+    l = Loglist(etrace)
+    l.print()
 
 if __name__ == "__main__":
 
