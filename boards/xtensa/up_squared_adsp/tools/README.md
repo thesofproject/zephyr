@@ -126,3 +126,22 @@ Window flags:          0 (0x0000)
 Window size:        8192 (0x2000)
 Window offset:         0 (0x0000)
 ```
+
+## Dump Trace message
+This script reads the trace memory window via SOF Diagnostic Driver and display or save to the file.
+
+In order to run the script, the SOF diagnostic driver must be installed on the system and the firmware should be loaded.
+
+### Using script
+***Note that the script must run in sudo***
+```
+usage: dump_trace.py [-h] [-o OUTPUT_FILE] [-d]
+
+Dump trace message
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT_FILE, --output-file OUTPUT_FILE
+                        Save to output file
+  -d, --debug           Display debug information
+```
