@@ -310,8 +310,10 @@ class RimageSigner(Signer):
         kernel = str(b / 'zephyr' / 'zephyr.elf.mod')
         out_bin = str(b / 'zephyr' / 'zephyr.ri')
 
-        sign_base = [tool_path, '-o', out_bin, '-m', 'apl', '-i', '3',
-                     bootloader, kernel]
+        sign_base = ([tool_path] + args.tool_args +
+                     ['-o', out_bin, '-m', 'apl', '-i', '3'] +
+                     [bootloader, kernel])
+
 
         log.inf(quote_sh_list(sign_base))
         subprocess.check_call(sign_base)
