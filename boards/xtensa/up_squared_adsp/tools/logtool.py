@@ -63,6 +63,8 @@ def parse_args():
 
     parser.add_argument('-e', '--etrace', choices=['sof', 'qemu'], default="sof")
 
+    parser.add_argument('-f', '--file')
+
     args = parser.parse_args()
 
     return args
@@ -75,12 +77,16 @@ def main():
     if os.geteuid() != 0:
         sys.exit("Please run this program as root / sudo")
 
-    if args.etrace == 'sof':
-        etrace = SOF_ETRACE
-        offset = SOF_OFFSET
+    if args.file != None:
+        etrace = args.file
+        offset = 0
     else:
-        etrace = QEMU_ETRACE
-        offset = QEMU_OFFSET
+        if args.etrace == 'sof':
+            etrace = SOF_ETRACE
+            offset = SOF_OFFSET
+        else:
+            etrace = QEMU_ETRACE
+            offset = QEMU_OFFSET
 
     read_logs(etrace, offset)
 
