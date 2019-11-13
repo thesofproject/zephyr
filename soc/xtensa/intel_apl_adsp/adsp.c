@@ -10,12 +10,8 @@
 #include <platform/ipc.h>
 #include <platform/mailbox.h>
 #include <platform/shim.h>
-#include <platform/string.h>
 
 #include "soc.h"
-
-#include <logging/log.h>
-LOG_MODULE_REGISTER(soc_adsp, CONFIG_SOC_LOG_LEVEL);
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
@@ -39,7 +35,7 @@ static const struct adsp_ipc_fw_ready fw_ready_apl
 	.flags = 0,
 };
 
-#define NUM_WINDOWS			7
+#define NUM_WINDOWS			2
 
 static const struct adsp_ipc_window sram_window = {
 	.ext_hdr = {
@@ -58,41 +54,6 @@ static const struct adsp_ipc_window sram_window = {
 			.offset = 0,
 		},
 		{
-			.type   = ADSP_IPC_REGION_UPBOX,
-			.id     = 0,	/* map to host window 0 */
-			.flags  = 0,
-			.size   = MAILBOX_DSPBOX_SIZE,
-			.offset = MAILBOX_SW_REG_SIZE,
-		},
-		{
-			.type   = ADSP_IPC_REGION_DOWNBOX,
-			.id     = 1,	/* map to host window 1 */
-			.flags  = 0,
-			.size   = MAILBOX_HOSTBOX_SIZE,
-			.offset = 0,
-		},
-		{
-			.type   = ADSP_IPC_REGION_DEBUG,
-			.id     = 2,	/* map to host window 2 */
-			.flags  = 0,
-			.size   = MAILBOX_EXCEPTION_SIZE + MAILBOX_DEBUG_SIZE,
-			.offset = 0,
-		},
-		{
-			.type   = ADSP_IPC_REGION_EXCEPTION,
-			.id     = 2,	/* map to host window 2 */
-			.flags  = 0,
-			.size   = MAILBOX_EXCEPTION_SIZE,
-			.offset = MAILBOX_EXCEPTION_OFFSET,
-		},
-		{
-			.type   = ADSP_IPC_REGION_STREAM,
-			.id     = 2,	/* map to host window 2 */
-			.flags  = 0,
-			.size   = MAILBOX_STREAM_SIZE,
-			.offset = MAILBOX_STREAM_OFFSET,
-		},
-		{
 			.type   = ADSP_IPC_REGION_TRACE,
 			.id     = 3,	/* map to host window 3 */
 			.flags  = 0,
@@ -108,7 +69,7 @@ static const struct adsp_ipc_window sram_window = {
  */
 static void prepare_host_windows()
 {
-	/* window0, for fw status & outbox/uplink mbox */
+	/* window0, for fw status */
 	sys_write32((HP_SRAM_WIN0_SIZE | 0x7), DMWLO(0));
 	sys_write32((HP_SRAM_WIN0_BASE | DMWBA_READONLY | DMWBA_ENABLE),
 		    DMWBA(0));
@@ -116,18 +77,6 @@ static void prepare_host_windows()
 	      HP_SRAM_WIN0_SIZE - SRAM_REG_FW_END);
 	SOC_DCACHE_FLUSH((void *)(HP_SRAM_WIN0_BASE + SRAM_REG_FW_END),
 			 HP_SRAM_WIN0_SIZE - SRAM_REG_FW_END);
-
-	/* window1, for inbox/downlink mbox */
-	sys_write32((HP_SRAM_WIN1_SIZE | 0x7), DMWLO(1));
-	sys_write32((HP_SRAM_WIN1_BASE | DMWBA_ENABLE), DMWBA(1));
-	memset((void *)HP_SRAM_WIN1_BASE, 0, HP_SRAM_WIN1_SIZE);
-	SOC_DCACHE_FLUSH((void *)HP_SRAM_WIN1_BASE, HP_SRAM_WIN1_SIZE);
-
-	/* window2, for debug */
-	sys_write32((HP_SRAM_WIN2_SIZE | 0x7), DMWLO(2));
-	sys_write32((HP_SRAM_WIN2_BASE | DMWBA_ENABLE), DMWBA(2));
-	memset((void *)HP_SRAM_WIN2_BASE, 0, HP_SRAM_WIN2_SIZE);
-	SOC_DCACHE_FLUSH((void *)HP_SRAM_WIN2_BASE, HP_SRAM_WIN2_SIZE);
 
 	/* window3, for trace
 	 * zeroed by trace initialization
@@ -139,25 +88,22 @@ static void prepare_host_windows()
 	SOC_DCACHE_FLUSH((void *)HP_SRAM_WIN3_BASE, HP_SRAM_WIN3_SIZE);
 }
 
-static inline
-void mailbox_dspbox_write(size_t offset, const void *src, size_t bytes)
-{
-	memcpy_s((void *)(MAILBOX_DSPBOX_BASE + offset),
-			  MAILBOX_DSPBOX_SIZE - offset, src, bytes);
-	SOC_DCACHE_FLUSH((void *)(MAILBOX_DSPBOX_BASE + offset), bytes);
-}
-
 /*
  * Sends the firmware ready message so the firmware loader can
  * map the host windows.
  */
 static void send_fw_ready()
 {
-	mailbox_dspbox_write(0, &fw_ready_apl, sizeof(fw_ready_apl));
-	mailbox_dspbox_write(sizeof(fw_ready_apl), &sram_window,
-			     sram_window.ext_hdr.hdr.size);
+	memcpy((void *)MAILBOX_DSPBOX_BASE,
+	       &fw_ready_apl, sizeof(fw_ready_apl));
 
-	ipc_write(IPC_DIPCIE, (0x80000 >> 12));
+	memcpy((void *)(MAILBOX_DSPBOX_BASE + sizeof(fw_ready_apl)),
+	       &sram_window,
+	       (sizeof(sram_window) + sram_window.ext_hdr.hdr.size));
+
+	SOC_DCACHE_FLUSH((void *)MAILBOX_DSPBOX_BASE, MAILBOX_DSPBOX_SIZE);
+
+	ipc_write(IPC_DIPCIE, 0);
 	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
 }
 
