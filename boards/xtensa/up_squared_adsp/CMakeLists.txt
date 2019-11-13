@@ -15,7 +15,7 @@ endif()
 set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
 
 add_custom_target(
-  process_elf
+  process_elf ALL
   DEPENDS base_module
   DEPENDS ${ZEPHYR_FINAL_EXECUTABLE}
   COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-apl.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/libbase_module.a
@@ -23,14 +23,8 @@ add_custom_target(
   )
 
 add_custom_target(
-  process_bootloader
+  process_bootloader ALL
   DEPENDS bootloader boot_module
   COMMAND ${CMAKE_OBJCOPY} --dump-section .data=mod-boot.bin ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/libboot_module.a
   COMMAND ${CMAKE_OBJCOPY} --add-section .module=mod-boot.bin --set-section-flags .module=load,readonly ${CMAKE_BINARY_DIR}/zephyr/boards/xtensa/${BOARD}/bootloader/bootloader.elf ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.mod
-  )
-
-add_custom_target(
-  process_rimage
-  DEPENDS process_bootloader process_elf rimage
-  COMMAND ${CMAKE_BINARY_DIR}/zephyr/rimage_ep/build/rimage -o ${CMAKE_BINARY_DIR}/zephyr/sof-apl.ri -m apl -k ${sof_module}/rimage/keys/otc_private_key.pem -i 3 ${CMAKE_BINARY_DIR}/zephyr/bootloader.elf.mod ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf.mod
   )
