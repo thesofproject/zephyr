@@ -5,6 +5,7 @@
 import argparse
 import os
 import sys
+from ctypes import string_at
 
 QEMU_ETRACE = "/dev/shm/qemu-bridge-hp-sram-mem"
 SOF_ETRACE = "/sys/kernel/debug/sof/etrace"
@@ -23,10 +24,19 @@ def read_bytes(buffer):
 
 class Loglist:
     """Loglist class"""
-    def __init__(self, etrace):
+
+    def __init__(self, argument):
+        """Constructor for the loglist takes argument filename or buffer"""
+
+        if isinstance(argument, str):
+            f = open(argument, "rb")
+            self.buffer = f.read(SLOT_NUM * SLOT_LEN)
+        elif isinstance(argument, int):
+            self.buffer = string_at(argument, SLOT_NUM * SLOT_LEN)
+        else:
+            return
+
         self.loglist = []
-        f = open(etrace, "rb")
-        self.buffer = f.read(SLOT_NUM * SLOT_LEN)
         self.parse()
 
     def parse_slot(self, slot):
