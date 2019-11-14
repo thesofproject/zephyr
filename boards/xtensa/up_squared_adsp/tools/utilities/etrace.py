@@ -11,6 +11,10 @@ from ctypes import byref, c_uint64, c_uint32, c_uint16, \
 
 import utilities.platforms as plat_def
 
+import sys
+sys.path.append('..')
+from logtool import Loglist
+
 
 def is_ascii(c):
     if c >= 32 and c <= 126:
@@ -35,7 +39,7 @@ class Etrace:
     def get_sram_win_offset(self, win_id):
         return (plat_def.FW_SRAM + (win_id * 0x20000))
 
-    def print(self):
+    def hexdump(self):
         data = (c_uint8 * self.size).from_address(self.mmap_addr)
 
         i = 1
@@ -57,6 +61,10 @@ class Etrace:
 
         if len(s):
             logging.info("0x%04X:  %s %s" % ((offset - 16), s, a))
+
+    def print(self):
+        l = Loglist(self.mmap_addr)
+        l.print()
 
     def save(self, output_file):
         data = (c_uint8 * self.size).from_address(self.mmap_addr)

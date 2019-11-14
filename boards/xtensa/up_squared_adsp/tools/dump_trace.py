@@ -24,6 +24,8 @@ def parse_args():
                             help="Save to output file")
     arg_parser.add_argument("-d", "--debug", default=False, action='store_true',
                             help="Display debug information")
+    arg_parser.add_argument("-x", "--hexdump", default=False, action='store_true',
+                            help="Display hexdump")
 
     args = arg_parser.parse_args()
 
@@ -45,6 +47,9 @@ def main():
 
     etrace = Etrace(dev)
     etrace.print()
+
+    if args.hexdump:
+        etrace.hexdump()
 
     if args.output_file:
         etrace.save(args.output_file)
