@@ -23,8 +23,6 @@ config KERNEL_ENTRY
 config USE_SOF_BOOT_LDR
 	default y
 
-if SOF
-
 config MULTI_LEVEL_INTERRUPTS
 	default y
 
@@ -34,9 +32,24 @@ config 2ND_LEVEL_INTERRUPTS
 config DYNAMIC_INTERRUPTS
 	default y
 
-endif
+config LOG
+	default y
+
+if TEST
+
+# To prevent test uses TEST_LOGGING_MINIMAL
+config TEST_LOGGING_DEFAULTS
+	default n
+
+endif # TEST
 
 if LOG
+
+config LOG_PRINTK
+	default y
+
+config LOG_IMMEDIATE
+	default y
 
 config LOG_BACKEND_ADSP
 	default y
@@ -48,13 +61,5 @@ config LOG_BACKEND_ADSP_RINGBUF_SIZE
 	default "0x2000"
 
 endif # LOG
-
-if TEST
-
-# To prevent test uses TEST_LOGGING_MINIMAL
-config TEST_LOGGING_DEFAULTS
-	default n
-
-endif # TEST
 
 endif
