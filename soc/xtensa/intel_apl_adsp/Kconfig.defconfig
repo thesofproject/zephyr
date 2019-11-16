@@ -49,4 +49,12 @@ config LOG_BACKEND_ADSP_RINGBUF_SIZE
 
 endif # LOG
 
+if TEST
+
+# To prevent test uses TEST_LOGGING_MINIMAL
+config TEST_LOGGING_DEFAULTS
+	default n
+
+endif # TEST
+
 endif
