@@ -11,6 +11,7 @@
 #include <sys/ring_buffer.h>
 #include <device.h>
 #include <assert.h>
+#include <soc.h>
 
 #define BUF_SIZE 64
 
@@ -29,13 +30,6 @@ static void init(void)
 {
 	ring_buf_init(&ringbuf, CONFIG_LOG_BACKEND_ADSP_RINGBUF_SIZE,
 		      (void *)CONFIG_LOG_BACKEND_ADSP_RINGBUF_BASE);
-}
-
-static inline void dcache_writeback_region(void *addr, size_t size)
-{
-#if XCHAL_DCACHE_SIZE > 0
-	xthal_dcache_region_writeback(addr, size);
-#endif
 }
 
 static void trace(const u8_t *data, size_t length)
@@ -68,7 +62,7 @@ static void trace(const u8_t *data, size_t length)
 		*t++ = data[i];
 	}
 
-	dcache_writeback_region((void *)region, BUF_SIZE);
+	SOC_DCACHE_FLUSH((void *)region, BUF_SIZE);
 
 	ring_buf_put_finish(&ringbuf, BUF_SIZE);
 }
