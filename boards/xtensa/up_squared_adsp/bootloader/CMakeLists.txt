@@ -15,7 +15,7 @@ target_include_directories(boot_module PUBLIC
 add_executable(bootloader
   _vectors.S
   boot_entry.S
-  memctl_default.S
+  ${ARCH_DIR}/${ARCH}/core/startup/memctl_default.S
   reset-vector.S
   boot_loader.c
   )
