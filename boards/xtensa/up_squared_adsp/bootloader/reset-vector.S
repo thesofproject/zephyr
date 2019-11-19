@@ -31,7 +31,6 @@
 #include <xtensa/config/specreg.h>
 #include <xtensa/config/system.h>	/* for XSHAL_USE_ABSOLUTE_LITERALS only */
 #include <xtensa/xtruntime-core-state.h>
-#include "xtos-internal.h"
 #include <config.h>
 
 #if CONFIG_BOOT_LOADER
