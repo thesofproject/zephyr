@@ -372,7 +372,7 @@ class RimageSigner(Signer):
                         'or provide --tool-path')
 
         b = pathlib.Path(build_dir)
-        cache = cmake.CMakeCache.from_build_dir(build_dir)
+        cache = CMakeCache.from_build_dir(build_dir)
 
         board = cache['CACHED_BOARD']
         if board != 'up_squared_adsp':
