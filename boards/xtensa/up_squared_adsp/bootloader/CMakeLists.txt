@@ -25,9 +25,7 @@ set(zephyr_sdk $ENV{ZEPHYR_SDK_INSTALL_DIR})
 target_include_directories(bootloader PUBLIC
   ./
   ${ZEPHYR_BASE}/include
-  # TODO: SDK: This should come automatically
-  ${zephyr_sdk}/xtensa/intel_apl_adsp/xtensa-zephyr-elf/include/
-  ${zephyr_sdk}/xtensa/intel_apl_adsp/xtensa-zephyr-elf/include/arch/include/
+  ${TOOLCHAIN_INCLUDES}
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
   )
 
