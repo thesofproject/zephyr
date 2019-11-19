@@ -158,17 +158,39 @@ static inline void soc_set_power_and_clock(void)
 	volatile struct soc_dsp_shim_regs *dsp_shim_regs =
 		(volatile struct soc_dsp_shim_regs *)SOC_DSP_SHIM_REG_BASE;
 
-	dsp_shim_regs->clkctl |= SOC_CLKCTL_REQ_FAST_CLK |
-		SOC_CLKCTL_OCS_FAST_CLK;
+	/*
+	 * DSP Core 0 PLL Clock Select divide by 1
+	 * DSP Core 1 PLL Clock Select divide by 1
+	 * Low Power Domain Clock Select depends on LMPCS bit
+	 * High Power Domain Clock Select depands on HMPCS bit
+	 * Low Power Domain PLL Clock Select device by 4
+	 * High Power Domain PLL Clock Select device by 2
+	 * Tensilica Core Prevent Audio PLL Shutdown (TCPAPLLS)
+	 * Tensilica Core Prevent Local Clock Gating (Core 0)
+	 * Tensilica Core Prevent Local Clock Gating (Core 1)
+	 */
+	dsp_shim_regs->clkctl =
+		SOC_CLKCTL_DPCS_DIV1(0) |
+		SOC_CLKCTL_DPCS_DIV1(1) |
+		SOC_CLKCTL_LDCS_LMPCS |
+		SOC_CLKCTL_HDCS_HMPCS |
+		SOC_CLKCTL_LPMEM_PLL_CLK_SEL_DIV4 |
+		SOC_CLKCTL_HPMEM_PLL_CLK_SEL_DIV2 |
+		SOC_CLKCTL_TCPAPLLS |
+		SOC_CLKCTL_TCPLCG_DIS(0) |
+		SOC_CLKCTL_TCPLCG_DIS(1);
+
+	/* Disable power gating for both cores */
 	dsp_shim_regs->pwrctl |= SOC_PWRCTL_DISABLE_PWR_GATING_DSP1 |
 		SOC_PWRCTL_DISABLE_PWR_GATING_DSP0;
+
+	/* Rewrite the low power sequencing control bits */
+	dsp_shim_regs->lpsctl = dsp_shim_regs->lpsctl;
 }
 
 static int soc_init(struct device *dev)
 {
-#if 0
 	soc_set_power_and_clock();
-#endif
 
 	return 0;
 }

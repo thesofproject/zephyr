@@ -102,22 +102,6 @@ static const struct adsp_ipc_window sram_window = {
 	},
 };
 
-static void clk_and_pm_init()
-{
-	/* Setup clocks and power management */
-	shim_write(SHIM_CLKCTL,
-		   SHIM_CLKCTL_HDCS_PLL | /* HP domain clocked by PLL */
-		   SHIM_CLKCTL_LDCS_PLL | /* LP domain clocked by PLL */
-		   SHIM_CLKCTL_DPCS_DIV1(0) | /* Core 0 clk not divided */
-		   SHIM_CLKCTL_DPCS_DIV1(1) | /* Core 1 clk not divided */
-		   SHIM_CLKCTL_HPMPCS_DIV2 | /* HP mem clock div by 2 */
-		   SHIM_CLKCTL_LPMPCS_DIV4 | /* LP mem clock div by 4 */
-		   SHIM_CLKCTL_TCPAPLLS_DIS |
-		   SHIM_CLKCTL_TCPLCG_DIS(0) | SHIM_CLKCTL_TCPLCG_DIS(1));
-
-	shim_write(SHIM_LPSCTL, shim_read(SHIM_LPSCTL));
-}
-
 /*
  * Sets up the host windows so that the host can see the memory
  * content on the DSP SRAM.
@@ -179,8 +163,6 @@ static void send_fw_ready()
 
 static int adsp_init(struct device *dev)
 {
-	clk_and_pm_init();
-
 	prepare_host_windows();
 
 	send_fw_ready();
