@@ -26,6 +26,7 @@ target_include_directories(bootloader PUBLIC
   ./
   ${ZEPHYR_BASE}/include
   ${TOOLCHAIN_INCLUDES}
+  ${SOC_DIR}/${ARCH}/${SOC_PATH}/
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
   )
 

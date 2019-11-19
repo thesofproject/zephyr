@@ -6,9 +6,9 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#include <arch/cache.h>
 #include <platform/platform.h>
 #include <platform/memory.h>
+#include <soc.h>
 #include "manifest.h"
 
 #if CONFIG_SUECREEK
@@ -36,7 +36,7 @@ static inline void bmemcpy(void *dest, void *src, size_t bytes)
 	for (i = 0; i < (bytes >> 2); i++)
 		d[i] = s[i];
 
-	dcache_writeback_region(dest, bytes);
+	SOC_DCACHE_FLUSH(dest, bytes);
 }
 
 /* bzero used by bootloader */
@@ -48,7 +48,7 @@ static inline void bbzero(void *dest, size_t bytes)
 	for (i = 0; i < (bytes >> 2); i++)
 		d[i] = 0;
 
-	dcache_writeback_region(dest, bytes);
+	SOC_DCACHE_FLUSH(dest, bytes);
 }
 
 static void parse_module(struct sof_man_fw_header *hdr,
