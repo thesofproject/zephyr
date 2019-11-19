@@ -19,7 +19,12 @@
 
 #if defined(CONFIG_BOOT_LOADER)
 
-static inline void idelay(int n) {}
+static inline void idelay(int n)
+{
+	while (n--) {
+		asm volatile("nop");
+	}
+}
 
 /* memcopy used by boot loader */
 static inline void bmemcpy(void *dest, void *src, size_t bytes)
