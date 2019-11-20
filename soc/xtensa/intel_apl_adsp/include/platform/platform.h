@@ -10,6 +10,8 @@
 #ifndef __PLATFORM_PLATFORM_H__
 #define __PLATFORM_PLATFORM_H__
 
+#include <xtensa/config/core.h>
+
 #include <platform/memory.h>
 
 #define PLATFORM_RESET_MHE_AT_BOOT		1
@@ -27,9 +29,8 @@
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
 #include <platform/mailbox.h>
-#include <platform/clk.h>
+#include <platform/io.h>
 #include <platform/shim.h>
-#include <platform/interrupt.h>
 
 struct sof;
 
