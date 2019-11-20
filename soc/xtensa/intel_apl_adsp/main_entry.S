@@ -27,11 +27,7 @@
 
 _MainEntry:
 
-#ifdef CONFIG_USE_SOF_BOOT_LDR
 	j	__start
-#else
-	j	_start
-#endif
 
 	.size	_MainEntry, . - _MainEntry
 

@@ -18,10 +18,7 @@ config XTENSA_KERNEL_CPU_PTR_SR
 	default "EXCSAVE2"
 
 config KERNEL_ENTRY
-	default "_MainEntry" if USE_SOF_BOOT_LDR
-
-config USE_SOF_BOOT_LDR
-	default y
+	default "_MainEntry"
 
 config MULTI_LEVEL_INTERRUPTS
 	default y
