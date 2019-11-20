@@ -62,9 +62,11 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description='Logging tool')
 
-    parser.add_argument('-e', '--etrace', choices=['sof', 'qemu'], default="sof")
+    parser.add_argument('-e', '--etrace', choices=['sof', 'qemu'], default="sof",
+                        help="Specify the trace target")
 
-    parser.add_argument('-f', '--file')
+    parser.add_argument('-f', '--file', help="Specify the trace file created by"
+                        " dump_trace tool")
 
     args = parser.parse_args()
 

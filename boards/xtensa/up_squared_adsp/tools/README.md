@@ -144,4 +144,24 @@ optional arguments:
   -o OUTPUT_FILE, --output-file OUTPUT_FILE
                         Save to output file
   -d, --debug           Display debug information
+  -x, --hexdump         Display hexdump
+```
+
+## Trace log tool
+This script reads the trace message from trace file created by the production driver or when it is running in qemu target.
+
+Also, it can read and parse the trace dump file created by dump_trace.py
+
+### Using script
+***Note that the script must run in sudo***
+```
+usage: logtool.py [-h] [-e {sof,qemu}] [-f FILE]
+
+Logging tool
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -e {sof,qemu}, --etrace {sof,qemu}
+                        Specify the trace target
+  -f FILE, --file FILE  Specify the trace file created by dump_trace tool
 ```
