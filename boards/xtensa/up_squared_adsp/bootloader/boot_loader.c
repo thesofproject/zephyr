@@ -17,6 +17,8 @@
 #define MANIFEST_BASE	IMR_BOOT_LDR_MANIFEST_BASE
 #endif
 
+extern void _ResetVector();
+
 #if defined(CONFIG_BOOT_LOADER)
 
 static inline void idelay(int n)
