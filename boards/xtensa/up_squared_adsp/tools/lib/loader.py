@@ -11,11 +11,11 @@ import logging
 import array
 
 from colorama import Fore, Style
-from utilities.stream_desc import StreamDescList
-from utilities.device import Device
-from utilities.ipc import Ipc
-import utilities.registers as regs_def
-import utilities.platforms as plat_def
+from lib.stream_desc import StreamDescList
+from lib.device import Device
+from lib.ipc import Ipc
+import lib.registers as regs_def
+import lib.platforms as plat_def
 
 
 class FirmwareStatus():

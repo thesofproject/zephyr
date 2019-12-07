@@ -12,7 +12,7 @@ import logging
 
 from ctypes import cast, POINTER, c_uint8, c_uint32, c_uint16, c_uint64,\
                    addressof, byref, sizeof
-import utilities.registers as regs_def
+import lib.registers as regs_def
 
 # diag_driver file
 DIAG_DRV_PATH = "/dev/hda"

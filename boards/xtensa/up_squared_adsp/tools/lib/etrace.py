@@ -9,7 +9,7 @@ import codecs
 from ctypes import byref, c_uint64, c_uint32, c_uint16, \
                    c_uint8, cast, POINTER, addressof, sizeof
 
-import utilities.platforms as plat_def
+import lib.platforms as plat_def
 
 import sys
 sys.path.append('..')

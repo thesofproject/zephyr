@@ -10,9 +10,9 @@ import time
 import logging
 from ctypes import  c_uint16, addressof
 
-from utilities.driver import DiagDriver, Register
-import utilities.registers as regs_def
-import utilities.platforms as plat_def
+from lib.driver import DiagDriver, Register
+import lib.registers as regs_def
+import lib.platforms as plat_def
 
 
 class Device:

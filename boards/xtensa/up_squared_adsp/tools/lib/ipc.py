@@ -8,7 +8,7 @@ import logging
 from ctypes import Structure, byref, c_uint64, c_uint32, c_uint16, \
                    c_uint8, cast, POINTER, addressof, sizeof
 
-import utilities.platforms as plat_def
+import lib.platforms as plat_def
 
 # Global Message - Generic
 IPC_GLB_TYPE_OFFSET     = 28
