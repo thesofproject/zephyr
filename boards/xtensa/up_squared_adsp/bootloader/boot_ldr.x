@@ -153,6 +153,7 @@ SECTIONS
   __stack = 0xBE000000 + (1 * 0x1000);
   __wnd0 = ((((((0xBE000000 + 0x8000) + 0x2000) + 0x800) + 0x800) + 0x1000) + 0x2000);
   __wnd0_size = (0x1000 + 0x1000);
+  .comment  0 :  { *(.comment) }
   .debug 0 : { *(.debug) }
   .line 0 : { *(.line) }
   .debug_srcinfo 0 : { *(.debug_srcinfo) }
@@ -170,6 +171,8 @@ SECTIONS
   .debug_funcnames 0 : { *(.debug_funcnames) }
   .debug_typenames 0 : { *(.debug_typenames) }
   .debug_varnames 0 : { *(.debug_varnames) }
+  .debug_ranges  0 :  { *(.debug_ranges) }
+  .xtensa.info  0 :  { *(.xtensa.info) }
   .xt.insn 0 :
   {
     KEEP (*(.xt.insn))
