@@ -99,6 +99,11 @@ config IPM_STM32_IPCC_PROCID
 	help
 	  use to define the Processor ID for IPCC access
 
+config IPM_ADSP
+	bool "IPM ADSP driver"
+	help
+	  Enable ADSP inter processor mailbox driver.
+
 module = IPM
 module-str = ipm
 source "subsys/logging/Kconfig.template.log_config"
