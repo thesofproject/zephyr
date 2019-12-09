@@ -108,7 +108,7 @@ static void parse_manifest(void)
 	for (i = MAN_SKIP_ENTRIES; i < hdr->num_module_entries; i++) {
 
 		/* platform_trace_point(TRACE_BOOT_LDR_PARSE_MODULE + i); */
-		mod = (void *)desc + SOF_MAN_MODULE_OFFSET(i);
+		mod = (void *)((uintptr_t)desc + SOF_MAN_MODULE_OFFSET(i));
 		parse_module(hdr, mod);
 	}
 }
