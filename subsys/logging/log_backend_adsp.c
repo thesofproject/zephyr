@@ -64,6 +64,11 @@ static void trace(const u8_t *data, size_t length)
 		*t++ = data[i];
 	}
 
+	/* Zeroing rest of the slot */
+	if (i < BUF_SIZE - 4) {
+		memset((void *)t, 0, BUF_SIZE - 4 - i);
+	}
+
 	SOC_DCACHE_FLUSH((void *)region, BUF_SIZE);
 
 	ring_buf_put_finish(&ringbuf, BUF_SIZE);
