@@ -39,3 +39,7 @@ target_compile_options(bootloader PUBLIC -fno-inline-functions -mlongcalls -mtex
 target_link_libraries(bootloader PUBLIC -Wl,--no-check-sections -ucall_user_start -Wl,-static -nostdlib)
 target_link_libraries(bootloader PRIVATE -lhal -L${zephyr_sdk}/xtensa/intel_apl_adsp/xtensa-zephyr-elf/lib)
 target_link_libraries(bootloader PRIVATE -T${BOARD_DIR}/bootloader/boot_ldr.x)
+
+if(CONFIG_XTENSA_HAL)
+  target_link_libraries(bootloader PRIVATE XTENSA_HAL)
+endif()
