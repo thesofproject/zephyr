@@ -20,6 +20,8 @@ add_executable(bootloader
   boot_loader.c
   )
 
+add_dependencies(bootloader ${SYSCALL_LIST_H_TARGET})
+
 set(zephyr_sdk $ENV{ZEPHYR_SDK_INSTALL_DIR})
 
 target_include_directories(bootloader PUBLIC
