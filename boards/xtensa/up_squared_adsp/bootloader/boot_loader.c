@@ -24,7 +24,7 @@ extern void _ResetVector();
 static inline void idelay(int n)
 {
 	while (n--) {
-		asm volatile("nop");
+		__asm__ volatile("nop");
 	}
 }
 
