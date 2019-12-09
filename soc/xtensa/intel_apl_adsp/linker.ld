@@ -336,7 +336,7 @@ SECTIONS
     *(.rodata1)
     __XT_EXCEPTION_TABLE__ = ABSOLUTE(.);
     KEEP (*(.xt_except_table))
-    KEEP (*(.gcc_except_table))
+    KEEP (*(.gcc_except_table .gcc_except_table.*))
     *(.gnu.linkonce.e.*)
     *(.gnu.version_r)
     KEEP (*(.eh_frame))
@@ -438,6 +438,7 @@ SECTIONS
     *(.dma_buffers)
     _dma_buf_end = ABSOLUTE(.);
   } >LPRAM_REGION
+  _heap_sentry = DT_L2_SRAM_BASE + DT_L2_SRAM_SIZE;
   .comment  0 :  { *(.comment) }
   .debug 0 : { *(.debug) }
   .line 0 : { *(.line) }
