@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 from enum import Enum
 
-"""Platform specific information"""
 # BXT
 
 # CORE ID MASK
@@ -54,7 +53,7 @@ class BOOT_STATUS(Enum):
 def BOOT_STATUS_STR(status):
     try:
         e = BOOT_STATUS(status)
-    except:
+    except Exception:
         return "UNKNOWN"
 
     return e.name
@@ -73,7 +72,7 @@ class WAIT_STATUS(Enum):
 def WAIT_STATUS_STR(status):
     try:
         e = WAIT_STATUS(status)
-    except:
+    except Exception:
         return "UNKNOWN"
 
     return e.name

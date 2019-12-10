@@ -5,9 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import codecs
-from ctypes import byref, c_uint64, c_uint32, c_uint16, \
-                   c_uint8, cast, POINTER, addressof, sizeof
+from ctypes import c_uint8, addressof
 
 import lib.platforms as plat_def
 
@@ -17,7 +15,7 @@ from logtool import Loglist
 
 
 def is_ascii(c):
-    if c >= 32 and c <= 126:
+    if 32 <= c <= 126:
         return str(chr(c))
     else:
         return "."
@@ -36,8 +34,9 @@ class Etrace:
         self.mmap = self.drv.mmap(self.dsp_base_p + self.offset, self.size)
         self.mmap_addr = addressof(self.mmap)
 
+    @classmethod
     def get_sram_win_offset(self, win_id):
-        return (plat_def.FW_SRAM + (win_id * 0x20000))
+        return plat_def.FW_SRAM + (win_id * 0x20000)
 
     def hexdump(self):
         data = (c_uint8 * self.size).from_address(self.mmap_addr)
@@ -59,7 +58,7 @@ class Etrace:
 
             i += 1
 
-        if len(s):
+        if s:
             logging.info("0x%04X:  %s %s" % ((offset - 16), s, a))
 
     def print(self):

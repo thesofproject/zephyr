@@ -4,13 +4,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import time
-import argparse
 import logging
 import array
 
-from colorama import Fore, Style
 from lib.stream_desc import StreamDescList
 from lib.device import Device
 from lib.ipc import Ipc

@@ -5,16 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 import argparse
 import logging
-import array
 
-from colorama import Fore, Style
 from lib.device import Device
 from lib.etrace import Etrace
-import lib.registers as regs_def
-import lib.platforms as plat_def
 
 def parse_args():
 

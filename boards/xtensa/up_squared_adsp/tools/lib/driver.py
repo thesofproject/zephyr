@@ -7,12 +7,10 @@ import os
 import fcntl
 import struct
 import mmap
-import time
 import logging
 
 from ctypes import cast, POINTER, c_uint8, c_uint32, c_uint16, c_uint64,\
-                   addressof, byref, sizeof
-import lib.registers as regs_def
+                   addressof, byref
 
 # diag_driver file
 DIAG_DRV_PATH = "/dev/hda"
@@ -98,6 +96,7 @@ class DiagDriver:
         self._mem_map_list = []
         self._buff_list = []
 
+    @classmethod
     def open_device(self):
         """
         Send CMD_OPEN_DEVICE and get HDA BAR and DSP BAR

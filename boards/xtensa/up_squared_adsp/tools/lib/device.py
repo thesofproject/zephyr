@@ -3,9 +3,6 @@
 # Copyright (c) 2018 Intel Corporation
 #
 # SPDX-License-Identifier: Apache-2.0
-import fcntl
-import os
-import mmap
 import time
 import logging
 from ctypes import  c_uint16, addressof
@@ -235,6 +232,7 @@ class Device:
 
         logging.debug("   DSP_CTL_STS=%s" % self.dsp_ctl_sts)
 
+    @classmethod
     def _update_bits(self, reg, mask, value):
 
         old_val = reg.value

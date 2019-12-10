@@ -8,7 +8,7 @@ import logging
 from time import sleep
 from ctypes import c_uint16, POINTER, cast, c_uint8, c_uint64
 
-from lib.driver import DiagDriver, Register
+from lib.driver import Register
 import lib.registers as regs_def
 import lib.platforms as plat_def
 
