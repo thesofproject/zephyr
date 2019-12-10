@@ -80,16 +80,13 @@ def main():
     if os.geteuid() != 0:
         sys.exit("Please run this program as root / sudo")
 
-    if args.file != None:
+    if args.file is not None:
         etrace = args.file
-        offset = 0
     else:
         if args.etrace == 'sof':
             etrace = SOF_ETRACE
-            offset = SOF_OFFSET
         else:
             etrace = QEMU_ETRACE
-            offset = QEMU_OFFSET
 
     l = Loglist(etrace)
     l.print()
