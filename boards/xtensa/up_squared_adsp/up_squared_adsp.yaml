@@ -5,6 +5,10 @@ arch: xtensa
 toolchain:
   - zephyr
 testing:
+  default: true
   ignore_tags:
      - net
-     - bluetooth
+     - posix
+     - cpp
+     - jwt
+     - newlib
