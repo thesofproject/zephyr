@@ -10,6 +10,7 @@ import logging
 
 from lib.device import Device
 from lib.etrace import Etrace
+from lib.loglist import Loglist
 
 def parse_args():
 
