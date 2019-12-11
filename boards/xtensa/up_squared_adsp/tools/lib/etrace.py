@@ -34,8 +34,8 @@ class Etrace:
         self.mmap = self.drv.mmap(self.dsp_base_p + self.offset, self.size)
         self.mmap_addr = addressof(self.mmap)
 
-    @classmethod
-    def get_sram_win_offset(self, win_id):
+    @staticmethod
+    def get_sram_win_offset(win_id):
         return plat_def.FW_SRAM + (win_id * 0x20000)
 
     def hexdump(self):

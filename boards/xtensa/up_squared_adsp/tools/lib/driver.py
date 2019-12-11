@@ -93,10 +93,10 @@ class DiagDriver:
     """ Interface for diag_driver """
 
     def __init__(self):
+        self._handle = None
         self._mem_map_list = []
         self._buff_list = []
 
-    @classmethod
     def open_device(self):
         """
         Send CMD_OPEN_DEVICE and get HDA BAR and DSP BAR
@@ -115,11 +115,11 @@ class DiagDriver:
         with open(DIAG_DRV_PATH) as fd:
             fcntl.ioctl(fd, CMD_OPEN_DEVICE, buf)
 
-        handle = HdaHandle(buf)
+        self._handle = HdaHandle(buf)
 
         logging.debug("<<< DiagDriver.open_device()")
 
-        return handle
+        return self._handle
 
     def alloc_mem(self, size):
         """

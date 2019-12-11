@@ -232,8 +232,8 @@ class Device:
 
         logging.debug("   DSP_CTL_STS=%s" % self.dsp_ctl_sts)
 
-    @classmethod
-    def _update_bits(self, reg, mask, value):
+    @staticmethod
+    def _update_bits(reg, mask, value):
 
         old_val = reg.value
         new_val = (old_val & ~mask) | (value & mask)
