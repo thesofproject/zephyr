@@ -4,7 +4,7 @@ compiler: gcc
 
 env:
     global:
-        - ZEPHYR_SDK_INSTALL_DIR=/opt/sdk/zephyr-sdk-0.10.3
+        - ZEPHYR_SDK_INSTALL_DIR=/opt/sdk/zephyr-sdk-0.11.0-alpha-8
         - ZEPHYR_TOOLCHAIN_VARIANT=zephyr
         - MATRIX_BUILDS="5"
     matrix:
