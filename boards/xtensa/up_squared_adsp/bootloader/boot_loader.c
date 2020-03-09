@@ -115,8 +115,8 @@ static int32_t lp_sram_init(void)
 	/* add some delay before writing power registers */
 	idelay(delay_count);
 
-	lspgctl_value = shim_read(LSPGCTL);
-	shim_write(LSPGCTL, lspgctl_value & ~LPSRAM_MASK(0));
+	lspgctl_value = shim_read(SHIM_LSPGCTL);
+	shim_write(SHIM_LSPGCTL, lspgctl_value & ~LPSRAM_MASK(0));
 
 	/* add some delay before checking the status */
 	idelay(delay_count);
