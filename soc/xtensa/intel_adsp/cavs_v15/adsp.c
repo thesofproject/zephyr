@@ -10,6 +10,7 @@
 #include <platform/ipc.h>
 #include <platform/mailbox.h>
 #include <platform/shim.h>
+#include <adsp/cache.h>
 
 #include "soc.h"
 
