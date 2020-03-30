@@ -1,13 +1,15 @@
-# Xtensa board configuration
-
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2020 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-if SOC_INTEL_APL_ADSP
+if SOC_SERIES_INTEL_CAVS_V15
+
+config SOC_SERIES
+	string
+	default "cavs_v15"
 
 config SOC
 	string
-	default "intel_apl_adsp"
+	default "intel_apl_adsp" if SOC_INTEL_CAVS_APL
 
 config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default 400000000 if XTENSA_TIMER
@@ -16,10 +18,10 @@ config SYS_CLOCK_HW_CYCLES_PER_SEC
 config IRQ_OFFLOAD_INTNUM
 	default 0
 
-# S1000 does not have MISC0.
-# Since EXCSAVE2 is unused by Zephyr, use it instead.
+# This series does not have MISC0.
+# Since EXCSAVE7 is unused by Zephyr, use it instead.
 config XTENSA_KERNEL_CPU_PTR_SR
-	default "EXCSAVE2"
+	default "EXCSAVE7"
 
 config KERNEL_ENTRY
 	default "_MainEntry"
@@ -57,7 +59,6 @@ config LOG_BACKEND_RB_MEM_SIZE
 
 endif # LOG
 
-
 if SMP
 
 config MP_NUM_CPUS
@@ -78,6 +79,6 @@ config IPM_CAVS_IDC
 config SCHED_IPI_SUPPORTED
 	default y if IPM_CAVS_IDC
 
-endif
+endif # SMP
 
-endif
+endif # SOC_SERIES_INTEL_CAVS_V15
