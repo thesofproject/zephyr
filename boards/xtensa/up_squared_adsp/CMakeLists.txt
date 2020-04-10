@@ -12,7 +12,10 @@ if(EXISTS ${BOARD_DIR}/bootloader/CMakeLists.txt)
   add_subdirectory(${BOARD_DIR}/bootloader ${build_dir})
 endif()
 
-set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
+if(CONFIG_SOF)
+	set(sof_module ${PROJECT_SOURCE_DIR}/../modules/audio/sof)
+	#target_link_libraries(bootloader PRIVATE sof_module)
+endif()
 
 add_custom_target(
   process_elf ALL
