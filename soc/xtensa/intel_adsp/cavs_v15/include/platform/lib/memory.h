@@ -9,6 +9,8 @@
 #ifndef __PLATFORM_MEMORY_H__
 #define __PLATFORM_MEMORY_H__
 
+#include <cavs/lib/memory.h>
+
 /* Memory banks */
 
 #define NUM_LP_MEMORY_BANKS		2
@@ -21,24 +23,16 @@
 
 #define EBB_SEGMENT_SIZE                EBB_BANKS_IN_SEGMENT
 
-#define PLATFORM_LPSRAM_EBB_COUNT       NUM_LP_MEMORY_BANKS
-
-#define PLATFORM_HPSRAM_EBB_COUNT       NUM_HP_MEMORY_BANKS
-
-#define LP_SRAM_SIZE                    (NUM_LP_MEMORY_BANKS * SRAM_BANK_SIZE)
-
-#define HP_SRAM_SIZE                    (NUM_HP_MEMORY_BANKS * SRAM_BANK_SIZE)
-
-#define LPSRAM_MASK(ignored)    ((1 << PLATFORM_LPSRAM_EBB_COUNT) - 1)
-
-#define HPSRAM_MASK(seg_idx)    ((1 << (PLATFORM_HPSRAM_EBB_COUNT \
-					- EBB_BANKS_IN_SEGMENT * seg_idx)) - 1)
 
 /* physical DSP addresses */
 
 /* shim */
 #define SHIM_BASE		0x00001000
 #define SHIM_SIZE		0x00000100
+
+/* IRQ controller */
+#define IRQ_BASE		0x00001600
+#define IRQ_SIZE		0x00000200
 
 /* IPC to the host */
 #define IPC_HOST_BASE		0x00001180
@@ -47,6 +41,13 @@
 /* Intra DSP IPC */
 #define IPC_DSP_SIZE		0x00000080
 #define IPC_DSP_BASE(x)		(0x00001200 + x * IPC_DSP_SIZE)
+
+/* M/N dividers */
+#define MN_BASE			0x00008E00
+#define MN_SIZE			0x00000200
+
+/* Timestamp */
+#define TIMESTAMP_BASE		0x00001800
 
 /* SRAM window for HOST */
 #define HOST_WIN_SIZE		0x00000008
@@ -120,7 +121,9 @@
 #define SRAM_REG_FW_TRACEP			0x8
 #define SRAM_REG_FW_IPC_RECEIVED_COUNT		0xc
 #define SRAM_REG_FW_IPC_PROCESSED_COUNT		0x10
-#define SRAM_REG_FW_END				0x14
+#define SRAM_REG_FW_TRACEP_SLAVE_CORE_BASE	0x14
+#define SRAM_REG_FW_END \
+	(SRAM_REG_FW_TRACEP_SLAVE_CORE_BASE + (PLATFORM_CORE_COUNT - 1) * 0x4)
 
 #define SRAM_OUTBOX_BASE	(SRAM_SW_REG_BASE + SRAM_SW_REG_SIZE)
 #define SRAM_OUTBOX_SIZE	0x1000
@@ -145,6 +148,13 @@
 
 #define SOF_FW_START		(HP_SRAM_VECBASE_RESET + 0x400)
 #define SOF_FW_BASE		(SOF_FW_START)
+
+#define PLATFORM_HEAP_SYSTEM		PLATFORM_CORE_COUNT /* one per core */
+#define PLATFORM_HEAP_SYSTEM_RUNTIME	PLATFORM_CORE_COUNT /* one per core */
+#define PLATFORM_HEAP_RUNTIME		1
+#define PLATFORM_HEAP_BUFFER		2
+
+#define HEAP_BUFFER_SIZE	0x10000
 
 /* max size for all var-size sections (text/rodata/bss) */
 #define SOF_FW_MAX_SIZE		(0x41000 - 0x400)

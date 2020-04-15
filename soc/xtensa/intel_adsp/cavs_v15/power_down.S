@@ -10,10 +10,10 @@
  * \brief Power gating memory banks - implementation specific for Apollolake
  * \author Lech Betlej <lech.betlej@linux.intel.com>
  */
-#include <platform/asm_ldo_management.h>
-#include <platform/asm_memory_management.h>
-#include <platform/memory.h>
-#include <platform/shim.h>
+#include <platform/lib/asm_ldo_management.h>
+#include <platform/lib/asm_memory_management.h>
+#include <platform/lib/memory.h>
+#include <platform/lib/shim.h>
 
     .section .text, "ax"
     .align 64

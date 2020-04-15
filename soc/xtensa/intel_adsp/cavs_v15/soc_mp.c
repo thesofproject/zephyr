@@ -20,7 +20,7 @@ LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 #include "soc.h"
 #include "memory.h"
 
-#include <platform/shim.h>
+#include <platform/lib/shim.h>
 
 #ifdef CONFIG_SCHED_IPI_SUPPORTED
 #include <drivers/ipm.h>
