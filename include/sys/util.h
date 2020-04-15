@@ -93,6 +93,16 @@ extern "C" {
  * particulary meaningful in this case.
  *
  * In C, passing a pointer as @p array causes a compile error.
+ *
+ * Temp - The SOF module also defines IS_ENABLED and this is to avoid
+ * collisions until it can be reolved as part of SOF port.
+ */
+#ifdef ARRAY_SIZE
+#undef ARRAY_SIZE
+#endif
+
+/* Evaluates to number of elements in an array; compile error if not
+ * an array (e.g. pointer)
  */
 #define ARRAY_SIZE(array) \
 	((long) (IS_ARRAY(array) + (sizeof(array) / sizeof((array)[0]))))
@@ -324,6 +334,13 @@ uint8_t u8_to_dec(char *buf, uint8_t buflen, uint8_t value);
  * or 0 if @p n is 0.
  */
 #define BIT_MASK(n) (BIT(n) - 1)
+
+/* Temp - The SOF module also defines IS_ENABLED and this is to avoid
+ * collisions until it can be reolved as part of SOF port.
+ */
+#ifdef IS_ENABLED
+#undef IS_ENABLED
+#endif
 
 /**
  * @brief Check for macro definition in compiler-visible expressions
