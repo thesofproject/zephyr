@@ -6,16 +6,20 @@
  */
 
 /**
- * \file papl/include/asm_memory_management.h
+ * \file platform/apollolake/include/platform/lib/asm_memory_management.h
  * \brief Macros for power gating memory banks specific for Apollolake
  * \author Lech Betlej <lech.betlej@linux.intel.com>
  */
 
-#ifndef __APL_ASM_MEMORY_MANAGEMENT_H__
-#define __APL_ASM_MEMORY_MANAGEMENT_H__
+#ifndef __PLATFORM_LIB_ASM_MEMORY_MANAGEMENT_H__
+#define __PLATFORM_LIB_ASM_MEMORY_MANAGEMENT_H__
 
-#include "memory.h"
-#include "shim.h"
+#ifndef ASSEMBLY
+#warning "ASSEMBLY macro not defined."
+#endif
+
+#include <platform/lib/memory.h>
+#include <platform/lib/shim.h>
 
 	/* Macro powers down entire hpsram. on entry literals and code for
 	 * section from where this code is executed needs to be placed in
@@ -63,4 +67,4 @@
 	bne \ax, \ay, 1b
 	.endm
 
-#endif /* __APL_ASM_MEMORY_MANAGEMENT_H__ */
+#endif /* __PLATFORM_LIB_ASM_MEMORY_MANAGEMENT_H__ */

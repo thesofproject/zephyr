@@ -13,10 +13,9 @@
 #ifndef __PLATFORM_LIB_CPU_H__
 #define __PLATFORM_LIB_CPU_H__
 
-#include <cavs/include/cpu.h>
+#include <cavs/lib/cpu.h>
 
 /** \brief Maximum allowed number of DSP cores */
 #define MAX_CORE_COUNT	2
 
 #endif /* __PLATFORM_LIB_CPU_H__ */
-

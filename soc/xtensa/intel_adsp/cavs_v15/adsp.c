@@ -7,9 +7,9 @@
 #include <device.h>
 #include <init.h>
 
-#include <platform/ipc.h>
-#include <platform/mailbox.h>
-#include <platform/shim.h>
+#include <platform/lib/ipc.h>
+#include <platform/lib/mailbox.h>
+#include <platform/lib/shim.h>
 #include <adsp/cache.h>
 
 #include "soc.h"

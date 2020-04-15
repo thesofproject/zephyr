@@ -11,11 +11,12 @@
  * \author Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
+#ifdef __SOF_LIB_PM_RUNTIME_H__
 
 #ifndef __PLATFORM_LIB_PM_RUNTIME_H__
 #define __PLATFORM_LIB_PM_RUNTIME_H__
 
-#include <cavs/include/pm_runtime.h>
+#include <cavs/lib/pm_runtime.h>
 #include <stdint.h>
 
 /**
@@ -57,3 +58,8 @@ void platform_pm_runtime_power_off(void);
 
 #endif /* __PLATFORM_LIB_PM_RUNTIME_H__ */
 
+#else
+
+#error "This file shouldn't be included from outside of sof/lib/pm_runtime.h"
+
+#endif /* __SOF_LIB_PM_RUNTIME_H__ */
