@@ -5,15 +5,15 @@
  * Author: Bartosz Kokoszko <bartoszx.kokoszko@linux.intel.com>
  */
 
-#ifdef __PLATFORM_LIB_MEMORY_H__
-
 #ifndef __CAVS_LIB_MEMORY_H__
 #define __CAVS_LIB_MEMORY_H__
 
-#include <sof/lib/cache.h>
+#include <adsp/cache.h>
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
-#include <sof/lib/cpu.h>
+#include <stdint.h>
+#include <cavs/lib/cpu.h>
 #endif
+
 #include <config.h>
 
 /* data cache line alignment */
@@ -64,6 +64,9 @@
 
 #define HEAP_BUF_ALIGNMENT		PLATFORM_DCACHE_ALIGN
 
+/** \brief EDF task's default stack size in bytes. */
+#define PLATFORM_TASK_DEFAULT_STACK_SIZE	3072
+
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
 struct sof;
@@ -75,7 +78,7 @@ struct sof;
  * align to cache line size instead.
  */
 #if PLATFORM_CORE_COUNT > 1 && !defined(UNIT_TEST)
-#define SHARED_DATA	__attribute__((section(".shared_data")))
+#define SHARED_DATA	__section(".shared_data")
 #else
 #define SHARED_DATA
 #endif
@@ -144,9 +147,3 @@ void platform_init_memmap(struct sof *sof);
 #endif
 
 #endif /* __CAVS_LIB_MEMORY_H__ */
-
-#else
-
-#error "This file shouldn't be included from outside of platform/lib/memory.h"
-
-#endif /* __PLATFORM_LIB_MEMORY_H__ */
