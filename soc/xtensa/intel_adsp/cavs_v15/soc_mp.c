@@ -25,7 +25,6 @@ LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 #ifdef CONFIG_SCHED_IPI_SUPPORTED
 #include <drivers/ipm.h>
 #include <ipm/ipm_cavs_idc.h>
-#include <ipm/ipm_cavs_idc_priv.h>
 
 /* ROM wake version parsed by ROM during core wake up. */
 #define IDC_ROM_WAKE_VERSION	0x2
@@ -101,8 +100,8 @@ static void mp_entry2(void)
 		"wsr." CONFIG_XTENSA_KERNEL_CPU_PTR_SR " %0" : : "r"(cpu));
 
 	/* Clear busy bit set by power up message */
-	idc_reg = idc_read(REG_IDCTFC(0), start_rec.cpu) | REG_IDCTFC_BUSY;
-	idc_write(REG_IDCTFC(0), start_rec.cpu, idc_reg);
+	idc_reg = idc_read(IPC_IDCTFC(0), start_rec.cpu) | IPC_IDCTFC_BUSY;
+	idc_write(IPC_IDCTFC(0), start_rec.cpu, idc_reg);
 
 #ifdef CONFIG_IPM_CAVS_IDC
 	/* Interrupt must be enabled while running on current core */
@@ -182,22 +181,22 @@ void arch_start_cpu(int cpu_num, k_thread_stack_t *stack, int sz,
 #endif
 
 	/* Enable IDC interrupt on the other core */
-	idc_reg = idc_read(REG_IDCCTL, cpu_num);
-	idc_reg |= REG_IDCCTL_IDCTBIE(0);
-	idc_write(REG_IDCCTL, cpu_num, idc_reg);
+	idc_reg = idc_read(IPC_IDCCTL, cpu_num);
+	idc_reg |= IPC_IDCCTL_IDCTBIE(0);
+	idc_write(IPC_IDCCTL, cpu_num, idc_reg);
 	sys_set_bit(DT_CAVS_ICTL_BASE_ADDR + 0x04 +
 		    CAVS_ICTL_INT_CPU_OFFSET(cpu_num), 8);
 
 	/* Send power up message to the other core */
-	idc_write(REG_IDCIETC(cpu_num), 0, IDC_MSG_POWER_UP_EXT(RAM_BASE));
-	idc_write(REG_IDCITC(cpu_num), 0, IDC_MSG_POWER_UP | REG_IDCITC_BUSY);
+	idc_write(IPC_IDCIETC(cpu_num), 0, IDC_MSG_POWER_UP_EXT(RAM_BASE));
+	idc_write(IPC_IDCITC(cpu_num), 0, IDC_MSG_POWER_UP | IPC_IDCITC_BUSY);
 
 	/* Disable IDC interrupt on other core so IPI won't cause
 	 * them to jump to ISR until the core is fully initialized.
 	 */
-	idc_reg = idc_read(REG_IDCCTL, cpu_num);
-	idc_reg &= ~REG_IDCCTL_IDCTBIE(0);
-	idc_write(REG_IDCCTL, cpu_num, idc_reg);
+	idc_reg = idc_read(IPC_IDCCTL, cpu_num);
+	idc_reg &= ~IPC_IDCCTL_IDCTBIE(0);
+	idc_write(IPC_IDCCTL, cpu_num, idc_reg);
 	sys_clear_bit(DT_CAVS_ICTL_BASE_ADDR + 0x04 +
 		      CAVS_ICTL_INT_CPU_OFFSET(cpu_num), 8);
 
@@ -206,8 +205,8 @@ void arch_start_cpu(int cpu_num, k_thread_stack_t *stack, int sz,
 	} while (start_rec.alive == 0);
 
 	/* Clear done bit from responding the power up message */
-	idc_reg = idc_read(REG_IDCIETC(cpu_num), 0) | REG_IDCIETC_DONE;
-	idc_write(REG_IDCIETC(cpu_num), 0, idc_reg);
+	idc_reg = idc_read(IPC_IDCIETC(cpu_num), 0) | IPC_IDCIETC_DONE;
+	idc_write(IPC_IDCIETC(cpu_num), 0, idc_reg);
 }
 
 #ifdef CONFIG_SCHED_IPI_SUPPORTED
