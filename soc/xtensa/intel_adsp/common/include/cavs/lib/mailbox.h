@@ -5,13 +5,11 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
-
-#ifdef __PLATFORM_LIB_MAILBOX_H__
-
 #ifndef __CAVS_LIB_MAILBOX_H__
 #define __CAVS_LIB_MAILBOX_H__
 
-#include <sof/lib/memory.h>
+#include <platform/lib/memory.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /*
@@ -70,10 +68,15 @@ static inline void mailbox_sw_reg_write(size_t offset, uint32_t src)
 	*ptr = src;
 }
 
+static inline uint32_t mailbox_sw_reg_read(size_t offset)
+{
+	volatile uint32_t *ptr;
+
+	ptr = (volatile uint32_t *)(MAILBOX_SW_REG_BASE + offset);
+	ptr = cache_to_uncache(ptr);
+
+	return *ptr;
+}
+
 #endif /* __CAVS_LIB_MAILBOX_H__ */
 
-#else
-
-#error "This file shouldn't be included from outside of platform/lib/mailbox.h"
-
-#endif /* __PLATFORM_LIB_MAILBOX_H__ */

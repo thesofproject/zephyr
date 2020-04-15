@@ -13,8 +13,8 @@
 #include <string.h>
 
 #include <cavs/mem_window.h>
-#include <platform/io.h>
-#include <platform/shim.h>
+#include <platform/lib/io.h>
+#include <platform/lib/shim.h>
 #include <adsp/cache.h>
 
 static inline void memory_window_init(uint32_t index,
