@@ -48,6 +48,13 @@
 		!__builtin_types_compatible_p(__typeof__(array), \
 					      __typeof__(&(array)[0])))
 
+/* Temp - The SOF module also defines IS_ENABLED and this is to avoid
+ * collisions until it can be reolved as part of SOF port.
+ */
+#ifdef ARRAY_SIZE
+#undef ARRAY_SIZE
+#endif
+
 #if defined(__cplusplus)
 template < class T, size_t N >
 #if __cplusplus >= 201103L
@@ -231,6 +238,13 @@ u8_t u8_to_dec(char *buf, u8_t buflen, u8_t value);
 	((var) = (set) ? ((var) | BIT(bit)) : ((var) & ~BIT(bit)))
 
 #define BIT_MASK(n) (BIT(n) - 1)
+
+/* Temp - The SOF module also defines IS_ENABLED and this is to avoid
+ * collisions until it can be reolved as part of SOF port.
+ */
+#ifdef IS_ENABLED
+#undef IS_ENABLED
+#endif
 
 /**
  * @brief Check for macro definition in compiler-visible expressions
