@@ -6,15 +6,15 @@
  */
 
 /**
- * \file apl/include/asm_ldo_management.h
+ * \file platform/apollolake/lib/asm_ldo_management.h
  * \brief Macros for controlling LDO state specific for cAVS 1.5. The header is
  * intended to be used in Apollolake specific implementation of power_down
  * routine
  */
 
-#ifndef __APL_ASM_LDO_MANAGEMENT_H__
-#define __APL_ASM_LDO_MANAGEMENT_H__
+#ifndef __PLATFORM_LIB_ASM_LDO_MANAGEMENT_H__
+#define __PLATFORM_LIB_ASM_LDO_MANAGEMENT_H__
 
-#include <cavs/asm_ldo_management.h>
+#include <cavs/lib/asm_ldo_management.h>
 
-#endif /* __APL_ASM_LDO_MANAGEMENT_H__ */
+#endif /* __PLATFORM_LIB_ASM_LDO_MANAGEMENT_H__ */
