@@ -97,6 +97,6 @@
 #define LPRAM_BASE				(DT_REG_ADDR(DT_NODELABEL(sram1)))
 #define LPRAM_SIZE				(DT_REG_SIZE(DT_NODELABEL(sram1)))
 
-#include <platform/memory.h>
+#include <platform/lib/memory.h>
 
 #endif /* __INC_MEMORY_H */

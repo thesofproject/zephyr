@@ -6,10 +6,11 @@
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
 
-#ifndef __PLATFORM_SHIM_H__
-#define __PLATFORM_SHIM_H__
+#ifndef __PLATFORM_LIB_SHIM_H__
+#define __PLATFORM_LIB_SHIM_H__
 
-#include <platform/memory.h>
+#include <sys/util.h>
+#include <platform/lib/memory.h>
 
 #ifndef ASSEMBLY
 #include <stdint.h>
@@ -32,23 +33,23 @@
 #define IPC_DIPCCTL		0x10
 
 /* DIPCT */
-#define IPC_DIPCT_BUSY		(1 << 31)
+#define IPC_DIPCT_BUSY		BIT(31)
 #define IPC_DIPCT_MSG_MASK	0x7FFFFFFF
 
 /* DIPCTE */
 #define IPC_DIPCTE_MSG_MASK	0x3FFFFFFF
 
 /* DIPCI */
-#define IPC_DIPCI_BUSY		(1 << 31)
+#define IPC_DIPCI_BUSY		BIT(31)
 #define IPC_DIPCI_MSG_MASK	0x7FFFFFFF
 
 /* DIPCIE */
-#define IPC_DIPCIE_DONE		(1 << 30)
+#define IPC_DIPCIE_DONE		BIT(30)
 #define IPC_DIPCIE_MSG_MASK	0x3FFFFFFF
 
 /* DIPCCTL */
-#define IPC_DIPCCTL_IPCIDIE	(1 << 1)
-#define IPC_DIPCCTL_IPCTBIE	(1 << 0)
+#define IPC_DIPCCTL_IPCIDIE	BIT(1)
+#define IPC_DIPCCTL_IPCTBIE	BIT(0)
 
 #define IPC_DSP_OFFSET		0x10
 
@@ -60,23 +61,23 @@
 #define IPC_IDCCTL		0x50
 
 /* IDCTFC */
-#define IPC_IDCTFC_BUSY		(1 << 31)
+#define IPC_IDCTFC_BUSY		BIT(31)
 #define IPC_IDCTFC_MSG_MASK	0x7FFFFFFF
 
 /* IDCTEFC */
 #define IPC_IDCTEFC_MSG_MASK	0x3FFFFFFF
 
 /* IDCITC */
-#define IPC_IDCITC_BUSY		(1 << 31)
+#define IPC_IDCITC_BUSY		BIT(31)
 #define IPC_IDCITC_MSG_MASK	0x7FFFFFFF
 
 /* IDCIETC */
-#define IPC_IDCIETC_DONE	(1 << 30)
+#define IPC_IDCIETC_DONE	BIT(30)
 #define IPC_IDCIETC_MSG_MASK	0x3FFFFFFF
 
 /* IDCCTL */
 #define IPC_IDCCTL_IDCIDIE(x)	(0x100 << (x))
-#define IPC_IDCCTL_IDCTBIE(x)	(0x1 << (x))
+#define IPC_IDCCTL_IDCTBIE(x)	BIT(x)
 
 #define IRQ_CPU_OFFSET	0x40
 
@@ -126,10 +127,10 @@
 #define SHIM_DSPWCT0C		0x30 /* DSP Wall Clock Timer 0 Compare */
 #define SHIM_DSPWCT1C		0x38 /* DSP Wall Clock Timer 1 Compare */
 
-#define SHIM_DSPWCTCS_T1T	(0x1 << 5) /* Timer 1 triggered */
-#define SHIM_DSPWCTCS_T0T	(0x1 << 4) /* Timer 0 triggered */
-#define SHIM_DSPWCTCS_T1A	(0x1 << 1) /* Timer 1 armed */
-#define SHIM_DSPWCTCS_T0A	(0x1 << 0) /* Timer 0 armed */
+#define SHIM_DSPWCTCS_T1T	BIT(5) /* Timer 1 triggered */
+#define SHIM_DSPWCTCS_T0T	BIT(4) /* Timer 0 triggered */
+#define SHIM_DSPWCTCS_T1A	BIT(1) /* Timer 1 armed */
+#define SHIM_DSPWCTCS_T0A	BIT(0) /* Timer 0 armed */
 
 /** \brief Clock control */
 #define SHIM_CLKCTL		0x78
@@ -159,7 +160,7 @@
 #define SHIM_CLKCTL_I2SEFDCGB(x)	BIT(18 + x)
 
 /** \brief Tensilica Core Prevent Local Clock Gating */
-#define SHIM_CLKCTL_TCPLCG_EN(x)	BIT(16 + x)
+#define SHIM_CLKCTL_TCPLCG_EN(x)	BIT(16 + (x))
 #define SHIM_CLKCTL_TCPLCG_DIS(x)	0
 
 /** \brief Core clock PLL divisor */
@@ -204,7 +205,7 @@
 #define SHIM_LSPGCTL		0x84
 #define SHIM_SPSREQ		0xa0
 
-#define SHIM_SPSREQ_RVNNP	(0x1 << 0)
+#define SHIM_SPSREQ_RVNNP	BIT(0)
 
 /** \brief GPDMA shim registers Control */
 #define SHIM_GPDMA_BASE_OFFSET	0xC00
@@ -231,38 +232,37 @@
 #define LSPGISTS		(SHIM_BASE + SHIM_LSPGISTS)
 
 
-#define SHIM_LPSCTL_FDSPRUN	(0X1 << 9)
-#define SHIM_LPSCTL_FDMARUN	(0X1 << 8)
+#define SHIM_LPSCTL_FDSPRUN	BIT(9)
+#define SHIM_LPSCTL_FDMARUN	BIT(8)
 
 #define SHIM_L2_MECS		(SHIM_BASE + 0xd0)
 
 #define SHIM_LPGPDMAC(x)	(0x1110 + (2 * x))
-#define SHIM_LPGPDMAC_CTLOSEL	(1 << 15)
-#define SHIM_LPGPDMAC_CHOSEL	(0xFF)
+#define SHIM_LPGPDMAC_CTLOSEL	BIT(15)
+#define SHIM_LPGPDMAC_CHOSEL	0xFF
 
 #define SHIM_DSPIOPO		0x1118
-#define SHIM_DSPIOPO_DMICOSEL	(1 << 0)
+#define SHIM_DSPIOPO_DMICOSEL	BIT(0)
 #define SHIM_DSPIOPO_I2SOSEL	(0x3F << 8)
 
 #define SHIM_GENO		0x111C
-#define SHIM_GENO_SHIMOSEL	(1 << 0)
-#define SHIM_GENO_MDIVOSEL	(1 << 1)
-#define SHIM_GENO_DIOPTOSEL	(1 << 2)
+#define SHIM_GENO_SHIMOSEL	BIT(0)
+#define SHIM_GENO_MDIVOSEL	BIT(1)
+#define SHIM_GENO_DIOPTOSEL	BIT(2)
 
 #define SHIM_L2_CACHE_CTRL	(SHIM_BASE + 0x500)
 #define SHIM_L2_PREF_CFG	(SHIM_BASE + 0x508)
 #define SHIM_L2_CACHE_PREF	(SHIM_BASE + 0x510)
 
 #define SHIM_SVCFG			0xF4
-#define SHIM_SVCFG_FORCE_L1_EXIT	(0x1 << 1)
-
+#define SHIM_SVCFG_FORCE_L1_EXIT	BIT(1)
 
 /* host windows */
 #define DMWBA(x)		(HOST_WIN_BASE(x) + 0x0)
 #define DMWLO(x)		(HOST_WIN_BASE(x) + 0x4)
 
-#define DMWBA_ENABLE		(1 << 0)
-#define DMWBA_READONLY		(1 << 1)
+#define DMWBA_ENABLE		BIT(0)
+#define DMWBA_READONLY		BIT(1)
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
@@ -276,6 +276,48 @@ static inline void shim_write(uint32_t reg, uint32_t val)
 	sys_write32(val, (SHIM_BASE + reg));
 }
 
+static inline uint64_t shim_read64(uint32_t reg)
+{
+	return *((volatile uint64_t*)(SHIM_BASE + reg));
+}
+
+static inline void shim_write64(uint32_t reg, uint64_t val)
+{
+	*((volatile uint64_t*)(SHIM_BASE + reg)) = val;
+}
+
+static inline uint32_t sw_reg_read(uint32_t reg)
+{
+	return *((volatile uint32_t*)((SRAM_SW_REG_BASE -
+		SRAM_ALIAS_OFFSET) + reg));
+}
+
+static inline void sw_reg_write(uint32_t reg, uint32_t val)
+{
+	*((volatile uint32_t*)((SRAM_SW_REG_BASE -
+		SRAM_ALIAS_OFFSET) + reg)) = val;
+}
+
+static inline uint32_t mn_reg_read(uint32_t reg)
+{
+	return *((volatile uint32_t*)(MN_BASE + reg));
+}
+
+static inline void mn_reg_write(uint32_t reg, uint32_t val)
+{
+	*((volatile uint32_t*)(MN_BASE + reg)) = val;
+}
+
+static inline uint32_t irq_read(uint32_t reg)
+{
+	return *((volatile uint32_t*)(IRQ_BASE + reg));
+}
+
+static inline void irq_write(uint32_t reg, uint32_t val)
+{
+	*((volatile uint32_t*)(IRQ_BASE + reg)) = val;
+}
+
 static inline uint32_t ipc_read(uint32_t reg)
 {
 	return sys_read32(IPC_HOST_BASE + reg);
@@ -286,6 +328,16 @@ static inline void ipc_write(uint32_t reg, uint32_t val)
 	sys_write32(val, (IPC_HOST_BASE + reg));
 }
 
+static inline uint32_t idc_read(uint32_t reg, uint32_t core_id)
+{
+	return *((volatile uint32_t*)(IPC_DSP_BASE(core_id) + reg));
+}
+
+static inline void idc_write(uint32_t reg, uint32_t core_id, uint32_t val)
+{
+	*((volatile uint32_t*)(IPC_DSP_BASE(core_id) + reg)) = val;
+}
+
 #endif /* !defined(__ASSEMBLER__) && !defined(LINKER) */
 
-#endif
+#endif /* __PLATFORM_LIB_SHIM_H__ */
