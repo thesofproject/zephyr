@@ -12,6 +12,8 @@
  * \author Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
+#define RELATIVE_FILE "zephyr/pm_runtime.c"
+
 #include <sof/debug/panic.h>
 #include <sof/drivers/interrupt.h>
 #include <sof/lib/alloc.h>
