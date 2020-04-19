@@ -5,6 +5,8 @@
 // Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
 //         Janusz Jankowski <janusz.jankowski@linux.intel.com>
 
+#define RELATIVE_FILE "zephyr/clk.c"
+
 #include <sof/common.h>
 #include <sof/drivers/ssp.h>
 #include <sof/lib/clk.h>
