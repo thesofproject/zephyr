@@ -11,8 +11,6 @@
  * \author Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
-#ifdef __PLATFORM_LIB_PM_RUNTIME_H__
-
 #ifndef __CAVS_LIB_PM_RUNTIME_H__
 #define __CAVS_LIB_PM_RUNTIME_H__
 
@@ -25,8 +23,3 @@ struct cavs_pm_runtime_data {
 
 #endif
 
-#else
-
-#error "Do not include outside of platform/lib/pm_runtime.h"
-
-#endif

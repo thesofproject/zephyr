@@ -30,30 +30,110 @@
 #define SHIM_BASE		0x00001000
 #define SHIM_SIZE		0x00000100
 
-/* IRQ controller */
-#define IRQ_BASE		0x00001600
-#define IRQ_SIZE		0x00000200
+/* cmd IO to audio codecs */
+#define CMD_BASE		0x00001100
+#define CMD_SIZE		0x00000010
+
+/* resource allocation */
+#define RES_BASE		0x00001110
+#define RES_SIZE		0x00000010
 
 /* IPC to the host */
 #define IPC_HOST_BASE		0x00001180
 #define IPC_HOST_SIZE		0x00000020
 
-/* Intra DSP IPC */
+/* intra DSP  IPC */
 #define IPC_DSP_SIZE		0x00000080
 #define IPC_DSP_BASE(x)		(0x00001200 + x * IPC_DSP_SIZE)
+
+/* SRAM window for HOST */
+#define HOST_WIN_SIZE		0x00000008
+#define HOST_WIN_BASE(x)	(0x00001580 + x * HOST_WIN_SIZE)
+
+/* IRQ controller */
+#define IRQ_BASE		0x00001600
+#define IRQ_SIZE		0x00000200
+
+/* time stamping */
+#define TIME_BASE		0x00001800
+#define TIME_SIZE		0x00000200
 
 /* M/N dividers */
 #define MN_BASE			0x00008E00
 #define MN_SIZE			0x00000200
 
+/* low power DMA position */
+#define LP_GP_DMA_LINK_SIZE	0x00000010
+#define LP_GP_DMA_LINK_BASE(x) (0x00001C00 + x * LP_GP_DMA_LINK_SIZE)
+
+/* high performance DMA position */
+#define HP_GP_DMA_LINK_SIZE	0x00000010
+#define HP_GP_DMA_LINK_BASE(x)	(0x00001D00 + x * HP_GP_DMA_LINK_SIZE)
+
+/* link DMAC stream */
+#define GTW_LINK_OUT_STREAM_SIZE	0x00000020
+#define GTW_LINK_OUT_STREAM_BASE(x) \
+	(0x00002400 + x * GTW_LINK_OUT_STREAM_SIZE)
+
+#define GTW_LINK_IN_STREAM_SIZE	0x00000020
+#define GTW_LINK_IN_STREAM_BASE(x) \
+	(0x00002600 + x * GTW_LINK_IN_STREAM_SIZE)
+
+/* host DMAC stream */
+#define GTW_HOST_OUT_STREAM_SIZE	0x00000040
+#define GTW_HOST_OUT_STREAM_BASE(x) \
+	(0x00002800 + x * GTW_HOST_OUT_STREAM_SIZE)
+
+#define GTW_HOST_IN_STREAM_SIZE		0x00000040
+#define GTW_HOST_IN_STREAM_BASE(x) \
+	(0x00002C00 + x * GTW_HOST_IN_STREAM_SIZE)
+
+/* code loader */
+#define GTW_CODE_LDR_SIZE	0x00000040
+#define GTW_CODE_LDR_BASE	0x00002BC0
+
+/* L2 TLBs */
+#define L2_HP_SRAM_TLB_SIZE	0x00001000
+#define L2_HP_SRAM_TLB_BASE	0x00003000
+
+/* DMICs */
+#define DMIC_BASE		0x00004000
+#define DMIC_SIZE		0x00004000
+
+/* SSP */
+#define SSP_SIZE		0x0000200
+#define SSP_BASE(x)		(0x00008000 + x * SSP_SIZE)
+
 /* Timestamp */
 #define TIMESTAMP_BASE		0x00001800
+
+/* low power DMACs */
+#define LP_GP_DMA_SIZE		0x00001000
+#define LP_GP_DMA_BASE(x)	(0x0000C000 + x * LP_GP_DMA_SIZE)
+
+/* high performance DMACs */
+#define HP_GP_DMA_SIZE		0x00001000
+#define HP_GP_DMA_BASE(x)	(0x0000E000 + x * HP_GP_DMA_SIZE)
+
+/* ROM */
+#define ROM_BASE		0xBEFE0000
+#define ROM_SIZE		0x00002000
+
+/* IMR accessible via L2$ */
+#define L2_SRAM_BASE		0xA000A000
+#define L2_SRAM_SIZE		0x00056000
 
 /* SRAM window for HOST */
 #define HOST_WIN_SIZE		0x00000008
 #define HOST_WIN_BASE(x)	(0x00001580 + x * HOST_WIN_SIZE)
 
 #define L2_VECTOR_SIZE			0x1000
+
+#define UUID_ENTRY_ELF_BASE	0x1FFFA000
+#define UUID_ENTRY_ELF_SIZE	0x6000
+
+#define LOG_ENTRY_ELF_BASE	0x20000000
+#define LOG_ENTRY_ELF_SIZE	0x2000000
 
 /*
  * The HP SRAM Region Apollolake is organised like this :-

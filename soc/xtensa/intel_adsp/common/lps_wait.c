@@ -4,6 +4,8 @@
 //
 // Author: Marcin Maka <marcin.maka@linux.intel.com>
 
+#define RELATIVE_FILE "zephyr/lps_wait.c"
+
 #include <arch/lib/wait.h>
 #include <cavs/lps_ctx.h>
 #include <cavs/lps_wait.h>

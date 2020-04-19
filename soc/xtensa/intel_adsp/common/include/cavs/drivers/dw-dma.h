@@ -5,12 +5,11 @@
  * Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
-#ifdef __PLATFORM_DRIVERS_DW_DMA_H__
 
 #ifndef __CAVS_LIB_DW_DMA_H__
 #define __CAVS_LIB_DW_DMA_H__
 
-#include <sof/bit.h>
+#include <sys/util.h>
 #include <sof/lib/dma.h>
 #include <sof/lib/shim.h>
 #include <config.h>
@@ -92,8 +91,3 @@ static inline struct dw_lli *platform_dw_dma_lli_get(struct dw_lli *lli)
 
 #endif /* __CAVS_LIB_DW_DMA_H__ */
 
-#else
-
-#error "This file shouldn't be included from outside of platform/drivers/dw-dma.h"
-
-#endif /* __PLATFORM_DRIVERS_DW_DMA_H__ */
