@@ -104,6 +104,13 @@ MEMORY
   lpram :
 	org = LPRAM_BASE,
 	len = LPRAM_SIZE
+
+  static_uuid_entries_seg (!ari) :
+        org = UUID_ENTRY_ELF_BASE,
+        len = UUID_ENTRY_ELF_SIZE
+  static_log_entries_seg (!ari) :
+        org = LOG_ENTRY_ELF_BASE,
+        len = LOG_ENTRY_ELF_SIZE
 }
 
 PHDRS
@@ -130,6 +137,9 @@ PHDRS
   vector_double_lit_phdr PT_LOAD;
   vector_double_text_phdr PT_LOAD;
   ram_phdr PT_LOAD;
+
+  static_uuid_entries_phdr PT_NOTE;
+  static_log_entries_phdr PT_NOTE;
 }
 _rom_store_table = 0;
 PROVIDE(_memmap_vecbase_reset = XCHAL_VECBASE_RESET_PADDR_SRAM);
@@ -503,4 +513,14 @@ SECTIONS
 #ifdef CONFIG_GEN_ISR_TABLES
 #include <linker/intlist.ld>
 #endif
+
+ .static_uuid_entries (COPY) : ALIGN(1024)
+  {
+    *(*.static_uuids)
+  } > static_uuid_entries_seg :static_uuid_entries_phdr
+
+  .static_log_entries (COPY) : ALIGN(1024)
+  {
+    *(*.static_log*)
+  } > static_log_entries_seg :static_log_entries_phdr
 }

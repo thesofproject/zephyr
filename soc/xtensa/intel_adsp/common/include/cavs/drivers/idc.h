@@ -5,8 +5,6 @@
  * Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
-#ifdef __PLATFORM_DRIVERS_IDC_H__
-
 #ifndef __CAVS_DRIVERS_IDC_H__
 #define __CAVS_DRIVERS_IDC_H__
 
@@ -31,8 +29,3 @@ static inline int idc_init(void) { return 0; }
 
 #endif /* __CAVS_DRIVERS_IDC_H__ */
 
-#else
-
-#error "This file shouldn't be included from outside of platform/drivers/idc.h"
-
-#endif /* __PLATFORM_DRIVERS_IDC_H__ */

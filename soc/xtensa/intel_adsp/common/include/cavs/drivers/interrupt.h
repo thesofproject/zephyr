@@ -5,12 +5,10 @@
  * Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
-#ifdef __PLATFORM_DRIVERS_INTERRUPT_H__
-
 #ifndef __CAVS_DRIVERS_INTERRUPT_H__
 #define __CAVS_DRIVERS_INTERRUPT_H__
 
-#include <sof/lib/clk.h>
+#include <platform/lib/clk.h>
 
 extern const char irq_name_level2[];
 extern const char irq_name_level3[];
@@ -26,8 +24,3 @@ static inline void platform_interrupt_on_wakeup(void)
 
 #endif /* __CAVS_DRIVERS_INTERRUPT_H__ */
 
-#else
-
-#error "This file shouldn't be included from outside of platform/drivers/interrupt.h"
-
-#endif /* __PLATFORM_DRIVERS_INTERRUPT_H__ */

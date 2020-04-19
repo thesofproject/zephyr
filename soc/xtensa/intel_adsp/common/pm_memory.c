@@ -5,6 +5,8 @@
  * Author: Jakub Dabek <jakub.dabek@intel.com>
  */
 
+#define RELATIVE_FILE "zephyr/pm_memory.c"
+
 #include <cavs/version.h>
 #include <sof/bit.h>
 #include <sof/lib/io.h>

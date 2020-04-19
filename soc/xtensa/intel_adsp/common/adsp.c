@@ -7,6 +7,8 @@
 //         Rander Wang <rander.wang@intel.com>
 //         Janusz Jankowski <janusz.jankowski@linux.intel.com>
 
+#define RELATIVE_FILE "zephyr/adsp.c"
+
 #include <cavs/version.h>
 #if (CONFIG_CAVS_LPS)
 #include <cavs/lps_wait.h>
@@ -56,16 +58,16 @@ static const struct sof_ipc_fw_ready ready
 	},
 	.version = {
 		.hdr.size = sizeof(struct sof_ipc_fw_version),
-		.micro = SOF_MICRO,
-		.minor = SOF_MINOR,
-		.major = SOF_MAJOR,
+		//.micro = SOF_MICRO,
+		//.minor = SOF_MINOR,
+		//.major = SOF_MAJOR,
 #if CONFIG_DEBUG
 		/* only added in debug for reproducability in releases */
 		.build = SOF_BUILD,
 		.date = __DATE__,
 		.time = __TIME__,
 #endif
-		.tag = SOF_TAG,
+	//	.tag = SOF_TAG,
 		.abi_version = SOF_ABI_VERSION,
 	},
 	.flags = DEBUG_SET_FW_READY_FLAGS,
@@ -371,7 +373,7 @@ int platform_init(struct sof *sof)
 #endif
 
 	trace_point(TRACE_BOOT_PLATFORM_IRQ);
-	platform_interrupt_init();
+	//platform_interrupt_init();
 
 #if CONFIG_MEM_WND
 	trace_point(TRACE_BOOT_PLATFORM_MBOX);
@@ -383,20 +385,20 @@ int platform_init(struct sof *sof)
 	platform_timer_start(sof->platform_timer);
 
 	trace_point(TRACE_BOOT_PLATFORM_CLOCK);
-	platform_clock_init(sof);
+	//platform_clock_init(sof);
 
 	trace_point(TRACE_BOOT_PLATFORM_SCHED);
-	scheduler_init_edf();
+	//scheduler_init_edf();
 
 	/* init low latency timer domain and scheduler */
 	sof->platform_timer_domain =
 		timer_domain_init(sof->platform_timer, PLATFORM_DEFAULT_CLOCK,
 				  CONFIG_SYSTICK_PERIOD);
-	scheduler_init_ll(sof->platform_timer_domain);
+	//scheduler_init_ll(sof->platform_timer_domain);
 
 	/* init the system agent */
 	trace_point(TRACE_BOOT_PLATFORM_AGENT);
-	sa_init(sof, CONFIG_SYSTICK_PERIOD);
+	//sa_init(sof, CONFIG_SYSTICK_PERIOD);
 
 	/* Set CPU to max frequency for booting (single shim_write below) */
 	trace_point(TRACE_BOOT_PLATFORM_CPU_FREQ);
@@ -475,7 +477,7 @@ int platform_init(struct sof *sof)
 			(&sof->dma_info->dma_array[PLATFORM_DW_DMA_INDEX],
 			 PLATFORM_NUM_DW_DMACS,
 			 PLATFORM_DEFAULT_CLOCK);
-	scheduler_init_ll(sof->platform_dma_domain);
+	//scheduler_init_ll(sof->platform_dma_domain);
 
 	/* initialize the host IPC mechanisms */
 	trace_point(TRACE_BOOT_PLATFORM_IPC);
@@ -483,15 +485,15 @@ int platform_init(struct sof *sof)
 
 	/* initialize IDC mechanism */
 	trace_point(TRACE_BOOT_PLATFORM_IDC);
-	ret = idc_init();
-	if (ret < 0)
-		return ret;
+	//ret = idc_init();
+	//if (ret < 0)
+		//return ret;
 
 	/* init DAIs */
 	trace_point(TRACE_BOOT_PLATFORM_DAI);
-	ret = dai_init(sof);
-	if (ret < 0)
-		return ret;
+	//ret = dai_init(sof);
+	//if (ret < 0)
+		//return ret;
 
 #if CONFIG_DW_SPI
 	/* initialize the SPI slave */
@@ -512,13 +514,21 @@ int platform_init(struct sof *sof)
 #elif CONFIG_TRACE
 	/* Initialize DMA for Trace*/
 	trace_point(TRACE_BOOT_PLATFORM_DMA_TRACE);
-	dma_trace_init_complete(sof->dmat);
+	//dma_trace_init_complete(sof->dmat);
 #endif
 
 	/* show heap status */
-	heap_trace_all(1);
+	//heap_trace_all(1);
 
 	return 0;
+}
+
+/* main firmware context */
+static struct sof sof;
+
+struct sof *sof_get(void)
+{
+	return &sof;
 }
 
 void platform_wait_for_interrupt(int level)

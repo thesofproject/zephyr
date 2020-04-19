@@ -12,16 +12,14 @@
  * \brief Clk parameters for run-time clock data, common for cAVS platforms.
  */
 
-#ifdef __PLATFORM_LIB_CLK_H__
-
 #ifndef __CAVS_LIB_CLK_H__
 #define __CAVS_LIB_CLK_H__
 
 #include <cavs/version.h>
-#include <sof/lib/cpu.h>
+#include <platform/lib/cpu.h>
 #include <sof/lib/io.h>
-#include <sof/lib/memory.h>
-#include <sof/lib/shim.h>
+#include <platform/lib/memory.h>
+#include <platform/lib/shim.h>
 #include <stdint.h>
 
 struct sof;
@@ -50,8 +48,3 @@ void platform_clock_on_wakeup(void);
 
 #endif /* __CAVS_LIB_CLK_H__ */
 
-#else
-
-#error "This file shouldn't be included from outside of platform/lib/clk.h"
-
-#endif /* __PLATFORM_LIB_CLK_H__ */
