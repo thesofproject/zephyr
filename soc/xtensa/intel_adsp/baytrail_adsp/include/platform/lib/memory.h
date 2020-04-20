@@ -47,6 +47,9 @@ static inline void *platform_rfree_prepare(void *ptr)
 
 #define PLATFORM_DCACHE_ALIGN	sizeof(void *)
 
+/** \brief EDF task's default stack size in bytes. */
+#define PLATFORM_TASK_DEFAULT_STACK_SIZE	2048
+
 /* physical DSP addresses */
 
 #define SHIM_BASE	0xFF340000
@@ -88,6 +91,9 @@ static inline void *platform_rfree_prepare(void *ptr)
 
 #define SSP5_BASE	0xFF2A6000
 #define SSP5_SIZE	0x00001000
+
+#define UUID_ENTRY_ELF_BASE	0x1FFFA000
+#define UUID_ENTRY_ELF_SIZE	0x6000
 
 #define LOG_ENTRY_ELF_BASE	0x20000000
 #define LOG_ENTRY_ELF_SIZE	0x2000000
@@ -155,7 +161,7 @@ static inline void *platform_rfree_prepare(void *ptr)
 	(DRAM0_SIZE - HEAP_RUNTIME_SIZE - SOF_STACK_TOTAL_SIZE -\
 	HEAP_SYS_RUNTIME_SIZE - HEAP_SYSTEM_SIZE - SOF_DATA_SIZE)
 
-#define HEAP_BUFFER_BLOCK_SIZE		0x180
+#define HEAP_BUFFER_BLOCK_SIZE		0x100
 #define HEAP_BUFFER_COUNT	(HEAP_BUFFER_SIZE / HEAP_BUFFER_BLOCK_SIZE)
 
 #define PLATFORM_HEAP_SYSTEM		1 /* one per core */
