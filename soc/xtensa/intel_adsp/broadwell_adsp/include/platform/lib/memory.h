@@ -48,6 +48,9 @@ static inline void *platform_rfree_prepare(void *ptr)
 /* data cache line alignment */
 #define PLATFORM_DCACHE_ALIGN	sizeof(void *)
 
+/** \brief EDF task's default stack size in bytes. */
+#define PLATFORM_TASK_DEFAULT_STACK_SIZE	2048
+
 /* physical DSP addresses */
 
 #define SHIM_SIZE	0x00001000
@@ -81,6 +84,9 @@ static inline void *platform_rfree_prepare(void *ptr)
 #define SSP1_BASE	0xFFFE9000
 
 #endif
+
+#define UUID_ENTRY_ELF_BASE	0x1FFFA000
+#define UUID_ENTRY_ELF_SIZE	0x6000
 
 #define LOG_ENTRY_ELF_BASE	0x20000000
 #define LOG_ENTRY_ELF_SIZE	0x2000000
@@ -153,7 +159,7 @@ static inline void *platform_rfree_prepare(void *ptr)
 	 HEAP_SYS_RUNTIME_SIZE - HEAP_SYSTEM_SIZE - SOF_DATA_SIZE -\
 	 SOF_VIRTUAL_THREAD_SIZE - MAILBOX_SIZE)
 
-#define HEAP_BUFFER_BLOCK_SIZE		0x180
+#define HEAP_BUFFER_BLOCK_SIZE		0x100
 #define HEAP_BUFFER_COUNT \
 	(HEAP_BUFFER_SIZE / HEAP_BUFFER_BLOCK_SIZE)
 
