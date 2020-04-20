@@ -131,7 +131,7 @@ manifest:
       revision: c39888ff74acf421eeff9a7514fa9b172c3373f7
     - name: sof
       remote: thesofproject
-      revision: a8109c6e13317cbbce41000d50969385428d6c97
+      revision: 04332a19333ab0f16f0ead9b274f5080184cb3de
       path: modules/audio/sof
 
   self:
