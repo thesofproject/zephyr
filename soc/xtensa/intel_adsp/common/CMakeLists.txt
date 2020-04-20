@@ -48,6 +48,11 @@ if(CONFIG_SOC_SERIES_INTEL_CAVS_V18
   zephyr_library_sources(lps_wait.c)
 endif()
 
+if(CONFIG_SMP)
+  set_source_files_properties(arch/cpu.c PROPERTIES COMPILE_FLAGS -std=gnu99)
+  zephyr_library_sources(arch/cpu.c)
+endif()
+
 zephyr_library_link_libraries(INTEL_ADSP_COMMON)
 
 target_include_directories(INTEL_ADSP_COMMON INTERFACE include)
