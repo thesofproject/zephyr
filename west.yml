@@ -137,7 +137,7 @@ manifest:
       revision: 7de2daa1967b2dc12cbe0fcc0171ac3064ea596b
     - name: sof
       remote: thesofproject
-      revision: 04332a19333ab0f16f0ead9b274f5080184cb3de
+      revision: lrg/topic/zephyr-app
       path: modules/audio/sof
 
   self:
