@@ -1,0 +1,3 @@
+tests:
+  subsys.audio.sof:
+    tags: sof
