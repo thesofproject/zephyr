@@ -373,8 +373,7 @@ int platform_init(struct sof *sof)
 #endif
 
 	trace_point(TRACE_BOOT_PLATFORM_IRQ);
-	//platform_interrupt_init();
-
+	platform_interrupt_init();
 #if CONFIG_MEM_WND
 	trace_point(TRACE_BOOT_PLATFORM_MBOX);
 	platform_memory_windows_init(MEM_WND_INIT_CLEAR);
