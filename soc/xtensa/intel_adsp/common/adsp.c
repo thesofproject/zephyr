@@ -384,16 +384,16 @@ int platform_init(struct sof *sof)
 	platform_timer_start(sof->platform_timer);
 
 	trace_point(TRACE_BOOT_PLATFORM_CLOCK);
-	//platform_clock_init(sof);
+	platform_clock_init(sof);
 
 	trace_point(TRACE_BOOT_PLATFORM_SCHED);
-	//scheduler_init_edf();
+	scheduler_init_edf();
 
 	/* init low latency timer domain and scheduler */
 	sof->platform_timer_domain =
 		timer_domain_init(sof->platform_timer, PLATFORM_DEFAULT_CLOCK,
 				  CONFIG_SYSTICK_PERIOD);
-	//scheduler_init_ll(sof->platform_timer_domain);
+	scheduler_init_ll(sof->platform_timer_domain);
 
 	/* init the system agent */
 	trace_point(TRACE_BOOT_PLATFORM_AGENT);
@@ -476,7 +476,7 @@ int platform_init(struct sof *sof)
 			(&sof->dma_info->dma_array[PLATFORM_DW_DMA_INDEX],
 			 PLATFORM_NUM_DW_DMACS,
 			 PLATFORM_DEFAULT_CLOCK);
-	//scheduler_init_ll(sof->platform_dma_domain);
+	scheduler_init_ll(sof->platform_dma_domain);
 
 	/* initialize the host IPC mechanisms */
 	trace_point(TRACE_BOOT_PLATFORM_IPC);
@@ -484,15 +484,15 @@ int platform_init(struct sof *sof)
 
 	/* initialize IDC mechanism */
 	trace_point(TRACE_BOOT_PLATFORM_IDC);
-	//ret = idc_init();
-	//if (ret < 0)
-		//return ret;
+	ret = idc_init();
+	if (ret < 0)
+		return ret;
 
 	/* init DAIs */
 	trace_point(TRACE_BOOT_PLATFORM_DAI);
-	//ret = dai_init(sof);
-	//if (ret < 0)
-		//return ret;
+	ret = dai_init(sof);
+	if (ret < 0)
+		return ret;
 
 #if CONFIG_DW_SPI
 	/* initialize the SPI slave */
@@ -515,9 +515,6 @@ int platform_init(struct sof *sof)
 	trace_point(TRACE_BOOT_PLATFORM_DMA_TRACE);
 	//dma_trace_init_complete(sof->dmat);
 #endif
-
-	/* show heap status */
-	//heap_trace_all(1);
 
 	return 0;
 }
