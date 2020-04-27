@@ -387,6 +387,7 @@ SECTIONS
   .fw_ready : ALIGN(4)
   {
     KEEP(*(".fw_ready"));
+    KEEP (*(.fw_ready_metadata))
   } >ram :ram_phdr
 
   .noinit : ALIGN(4)
