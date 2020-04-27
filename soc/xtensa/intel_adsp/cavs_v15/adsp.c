@@ -144,9 +144,7 @@ static int adsp_init(struct device *dev)
 	err = task_main_start(sof);
 #endif
 
-	prepare_host_windows();
-
-	send_fw_ready();
+	platform_boot_complete(0);
 
 	return 0;
 }
