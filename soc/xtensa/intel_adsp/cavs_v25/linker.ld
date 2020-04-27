@@ -1,107 +1,116 @@
 /*
- * Linker Script for Tigerlake.
+ * Copyright (c) 2019 Intel Corporation
  *
- * This script is run through the GNU C preprocessor to align the memory
- * offsets with headers.
- *
- * Use spaces for formatting as cpp ignore tab sizes.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <config.h>
-#include <sof/lib/memory.h>
-#include <xtensa/config/core-isa.h>
+/**
+ * @file
+ * @brief Linker command/script file
+ *
+ * Linker script for the intel_apl_adsp platform
+ */
 
 OUTPUT_ARCH(xtensa)
+
+#include <devicetree.h>
+#include "memory.h"
+#include <autoconf.h>
+#include <linker/sections.h>
+
+#include <linker/linker-defs.h>
+#include <linker/linker-tool.h>
+
+PROVIDE(__memctl_default = 0x00000000);
+PROVIDE(_MemErrorHandler = 0x00000000);
+
+#define RAMABLE_REGION ram :ram_phdr
+#define ROMABLE_REGION ram :ram_phdr
+#define LPRAM_REGION lpram
 
 MEMORY
 {
   vector_memory_lit :
-        org = XCHAL_MEMERROR_VECTOR_PADDR + SOF_MEM_ERROR_LIT_SIZE,
-        len = SOF_MEM_ERROR_LIT_SIZE
+	org = XCHAL_MEMERROR_VECTOR_PADDR + MEM_ERROR_LIT_SIZE,
+        len = MEM_ERROR_LIT_SIZE
   vector_memory_text :
-        org = XCHAL_MEMERROR_VECTOR_PADDR,
-        len = SOF_MEM_ERROR_TEXT_SIZE
+	org = XCHAL_MEMERROR_VECTOR_PADDR,
+        len = MEM_ERROR_TEXT_SIZE
   vector_base_text :
-        org = SOF_MEM_VECBASE,
-        len = SOF_MEM_VECBASE_LIT_SIZE
+	org = XCHAL_VECBASE_RESET_PADDR_SRAM,
+        len = MEM_VECBASE_LIT_SIZE
   vector_int2_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL2_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL2_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int2_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL2_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = XCHAL_INTLEVEL2_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_int3_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL3_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL3_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int3_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL3_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_INTLEVEL3_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_int4_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL4_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL4_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int4_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL4_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_INTLEVEL4_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_int5_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL5_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL5_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int5_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL5_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_INTLEVEL5_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_int6_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL6_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL6_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int6_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL6_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_INTLEVEL6_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_int7_lit :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL7_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_INTLEVEL7_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int7_text :
-        org = SOF_MEM_VECBASE + XCHAL_INTLEVEL7_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_INTLEVEL7_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_kernel_lit :
-        org = SOF_MEM_VECBASE + XCHAL_KERNEL_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_KERNEL_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_kernel_text :
-        org = SOF_MEM_VECBASE + XCHAL_KERNEL_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_KERNEL_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_user_lit :
-        org = SOF_MEM_VECBASE + XCHAL_USER_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_USER_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_user_text :
-        org = SOF_MEM_VECBASE + XCHAL_USER_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
+	org = XCHAL_USER_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
   vector_double_lit :
-        org = SOF_MEM_VECBASE + XCHAL_DOUBLEEXC_VECOFS - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+	org = XCHAL_DOUBLEEXC_VECTOR_PADDR_SRAM - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_double_text :
-        org = SOF_MEM_VECBASE + XCHAL_DOUBLEEXC_VECOFS,
-        len = SOF_MEM_VECT_TEXT_SIZE
-  sof_fw :
-        org = SOF_FW_BASE,
-        len = SOF_FW_MAX_SIZE
-  buffer_hp_heap :
-        org = HEAP_HP_BUFFER_BASE,
-        len = HEAP_HP_BUFFER_SIZE
-  wnd0 :
-        org = HP_SRAM_WIN0_BASE,
-        len = HP_SRAM_WIN0_SIZE
-  wnd1 :
-        org = HP_SRAM_WIN1_BASE,
-        len = HP_SRAM_WIN1_SIZE
-  wnd2 :
-        org = HP_SRAM_WIN2_BASE,
-        len = HP_SRAM_WIN2_SIZE
-  wnd3 :
-        org = HP_SRAM_WIN3_BASE,
-        len = HP_SRAM_WIN3_SIZE
+	org = XCHAL_DOUBLEEXC_VECTOR_PADDR_SRAM,
+        len = MEM_VECT_TEXT_SIZE
+  ram :
+	org = RAM_BASE,
+	len = RAM_SIZE
+#ifdef CONFIG_GEN_ISR_TABLES
+  IDT_LIST :
+	org = IDT_BASE,
+	len = IDT_SIZE
+#endif
+  lpram :
+	org = LPRAM_BASE,
+	len = LPRAM_SIZE
+
+  static_uuid_entries_seg (!ari) :
+        org = UUID_ENTRY_ELF_BASE,
+        len = UUID_ENTRY_ELF_SIZE
   static_log_entries_seg (!ari) :
         org = LOG_ENTRY_ELF_BASE,
         len = LOG_ENTRY_ELF_SIZE
-  lpsram_mem :
-        org = LP_SRAM_BASE,
-        len = LP_SRAM_SIZE
 }
 
 PHDRS
@@ -127,202 +136,188 @@ PHDRS
   vector_user_text_phdr PT_LOAD;
   vector_double_lit_phdr PT_LOAD;
   vector_double_text_phdr PT_LOAD;
-  sof_fw_phdr PT_LOAD;
-  buffer_hp_heap_phdr PT_LOAD;
-  wnd0_phdr PT_LOAD;
-  wnd1_phdr PT_LOAD;
-  wnd2_phdr PT_LOAD;
-  wnd3_phdr PT_LOAD;
+  ram_phdr PT_LOAD;
+
+  static_uuid_entries_phdr PT_NOTE;
   static_log_entries_phdr PT_NOTE;
-  lpsram_mem_phdr PT_LOAD;
 }
-
-/*  Default entry point:  */
-ENTRY(_MainEntry)
 _rom_store_table = 0;
+PROVIDE(_memmap_vecbase_reset = XCHAL_VECBASE_RESET_PADDR_SRAM);
 
-/* ABI0 does not use Window base */
-PROVIDE(_memmap_vecbase_reset = HP_SRAM_VECBASE_RESET);
+ENTRY(CONFIG_KERNEL_ENTRY)
 
 /* Various memory-map dependent cache attribute settings: */
-_memmap_cacheattr_wbna_trapnull = 0xFF42FFF2;
-PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_wbna_trapnull);
+_memmap_cacheattr_wb_base = 0x44024000;
+_memmap_cacheattr_wt_base = 0x11021000;
+_memmap_cacheattr_bp_base = 0x22022000;
+_memmap_cacheattr_unused_mask = 0x00F00FFF;
+_memmap_cacheattr_wb_trapnull = 0x4422422F;
+_memmap_cacheattr_wba_trapnull = 0x4422422F;
+_memmap_cacheattr_wbna_trapnull = 0x25222222;
+_memmap_cacheattr_wt_trapnull = 0x1122122F;
+_memmap_cacheattr_bp_trapnull = 0x2222222F;
+_memmap_cacheattr_wb_strict = 0x44F24FFF;
+_memmap_cacheattr_wt_strict = 0x11F21FFF;
+_memmap_cacheattr_bp_strict = 0x22F22FFF;
+_memmap_cacheattr_wb_allvalid = 0x44224222;
+_memmap_cacheattr_wt_allvalid = 0x11221222;
+_memmap_cacheattr_bp_allvalid = 0x22222222;
 
+/*
+ * Cache attributes for memory addresses:
+ * (Each 4 bits correspond to 512MB of memory)
+ *
+ * 0x00000000 - 0x1FFFFFFF (bit  0 -  3) : Bypass cache
+ *                                         (region for hardware registers)
+ * 0x20000000 - 0x3FFFFFFF (bit  4 -  7) : No access
+ * 0x40000000 - 0x5FFFFFFF (bit  8 - 11) : No access
+ * 0x60000000 - 0x7FFFFFFF (bit 12 - 15) : No access
+ * 0x80000000 - 0x9FFFFFFF (bit 16 - 19) : Bypass cache
+ * 0xA0000000 - 0xBFFFFFFF (bit 20 - 23) : Cached, write-back
+ * 0xC0000000 - 0xDFFFFFFF (bit 24 - 27) : No access
+ * 0xE0000000 - 0xFFFFFFFF (bit 28 - 31) : No access
+ *
+ * Note that this is both for instruction and data caches,
+ * as cacheattr_set macro sets them both to the same set of
+ * attributes.
+ */
+#ifndef CONFIG_SMP
+_memmap_cacheattr_intel_apl_adsp = 0xFF42FFF2;
+#else
+/*
+ * FIXME: Make 0xA0000000 - 0xBFFFFFFF to bypass cache under SMP
+ * since there is no data cache manipulation for spinlock, kernel
+ * object, scheduler, etc...
+ */
+_memmap_cacheattr_intel_apl_adsp = 0xFF22FFF2;
+#endif
+
+PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_apl_adsp);
 SECTIONS
 {
+
+#include <linker/rel-sections.ld>
+
+ .MemoryExceptionVector.literal : ALIGN(4)
+  {
+    _MemoryExceptionVector_literal_start = ABSOLUTE(.);
+    KEEP (*(.MemoryExceptionVector.literal))
+    _MemoryExceptionVector_literal_end = ABSOLUTE(.);
+  } >vector_memory_lit :vector_memory_lit_phdr
   .MemoryExceptionVector.text : ALIGN(4)
   {
     _MemoryExceptionVector_text_start = ABSOLUTE(.);
     KEEP (*(.MemoryExceptionVector.text))
     _MemoryExceptionVector_text_end = ABSOLUTE(.);
   } >vector_memory_text :vector_memory_text_phdr
-
-  .buffer_hp_heap (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _buffer_hp_heap_start = ABSOLUTE(.);
-    . = . + HEAP_HP_BUFFER_SIZE;
-    _buffer_hp_heap_end = ABSOLUTE(.);
-  } >buffer_hp_heap :buffer_hp_heap_phdr
-
-  .wnd0 (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _wnd0_start = ABSOLUTE(.);
-    . = . + HP_SRAM_WIN0_SIZE;
-    _wnd0_end = ABSOLUTE(.);
-  } >wnd0 :wnd0_phdr
-
-  .wnd1 (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _wnd1_start = ABSOLUTE(.);
-    . = . + HP_SRAM_WIN1_SIZE;
-    _wnd1_end = ABSOLUTE(.);
-  } >wnd1 :wnd1_phdr
-
-  .wnd2 (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _wnd2_start = ABSOLUTE(.);
-    . = . + HP_SRAM_WIN2_SIZE;
-    _wnd2_end = ABSOLUTE(.);
-  } >wnd2 :wnd2_phdr
-
-  .wnd3 (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _wnd3_start = ABSOLUTE(.);
-    . = . + HP_SRAM_WIN3_SIZE;
-    _wnd3_end = ABSOLUTE(.);
-  } >wnd3 :wnd3_phdr
-
-  .WindowVectors.text : ALIGN(4)
+   .WindowVectors.text : ALIGN(4)
   {
     _WindowVectors_text_start = ABSOLUTE(.);
     KEEP (*(.WindowVectors.text))
     _WindowVectors_text_end = ABSOLUTE(.);
   } >vector_base_text :vector_base_text_phdr
-
   .Level2InterruptVector.literal : ALIGN(4)
   {
     _Level2InterruptVector_literal_start = ABSOLUTE(.);
     *(.Level2InterruptVector.literal)
     _Level2InterruptVector_literal_end = ABSOLUTE(.);
   } >vector_int2_lit :vector_int2_lit_phdr
-
   .Level2InterruptVector.text : ALIGN(4)
   {
     _Level2InterruptVector_text_start = ABSOLUTE(.);
     KEEP (*(.Level2InterruptVector.text))
     _Level2InterruptVector_text_end = ABSOLUTE(.);
   } >vector_int2_text :vector_int2_text_phdr
-
   .Level3InterruptVector.literal : ALIGN(4)
   {
     _Level3InterruptVector_literal_start = ABSOLUTE(.);
     *(.Level3InterruptVector.literal)
     _Level3InterruptVector_literal_end = ABSOLUTE(.);
   } >vector_int3_lit :vector_int3_lit_phdr
-
   .Level3InterruptVector.text : ALIGN(4)
   {
     _Level3InterruptVector_text_start = ABSOLUTE(.);
     KEEP (*(.Level3InterruptVector.text))
     _Level3InterruptVector_text_end = ABSOLUTE(.);
   } >vector_int3_text :vector_int3_text_phdr
-
   .Level4InterruptVector.literal : ALIGN(4)
   {
     _Level4InterruptVector_literal_start = ABSOLUTE(.);
     *(.Level4InterruptVector.literal)
     _Level4InterruptVector_literal_end = ABSOLUTE(.);
   } >vector_int4_lit :vector_int4_lit_phdr
-
   .Level4InterruptVector.text : ALIGN(4)
   {
     _Level4InterruptVector_text_start = ABSOLUTE(.);
     KEEP (*(.Level4InterruptVector.text))
     _Level4InterruptVector_text_end = ABSOLUTE(.);
   } >vector_int4_text :vector_int4_text_phdr
-
   .Level5InterruptVector.literal : ALIGN(4)
   {
     _Level5InterruptVector_literal_start = ABSOLUTE(.);
     *(.Level5InterruptVector.literal)
     _Level5InterruptVector_literal_end = ABSOLUTE(.);
   } >vector_int5_lit :vector_int5_lit_phdr
-
   .Level5InterruptVector.text : ALIGN(4)
   {
     _Level5InterruptVector_text_start = ABSOLUTE(.);
     KEEP (*(.Level5InterruptVector.text))
     _Level5InterruptVector_text_end = ABSOLUTE(.);
   } >vector_int5_text :vector_int5_text_phdr
-
   .DebugExceptionVector.literal : ALIGN(4)
   {
     _DebugExceptionVector_literal_start = ABSOLUTE(.);
     *(.DebugExceptionVector.literal)
     _DebugExceptionVector_literal_end = ABSOLUTE(.);
   } >vector_int6_lit :vector_int6_lit_phdr
-
   .DebugExceptionVector.text : ALIGN(4)
   {
     _DebugExceptionVector_text_start = ABSOLUTE(.);
     KEEP (*(.DebugExceptionVector.text))
     _DebugExceptionVector_text_end = ABSOLUTE(.);
   } >vector_int6_text :vector_int6_text_phdr
-
   .NMIExceptionVector.literal : ALIGN(4)
   {
     _NMIExceptionVector_literal_start = ABSOLUTE(.);
     *(.NMIExceptionVector.literal)
     _NMIExceptionVector_literal_end = ABSOLUTE(.);
   } >vector_int7_lit :vector_int7_lit_phdr
-
   .NMIExceptionVector.text : ALIGN(4)
   {
     _NMIExceptionVector_text_start = ABSOLUTE(.);
     KEEP (*(.NMIExceptionVector.text))
     _NMIExceptionVector_text_end = ABSOLUTE(.);
   } >vector_int7_text :vector_int7_text_phdr
-
   .KernelExceptionVector.literal : ALIGN(4)
   {
     _KernelExceptionVector_literal_start = ABSOLUTE(.);
     *(.KernelExceptionVector.literal)
     _KernelExceptionVector_literal_end = ABSOLUTE(.);
   } >vector_kernel_lit :vector_kernel_lit_phdr
-
   .KernelExceptionVector.text : ALIGN(4)
   {
     _KernelExceptionVector_text_start = ABSOLUTE(.);
     KEEP (*(.KernelExceptionVector.text))
     _KernelExceptionVector_text_end = ABSOLUTE(.);
   } >vector_kernel_text :vector_kernel_text_phdr
-
   .UserExceptionVector.literal : ALIGN(4)
   {
     _UserExceptionVector_literal_start = ABSOLUTE(.);
     *(.UserExceptionVector.literal)
     _UserExceptionVector_literal_end = ABSOLUTE(.);
   } >vector_user_lit :vector_user_lit_phdr
-
   .UserExceptionVector.text : ALIGN(4)
   {
     _UserExceptionVector_text_start = ABSOLUTE(.);
     KEEP (*(.UserExceptionVector.text))
     _UserExceptionVector_text_end = ABSOLUTE(.);
   } >vector_user_text :vector_user_text_phdr
-
   .DoubleExceptionVector.literal : ALIGN(4)
   {
     _DoubleExceptionVector_literal_start = ABSOLUTE(.);
     *(.DoubleExceptionVector.literal)
     _DoubleExceptionVector_literal_end = ABSOLUTE(.);
   } >vector_double_lit :vector_double_lit_phdr
-
   .DoubleExceptionVector.text : ALIGN(4)
   {
     _DoubleExceptionVector_text_start = ABSOLUTE(.);
@@ -334,18 +329,23 @@ SECTIONS
   {
     _stext = .;
     _text_start = ABSOLUTE(.);
-    KEEP (*(.MainEntry.text))
+    KEEP(*(.MainEntry.text))
+    *(.MainEntry.literal)
+    KEEP (*(.ResetVector.text))
+    *(.ResetVector.literal)
     *(.entry.text)
     *(.init.literal)
+    *(.iram0.text)
     KEEP(*(.init))
+    KEEP(*(.lps_vector))
     *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
     KEEP(*(.fini))
     *(.gnu.version)
-    KEEP (*(.ResetHandler.text))
     _text_end = ABSOLUTE(.);
     _etext = .;
-  } >sof_fw :sof_fw_phdr
+    . = ALIGN(4096);
+  } >ram :ram_phdr
 
   .rodata : ALIGN(4096)
   {
@@ -356,11 +356,10 @@ SECTIONS
     *(.rodata1)
     __XT_EXCEPTION_TABLE__ = ABSOLUTE(.);
     KEEP (*(.xt_except_table))
-    KEEP (*(.gcc_except_table))
+    KEEP (*(.gcc_except_table .gcc_except_table.*))
     *(.gnu.linkonce.e.*)
     *(.gnu.version_r)
     KEEP (*(.eh_frame))
-    /*  C++ constructor and destructor tables, properly ordered:  */
     KEEP (*crtbegin.o(.ctors))
     KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
     KEEP (*(SORT(.ctors.*)))
@@ -369,7 +368,6 @@ SECTIONS
     KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
     KEEP (*(SORT(.dtors.*)))
     KEEP (*(.dtors))
-    /*  C++ exception handlers table:  */
     __XT_EXCEPTION_DESCS__ = ABSOLUTE(.);
     *(.xt_except_desc)
     *(.gnu.linkonce.h.*)
@@ -377,28 +375,33 @@ SECTIONS
     *(.xt_except_desc_end)
     *(.dynamic)
     *(.gnu.version_d)
-    . = ALIGN(4);		/* this table MUST be 4-byte aligned */
+    . = ALIGN(4);
     _bss_table_start = ABSOLUTE(.);
     LONG(_bss_start)
     LONG(_bss_end)
     _bss_table_end = ABSOLUTE(.);
     _rodata_end = ABSOLUTE(.);
-  } >sof_fw :sof_fw_phdr
-
+  } >ram :ram_phdr
   .module_init : ALIGN(4)
   {
     _module_init_start = ABSOLUTE(.);
     *(*.module_init)
     _module_init_end = ABSOLUTE(.);
-  } >sof_fw :sof_fw_phdr
+  } >ram :ram_phdr
 
-  .shared_data : ALIGN(PLATFORM_DCACHE_ALIGN)
+#include <linker/common-rom.ld>
+
+  .fw_ready : ALIGN(4)
   {
-    _shared_data_start = ABSOLUTE(.);
-    *(*.shared_data)
-    _shared_data_end = ABSOLUTE(.);
-    . = ALIGN(PLATFORM_DCACHE_ALIGN);
-  } >sof_fw :sof_fw_phdr
+    KEEP(*(".fw_ready"));
+    KEEP (*(.fw_ready_metadata))
+  } >ram :ram_phdr
+
+  .noinit : ALIGN(4)
+  {
+    *(.noinit)
+    *(.noinit.*)
+  } >ram :ram_phdr
 
   .data : ALIGN(4)
   {
@@ -415,9 +418,11 @@ SECTIONS
     *(.sdata2.*)
     *(.gnu.linkonce.s2.*)
     KEEP(*(.jcr))
+    . = ALIGN(4096);
+    *(.gna_model)
     _data_end = ABSOLUTE(.);
-  } >sof_fw :sof_fw_phdr
-
+    . = ALIGN(4096);
+  } >ram :ram_phdr
   .lit4 : ALIGN(4)
   {
     _lit4_start = ABSOLUTE(.);
@@ -425,17 +430,12 @@ SECTIONS
     *(.lit4.*)
     *(.gnu.linkonce.lit4.*)
     _lit4_end = ABSOLUTE(.);
-  } >sof_fw :sof_fw_phdr
-
-  .fw_ready : ALIGN(4)
-  {
-    KEEP (*(.fw_ready))
-    KEEP (*(.fw_ready_metadata))
-  } >sof_fw :sof_fw_phdr
+  } >ram :ram_phdr
+#include <linker/common-ram.ld>
 
   .bss (NOLOAD) : ALIGN(4096)
   {
-    . = ALIGN (8);
+    . = ALIGN(4096);
     _bss_start = ABSOLUTE(.);
     *(.dynsbss)
     *(.sbss)
@@ -450,80 +450,42 @@ SECTIONS
     *(.bss.*)
     *(.gnu.linkonce.b.*)
     *(COMMON)
-
-    . = ALIGN (SRAM_BANK_SIZE);
-    _runtime_heap_start = ABSOLUTE(.);
-    . = . + HEAP_RUNTIME_SIZE;
-    _runtime_heap_end = ABSOLUTE(.);
-
-    . = ALIGN (HEAP_BUF_ALIGNMENT);
-    _buffer_heap_start = ABSOLUTE(.);
-    . = . + HEAP_BUFFER_SIZE;
-    _buffer_heap_end = ABSOLUTE(.);
-
-    . = ALIGN (SRAM_BANK_SIZE);
-    _system_heap_start = ABSOLUTE(.);
-    . = . + HEAP_SYSTEM_M_SIZE;
-    _system_heap_end = ABSOLUTE(.);
-
-    . = ALIGN (HEAP_BUF_ALIGNMENT);
-    _system_runtime_heap_start = ABSOLUTE(.);
-    . = . + HEAP_SYS_RUNTIME_M_SIZE;
-    _system_runtime_heap_end = ABSOLUTE(.);
-
-    . = ALIGN (4096);
-    _sof_stack_start = ABSOLUTE(.);
-    . = . + SOF_STACK_SIZE;
-    _sof_stack_end = ABSOLUTE(.);
-
-    . = ALIGN (SRAM_BANK_SIZE);
-    _sof_core_s_start = ABSOLUTE(.);
-    . = . + SOF_CORE_S_T_SIZE;
-    _sof_core_s_end = ABSOLUTE(.);
-
+    . = ALIGN(8);
     _bss_end = ABSOLUTE(.);
-  } >sof_fw :sof_fw_phdr
+  } >ram :ram_phdr
 
   /* stack */
-  _end = _sof_stack_start;
-  PROVIDE(end = _sof_stack_start);
-  _stack_sentry = _sof_stack_start;
-  __stack = _sof_stack_end;
-
-  /* Slave core size */
-  _core_s_size = SOF_CORE_S_SIZE;
-
-  /* System Heap */
-  _system_heap = _system_heap_start;
-
-  /* system runtime heap */
-  _system_runtime_heap = _system_runtime_heap_start;
-
-  /* module heap */
-  _module_heap = _runtime_heap_start;
-
-  /* buffer heap */
-  _buffer_heap = _buffer_heap_start;
-  _buffer_heap_end = _buffer_heap_end;
-
-  .debug  0 :  { *(.debug) }
-  .line  0 :  { *(.line) }
-  .debug_srcinfo  0 :  { *(.debug_srcinfo) }
-  .debug_sfnames  0 :  { *(.debug_sfnames) }
-  .debug_aranges  0 :  { *(.debug_aranges) }
-  .debug_pubnames  0 :  { *(.debug_pubnames) }
-  .debug_info  0 :  { *(.debug_info) }
-  .debug_abbrev  0 :  { *(.debug_abbrev) }
-  .debug_line  0 :  { *(.debug_line) }
-  .debug_frame  0 :  { *(.debug_frame) }
-  .debug_str  0 :  { *(.debug_str) }
-  .debug_loc  0 :  { *(.debug_loc) }
-  .debug_macinfo  0 :  { *(.debug_macinfo) }
-  .debug_weaknames  0 :  { *(.debug_weaknames) }
-  .debug_funcnames  0 :  { *(.debug_funcnames) }
-  .debug_typenames  0 :  { *(.debug_typenames) }
-  .debug_varnames  0 :  { *(.debug_varnames) }
-
+  _end = ALIGN(8);
+  PROVIDE(end = ALIGN(8));
+  __stack = DT_L2_SRAM_BASE + DT_L2_SRAM_SIZE;
+  /* dma buffers */
+  .lpbuf (NOLOAD): ALIGN(4)
+  {
+    _dma_buf_start = ABSOLUTE(.);
+    *(.dma_buffers)
+    _dma_buf_end = ABSOLUTE(.);
+  } >LPRAM_REGION
+  _heap_sentry = DT_L2_SRAM_BASE + DT_L2_SRAM_SIZE;
+  .comment  0 :  { *(.comment) }
+  .debug 0 : { *(.debug) }
+  .line 0 : { *(.line) }
+  .debug_srcinfo 0 : { *(.debug_srcinfo) }
+  .debug_sfnames 0 : { *(.debug_sfnames) }
+  .debug_aranges 0 : { *(.debug_aranges) }
+  .debug_pubnames 0 : { *(.debug_pubnames) }
+  .debug_info 0 : { *(.debug_info) }
+  .debug_abbrev 0 : { *(.debug_abbrev) }
+  .debug_line 0 : { *(.debug_line) }
+  .debug_frame 0 : { *(.debug_frame) }
+  .debug_str 0 : { *(.debug_str) }
+  .debug_loc 0 : { *(.debug_loc) }
+  .debug_macinfo 0 : { *(.debug_macinfo) }
+  .debug_weaknames 0 : { *(.debug_weaknames) }
+  .debug_funcnames 0 : { *(.debug_funcnames) }
+  .debug_typenames 0 : { *(.debug_typenames) }
+  .debug_varnames 0 : { *(.debug_varnames) }
+  .debug_ranges  0 :  { *(.debug_ranges) }
+  .xtensa.info  0 :  { *(.xtensa.info) }
   .xt.insn 0 :
   {
     KEEP (*(.xt.insn))
@@ -556,17 +518,17 @@ SECTIONS
     KEEP (*(.xt.profile_files))
     KEEP (*(.gnu.linkonce.xt.profile_files.*))
   }
+#ifdef CONFIG_GEN_ISR_TABLES
+#include <linker/intlist.ld>
+#endif
+
+ .static_uuid_entries (COPY) : ALIGN(1024)
+  {
+    *(*.static_uuids)
+  } > static_uuid_entries_seg :static_uuid_entries_phdr
 
   .static_log_entries (COPY) : ALIGN(1024)
   {
     *(*.static_log*)
   } > static_log_entries_seg :static_log_entries_phdr
-
-  .lpsram(NOLOAD) : ALIGN(8)
-  {
-    _lpsram_start = ABSOLUTE(.);
-    KEEP (*(*.lpsram))
-    _lpsram_end = ABSOLUTE(.);
-  } >lpsram_mem :lpsram_mem_phdr
-
 }
