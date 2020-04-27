@@ -58,9 +58,9 @@ static const struct sof_ipc_fw_ready ready
 	},
 	.version = {
 		.hdr.size = sizeof(struct sof_ipc_fw_version),
-		//.micro = SOF_MICRO,
-		//.minor = SOF_MINOR,
-		//.major = SOF_MAJOR,
+		.micro = 0,//SOF_MICRO,
+		.minor = 0,//SOF_MINOR,
+		.major = 2,//SOF_MAJOR,
 #if CONFIG_DEBUG
 		/* only added in debug for reproducability in releases */
 		.build = SOF_BUILD,
@@ -68,7 +68,7 @@ static const struct sof_ipc_fw_ready ready
 		.time = __TIME__,
 #endif
 	//	.tag = SOF_TAG,
-		.abi_version = SOF_ABI_VERSION,
+		.abi_version =  SOF_ABI_VER(3, 16, 0),
 	},
 	.flags = DEBUG_SET_FW_READY_FLAGS,
 };
