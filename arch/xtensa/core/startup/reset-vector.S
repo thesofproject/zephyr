@@ -354,7 +354,20 @@ _ResetHandler:
 
 #if XCHAL_HAVE_PREFETCH
 	/* Enable cache prefetch if present.  */
-	movi	a2, XCHAL_CACHE_PREFCTL_DEFAULT
+#if CONFIG_SOC_SERIES_INTEL_CAVS_V15
+#if CONFIG_SKYLAKE || CONFIG_KABYLAKE
+	movi.n	a2, 0	/* skylake and kabylake */
+#else
+	movi.n	a2, 34  /* apollolake */
+#endif
+
+#elif (CONFIG_SOC_SERIES_INTEL_CAVS_V18 ||
+      CONFIG_SOC_SERIES_INTEL_CAVS_V20 ||
+      CONFIG_SOC_SERIES_INTEL_CAVS_V25)
+	movi.n	a2, 68  /* eveything else CAVS */
+#else
+	movi.n  a2, XCHAL_CACHE_PREFCTL_DEFAULT
+#endif
 	wsr	a2, PREFCTL
 #endif
 
