@@ -337,6 +337,7 @@ SECTIONS
     *(.init.literal)
     *(.iram0.text)
     KEEP(*(.init))
+    KEEP(*(.lps_vector))
     *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
     KEEP(*(.fini))
@@ -380,6 +381,12 @@ SECTIONS
     LONG(_bss_end)
     _bss_table_end = ABSOLUTE(.);
     _rodata_end = ABSOLUTE(.);
+  } >ram :ram_phdr
+  .module_init : ALIGN(4)
+  {
+    _module_init_start = ABSOLUTE(.);
+    *(*.module_init)
+    _module_init_end = ABSOLUTE(.);
   } >ram :ram_phdr
 
 #include <linker/common-rom.ld>
