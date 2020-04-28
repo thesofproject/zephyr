@@ -9,6 +9,9 @@
 
 #define RELATIVE_FILE "zephyr/adsp.c"
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(sof);
+
 #include <cavs/version.h>
 #if (CONFIG_CAVS_LPS)
 #include <cavs/lps_wait.h>
