@@ -6,18 +6,6 @@
 
 #include <ztest.h>
 
-/*
- * Including the header below trigger include chain issue
- */
-enum mem_zone {
-        SOF_MEM_ZONE_SYS = 0,           /**< System zone */
-        SOF_MEM_ZONE_SYS_RUNTIME,       /**< System-runtime zone */
-        SOF_MEM_ZONE_RUNTIME,           /**< Runtime zone */
-        SOF_MEM_ZONE_BUFFER,            /**< Buffer zone */
-};
-
-void *rzalloc(enum mem_zone zone, uint32_t flags, uint32_t caps, size_t bytes);
-
 /**
  * Safe to include headers
  */
@@ -25,11 +13,17 @@ void *rzalloc(enum mem_zone zone, uint32_t flags, uint32_t caps, size_t bytes);
 #include <sof/schedule/task.h>
 #include <sof/schedule/schedule.h>
 
+/**
+ * TODO: Include from headers
+ */
 int schedule_task_init_edf(struct task *task, uint32_t uid,
 			   const struct task_ops *ops,
 			   void *data, uint16_t core, uint32_t flags);
 
-#define SOF_UUID(uuid_name) 0
+int schedule_task_init_ll(struct task *task,
+			  uint32_t uid, uint16_t type, uint16_t priority,
+			  enum task_state (*run)(void *data), void *data,
+			  uint16_t core, uint32_t flags);
 
 static enum task_state test_task(void *data)
 {
@@ -52,37 +46,74 @@ struct task_ops ops = {
 	.get_deadline = task_main_deadline,
 };
 
-static bool test_task_init(struct task **task, void *data)
+static void test_task_init_edf(struct task *task, void *data)
 {
 	int ret;
 
-	TC_PRINT("Initializing task\n");
-
-	*task = rzalloc(SOF_MEM_ZONE_SYS, 0, 0, sizeof(**task));
-	zassert_not_null(*task, "Memory allocation failed");
-
-	ret = schedule_task_init_edf(*task, SOF_UUID(main_task_uuid),
-				     &ops, data, 0, 0);
+	ret = schedule_task_init_edf(task, 0, &ops, data, 0, 0);
 	zassert_equal(ret, 0, "Task init failed");
-
-	return ret;
 }
 
-static struct k_sem task_sync_sem;
+static enum task_state test_task_ll(void *data)
+{
+	struct k_sem *sem = data;
+
+	TC_PRINT("Task %s running\n", __func__);
+
+	k_sem_give(sem);
+
+	return SOF_TASK_STATE_COMPLETED;
+}
+
+static void test_task_init_ll(struct task *task, void *data)
+{
+	int ret;
+
+	ret = schedule_task_init_ll(task, 0, 0, 0, test_task_ll, data, 0, 0);
+	zassert_equal(ret, 0, "Task init failed");
+}
+
+#define NUM_TASKS	5
 
 void test_audio_sof_sched_edf(void)
 {
-	struct task *task;
+	struct task tasks_edf[NUM_TASKS], tasks_ll[NUM_TASKS];
+	struct k_sem task_sync_sem;
 	int ret;
+	int i;
 
-	ret = k_sem_init(&task_sync_sem, 0, 1);
+	ret = k_sem_init(&task_sync_sem, 0, ARRAY_SIZE(tasks_edf));
 	zassert_equal(ret, 0, "Semaphore initialization failed");
 
-	ret = test_task_init(&task, &task_sync_sem);
+	for (i = 0; i < ARRAY_SIZE(tasks_edf); i++) {
+		TC_PRINT("Initializing edf task %d\n", i);
+		test_task_init_edf(&tasks_edf[i], &task_sync_sem);
 
-	ret = schedule_task(task, 0, 0);
-	zassert_equal(ret, 0, "Scheduling task failed");
+		ret = schedule_task(&tasks_edf[i], 0, 0);
+		zassert_equal(ret, 0, "Scheduling task failed");
+	}
 
-	/* Wait for task */
-	k_sem_take(&task_sync_sem, K_FOREVER);
+	/* Wait for all task */
+	for (i = 0; i < ARRAY_SIZE(tasks_edf); i++) {
+		k_sem_take(&task_sync_sem, K_FOREVER);
+	}
+
+	TC_PRINT("All %d edf tasks are finished\n", i);
+
+	k_sem_reset(&task_sync_sem);
+
+	for (i = 0; i < ARRAY_SIZE(tasks_ll); i++) {
+		TC_PRINT("Initializing ll task %d\n", i);
+		test_task_init_ll(&tasks_ll[i], &task_sync_sem);
+
+		ret = schedule_task(&tasks_ll[i], 0, 0);
+		zassert_equal(ret, 0, "Scheduling task failed");
+	}
+
+	/* Wait for all task */
+	for (i = 0; i < ARRAY_SIZE(tasks_edf); i++) {
+		k_sem_take(&task_sync_sem, K_FOREVER);
+	}
+
+	TC_PRINT("All %d ll tasks are finished\n", i);
 }
