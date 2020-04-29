@@ -16,7 +16,7 @@
 #include <platform/platform.h>
 #include <adsp/cache.h>
 
-//#include <sof/debug/panic.h>
+#include <sof/debug/panic.h>
 //#include <sof/init.h>
 #include <sof/lib/cpu.h>
 #include <sof/lib/pm_runtime.h>
