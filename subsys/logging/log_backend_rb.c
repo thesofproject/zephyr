@@ -41,7 +41,6 @@ static void trace(const u8_t *data, size_t length)
 	static u16_t log_id;
 	volatile u8_t *t, *region;
 	int space;
-	int i;
 
 	space = ring_buf_space_get(&ringbuf);
 	if (space < CONFIG_LOG_BACKEND_RB_SLOT_SIZE) {
@@ -58,22 +57,23 @@ static void trace(const u8_t *data, size_t length)
 	region = t;
 
 	/* Add magic number at the beginning of the slot */
-	sys_put_le16(magic, t);
+	sys_put_le16(magic, (u8_t *)t);
 	t += 2;
 
 	/* Add log id */
-	sys_put_le16(log_id++, t);
+	sys_put_le16(log_id++, (u8_t *)t);
 	t += 2;
 
 	length = MIN(length, CONFIG_LOG_BACKEND_RB_SLOT_SIZE - 4);
 
-	memcpy(t, data, length);
+	memcpy((void *)t, data, length);
 	t += length;
 
 	/* Clear logging slot */
 	if (IS_ENABLED(CONFIG_LOG_BACKEND_RB_CLEAR) &&
 	    length < CONFIG_LOG_BACKEND_RB_SLOT_SIZE - 4) {
-		memset(t, 0, CONFIG_LOG_BACKEND_RB_SLOT_SIZE - 4 - length);
+		memset((void *)t, 0,
+		       CONFIG_LOG_BACKEND_RB_SLOT_SIZE - 4 - length);
 	}
 
 	SOC_DCACHE_FLUSH((void *)region, CONFIG_LOG_BACKEND_RB_SLOT_SIZE);
