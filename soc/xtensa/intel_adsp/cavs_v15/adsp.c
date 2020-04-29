@@ -50,6 +50,7 @@ static const struct adsp_ipc_fw_ready fw_ready_apl
 	.flags = 0,
 };
 
+#if !CONFIG_SOF
 #define NUM_WINDOWS			2
 
 static const struct adsp_ipc_window sram_window = {
@@ -120,6 +121,7 @@ static void send_fw_ready(void)
 	ipc_write(IPC_DIPCIE, 0);
 	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
 }
+#endif
 
 static int adsp_init(struct device *dev)
 {
