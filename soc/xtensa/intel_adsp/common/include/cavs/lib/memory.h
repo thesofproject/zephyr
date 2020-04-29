@@ -16,6 +16,8 @@
 
 #include <config.h>
 
+#define DCACHE_LINE_SIZE	XCHAL_DCACHE_LINESIZE
+
 /* data cache line alignment */
 #define PLATFORM_DCACHE_ALIGN	DCACHE_LINE_SIZE
 
