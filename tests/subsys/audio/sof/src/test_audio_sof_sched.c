@@ -93,7 +93,7 @@ void test_audio_sof_sched_edf(void)
 		zassert_equal(ret, 0, "Scheduling task failed");
 	}
 
-	/* Wait for all task */
+	/* Wait for all edf tasks */
 	for (i = 0; i < ARRAY_SIZE(tasks_edf); i++) {
 		k_sem_take(&task_sync_sem, K_FOREVER);
 	}
@@ -110,7 +110,7 @@ void test_audio_sof_sched_edf(void)
 		zassert_equal(ret, 0, "Scheduling task failed");
 	}
 
-	/* Wait for all task */
+	/* Wait for all ll tasks */
 	for (i = 0; i < ARRAY_SIZE(tasks_edf); i++) {
 		k_sem_take(&task_sync_sem, K_FOREVER);
 	}
