@@ -28,6 +28,7 @@ zephyr_library_sources(dma.c)
 zephyr_library_sources(main_entry.S)
 zephyr_library_sources(mem_window.c)
 zephyr_library_sources(soc.c)
+zephyr_library_sources(printk_out.c)
 
 set_source_files_properties(pm_memory.c PROPERTIES COMPILE_FLAGS -std=gnu99)
 zephyr_library_sources(pm_memory.c)
