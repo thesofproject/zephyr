@@ -8,13 +8,13 @@
 #ifndef __CAVS_LIB_MEMORY_H__
 #define __CAVS_LIB_MEMORY_H__
 
+#include <sof-config.h>
+
 #include <adsp/cache.h>
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 #include <stdint.h>
 #include <cavs/lib/cpu.h>
 #endif
-
-#include <config.h>
 
 #define DCACHE_LINE_SIZE	XCHAL_DCACHE_LINESIZE
 

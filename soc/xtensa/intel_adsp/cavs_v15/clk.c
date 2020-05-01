@@ -7,6 +7,8 @@
 
 #define RELATIVE_FILE "zephyr/clk.c"
 
+#include <sof-config.h>
+
 #include <sof/common.h>
 #include <sof/drivers/ssp.h>
 #include <sof/lib/clk.h>

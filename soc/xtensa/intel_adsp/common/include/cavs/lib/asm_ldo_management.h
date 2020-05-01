@@ -14,6 +14,8 @@
 #ifndef __CAVS_LIB_ASM_LDO_MANAGEMENT_H__
 #define __CAVS_LIB_ASM_LDO_MANAGEMENT_H__
 
+#include <sof-config.h>
+
 #ifndef ASSEMBLY
 #warning "Header can only be used by assembly sources."
 #endif
