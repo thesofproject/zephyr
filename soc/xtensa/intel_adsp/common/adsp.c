@@ -12,7 +12,8 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sof);
 
-#include <cavs/version.h>
+#include <sof-config.h>
+
 #if (CONFIG_CAVS_LPS)
 #include <cavs/lps_wait.h>
 #endif
@@ -48,7 +49,6 @@ LOG_MODULE_REGISTER(sof);
 #include <ipc/header.h>
 #include <ipc/info.h>
 #include <kernel/abi.h>
-#include <config.h>
 #include <version.h>
 #include <errno.h>
 #include <stdint.h>

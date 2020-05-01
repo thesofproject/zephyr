@@ -9,6 +9,8 @@
 
 #define RELATIVE_FILE "zephyr/dai.c"
 
+#include <sof-config.h>
+
 #include <sof/common.h>
 #include <sof/drivers/hda.h>
 #include <sof/drivers/interrupt.h>
@@ -20,7 +22,7 @@
 #include <sof/spinlock.h>
 #include <ipc/dai.h>
 #include <ipc/stream.h>
-#include <config.h>
+
 
 #if CONFIG_CAVS_SSP
 

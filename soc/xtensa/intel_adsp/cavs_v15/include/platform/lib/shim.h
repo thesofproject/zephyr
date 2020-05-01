@@ -10,6 +10,7 @@
 #define __PLATFORM_LIB_SHIM_H__
 
 #include <sys/util.h>
+#include <sof-config.h>
 #include <platform/lib/memory.h>
 
 #ifndef ASSEMBLY

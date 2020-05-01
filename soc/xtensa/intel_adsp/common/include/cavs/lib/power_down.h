@@ -8,6 +8,8 @@
 #ifndef __CAVS_LIB_POWER_DOWN_H__
 #define __CAVS_LIB_POWER_DOWN_H__
 
+#include <sof-config.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
