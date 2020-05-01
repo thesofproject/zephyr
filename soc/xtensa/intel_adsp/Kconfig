@@ -12,6 +12,22 @@ config SOC_FAMILY
 	string
 	default "intel_adsp"
 
+config ADSP_LOG_WIN_BASE
+	hex "Address of host logging window"
+	default 0x9e008000
+	help
+	  Address in the aDSP memory space of the HPSRAM memory which
+	  holds the logging ring buffer.  Note that the printk layer
+	  expects this memory to be coherent in MP environments!  When
+	  used with more than one CPU, it should point into the
+	  uncached mapping of HP-SRAM.
+
+config ADSP_LOG_WIN_SIZE
+	int "Size of host logging window"
+	default 8192
+	help
+	  Size in bytes of the host logging memory
+
 # Select SoC Part No. and configuration options
 source "soc/xtensa/intel_adsp/*/Kconfig.soc"
 
