@@ -450,12 +450,6 @@ SECTIONS
     *(.bss.*)
     *(.gnu.linkonce.b.*)
     *(COMMON)
-#ifdef CONFIG_SMP
-     . = ALIGN (64);
-    _sof_core_s_start = ABSOLUTE(.);
-    . = . + SOF_CORE_S_T_SIZE;
-    _sof_core_s_end = ABSOLUTE(.);
-#endif
     . = ALIGN(8);
     _bss_end = ABSOLUTE(.);
   } >ram :ram_phdr
