@@ -1,12 +1,16 @@
 # Copyright (c) 2019 Intel Corporation
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# TODO: Need to unbind SOF module.
 
 add_library(base_module base_module.c)
 target_include_directories(base_module PUBLIC
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/../common/include
   ${ZEPHYR_BASE}/../modules/hal/xtensa/include
+  ${ZEPHYR_BASE}/build/zephyr/include/generated
+  ${ZEPHYR_BASE}/../modules/audio/sof/zephyr/include
   )
 
 add_library(boot_module boot_module.c)
@@ -14,6 +18,8 @@ target_include_directories(boot_module PUBLIC
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/../common/include
   ${ZEPHYR_BASE}/../modules/hal/xtensa/include
+  ${ZEPHYR_BASE}/build/zephyr/include/generated
+  ${ZEPHYR_BASE}/../modules/audio/sof/zephyr/include
   )
 
 add_executable(bootloader
@@ -35,6 +41,8 @@ target_include_directories(bootloader PUBLIC
   ${TOOLCHAIN_INCLUDES}
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/
   ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
+  ${ZEPHYR_BASE}/build/zephyr/include/generated
+  ${ZEPHYR_BASE}/../modules/audio/sof/zephyr/include
   )
 
 set_source_files_properties(boot_entry.S PROPERTIES COMPILE_FLAGS -DASSEMBLY)
