@@ -9,6 +9,8 @@
 
 #define RELATIVE_FILE "zephyr/dma.c"
 
+#include <sof-config.h>
+
 #include <sof/common.h>
 #include <sof/drivers/dw-dma.h>
 #include <sof/drivers/hda-dma.h>
@@ -17,7 +19,6 @@
 #include <sof/lib/memory.h>
 #include <sof/sof.h>
 #include <sof/spinlock.h>
-#include <config.h>
 
 #if CONFIG_APOLLOLAKE
 #define DMAC0_CLASS 1

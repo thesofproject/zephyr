@@ -15,6 +15,8 @@
 #ifndef __CAVS_LIB_CLK_H__
 #define __CAVS_LIB_CLK_H__
 
+#include <sof-config.h>
+
 #include <cavs/version.h>
 #include <platform/lib/cpu.h>
 #include <sof/lib/io.h>

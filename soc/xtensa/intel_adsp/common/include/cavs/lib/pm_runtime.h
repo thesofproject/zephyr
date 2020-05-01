@@ -14,6 +14,8 @@
 #ifndef __CAVS_LIB_PM_RUNTIME_H__
 #define __CAVS_LIB_PM_RUNTIME_H__
 
+#include <sof-config.h>
+
 struct pm_runtime_data;
 
 /** \brief cAVS specific runtime power management data. */

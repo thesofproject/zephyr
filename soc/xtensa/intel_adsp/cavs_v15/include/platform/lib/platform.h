@@ -11,7 +11,7 @@
 #define __PLATFORM_PLATFORM_H__
 
 #include <xtensa/config/core.h>
-
+#include <sof-config.h>
 #include <platform/lib/memory.h>
 
 #define PLATFORM_RESET_MHE_AT_BOOT		1

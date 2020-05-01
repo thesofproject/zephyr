@@ -10,6 +10,8 @@
 /* needed for SPF trace - temporary */
 #define RELATIVE_FILE "zephyr"
 
+#include <sof-config.h>
+
 #include <platform/lib/ipc.h>
 #include <platform/lib/mailbox.h>
 #include <platform/lib/shim.h>

@@ -20,6 +20,7 @@
 
 #include <platform/lib/memory.h>
 #include <platform/lib/shim.h>
+#include <sof-config.h>
 
 	/* Macro powers down entire hpsram. on entry literals and code for
 	 * section from where this code is executed needs to be placed in
