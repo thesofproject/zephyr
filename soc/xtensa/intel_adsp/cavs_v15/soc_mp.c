@@ -23,9 +23,12 @@ LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 #include <sof-config.h>
 #include <platform/lib/shim.h>
 
-#ifdef CONFIG_SCHED_IPI_SUPPORTED
 #include <drivers/ipm.h>
 #include <ipm/ipm_cavs_idc.h>
+
+#if CONFIG_MP_NUM_CPUS > 1 && !defined(CONFIG_IPM_CAVS_IDC)
+#error Need to enable the IPM driver for multiprocessing
+#endif
 
 /* ROM wake version parsed by ROM during core wake up. */
 #define IDC_ROM_WAKE_VERSION	0x2
@@ -49,6 +52,7 @@ LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 
 #define IDC_MSG_POWER_UP_EXT(x)	IDC_EXTENSION((x) >> 2)
 
+#ifdef CONFIG_IPM_CAVS_IDC
 static struct device *idc;
 #endif
 
@@ -177,7 +181,7 @@ void arch_start_cpu(int cpu_num, k_thread_stack_t *stack, int sz,
 
 	SOC_DCACHE_FLUSH(&start_rec, sizeof(start_rec));
 
-#ifdef CONFIG_SCHED_IPI_SUPPORTED
+#ifdef CONFIG_IPM_CAVS_IDC
 	idc = device_get_binding(DT_LABEL(DT_INST(0, intel_cavs_idc)));
 #endif
 
