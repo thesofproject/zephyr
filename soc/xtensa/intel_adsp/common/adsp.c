@@ -370,6 +370,11 @@ int platform_init(struct sof *sof)
 	 */
 	pm_runtime_disable(PM_RUNTIME_DSP, 0);
 
+#if CONFIG_TRACE
+	trace_point(TRACE_BOOT_SYS_TRACES);
+	dma_trace_init_early(sof);
+#endif
+
 	trace_point(TRACE_BOOT_SYS_NOTIFIER);
 	init_system_notify(sof);
 
@@ -519,7 +524,7 @@ int platform_init(struct sof *sof)
 #elif CONFIG_TRACE
 	/* Initialize DMA for Trace*/
 	trace_point(TRACE_BOOT_PLATFORM_DMA_TRACE);
-	//dma_trace_init_complete(sof->dmat);
+	dma_trace_init_complete(sof->dmat);
 #endif
 
 	return 0;
