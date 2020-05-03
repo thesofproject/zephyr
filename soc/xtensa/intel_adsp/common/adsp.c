@@ -370,6 +370,9 @@ int platform_init(struct sof *sof)
 	 */
 	pm_runtime_disable(PM_RUNTIME_DSP, 0);
 
+	trace_point(TRACE_BOOT_SYS_NOTIFIER);
+	init_system_notify(sof);
+
 #if CONFIG_CANNONLAKE || CONFIG_ICELAKE || CONFIG_SUECREEK || CONFIG_TIGERLAKE
 	trace_point(TRACE_BOOT_PLATFORM_ENTRY);
 	platform_init_hw();
