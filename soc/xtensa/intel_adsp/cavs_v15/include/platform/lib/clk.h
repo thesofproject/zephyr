@@ -15,7 +15,7 @@
 
 #define CPU_DEFAULT_IDX	2
 
-#define SSP_DEFAULT_IDX	0
+#define SSP_DEFAULT_IDX	1
 
 #define NUM_CPU_FREQ	3
 
