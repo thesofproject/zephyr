@@ -96,12 +96,16 @@ LOG_OUTPUT_DEFINE(log_output, char_out, buf, sizeof(buf));
 static void put(const struct log_backend *const backend,
 		struct log_msg *msg)
 {
-	log_msg_get(msg);
-
 	u32_t flags = LOG_OUTPUT_FLAG_LEVEL;
 
-	if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
-		flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+	log_msg_get(msg);
+
+	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
+
+		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
+			flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+		}
 	}
 
 	log_output_msg_process(&log_output, msg, flags);
@@ -128,8 +132,12 @@ static void sync_string(const struct log_backend *const backend,
 	u32_t flags = LOG_OUTPUT_FLAG_LEVEL;
 	u32_t key;
 
-	if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
-		flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
+
+		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
+			flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+		}
 	}
 
 	key = irq_lock();
@@ -141,11 +149,15 @@ static void sync_hexdump(const struct log_backend *const backend,
 			 struct log_msg_ids src_level, u32_t timestamp,
 			 const char *metadata, const u8_t *data, u32_t length)
 {
-	u32_t flags = LOG_OUTPUT_FLAG_LEVEL | LOG_OUTPUT_FLAG_TIMESTAMP;
+	u32_t flags = LOG_OUTPUT_FLAG_LEVEL;
 	u32_t key;
 
-	if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
-		flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
+
+		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
+			flags |= LOG_OUTPUT_FLAG_FORMAT_TIMESTAMP;
+		}
 	}
 
 	key = irq_lock();
