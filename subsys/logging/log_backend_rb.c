@@ -100,7 +100,7 @@ static void put(const struct log_backend *const backend,
 
 	log_msg_get(msg);
 
-	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+	if (IS_ENABLED(CONFIG_LOG_BACKEND_RB_TIMESTAMP)) {
 		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
 
 		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
@@ -132,7 +132,7 @@ static void sync_string(const struct log_backend *const backend,
 	uint32_t flags = LOG_OUTPUT_FLAG_LEVEL;
 	uint32_t key;
 
-	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+	if (IS_ENABLED(CONFIG_LOG_BACKEND_RB_TIMESTAMP)) {
 		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
 
 		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
@@ -152,7 +152,7 @@ static void sync_hexdump(const struct log_backend *const backend,
 	uint32_t flags = LOG_OUTPUT_FLAG_LEVEL;
 	uint32_t key;
 
-	if (IS_ENABLED(LOG_BACKEND_RB_TIMESTAMP)) {
+	if (IS_ENABLED(CONFIG_LOG_BACKEND_RB_TIMESTAMP)) {
 		flags |= LOG_OUTPUT_FLAG_TIMESTAMP;
 
 		if (IS_ENABLED(CONFIG_LOG_BACKEND_FORMAT_TIMESTAMP)) {
