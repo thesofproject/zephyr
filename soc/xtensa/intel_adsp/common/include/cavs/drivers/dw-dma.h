@@ -86,6 +86,10 @@ static inline void platform_dw_dma_llp_disable(struct dma *dma,
 
 static inline struct dw_lli *platform_dw_dma_lli_get(struct dw_lli *lli)
 {
+#if defined __ZEPHYR__
+	/* TODO: 32 is sizeof (struct lli) - fix this in include ordering */
+	dcache_invalidate_region(lli, 32);
+#endif
 	return cache_to_uncache(lli);
 }
 
