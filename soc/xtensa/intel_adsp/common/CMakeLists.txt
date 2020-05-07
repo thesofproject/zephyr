@@ -57,3 +57,5 @@ zephyr_library_link_libraries(INTEL_ADSP_COMMON)
 
 target_include_directories(INTEL_ADSP_COMMON INTERFACE include)
 target_link_libraries(INTEL_ADSP_COMMON INTERFACE intel_adsp_common)
+
+include(bootloader.cmake)
