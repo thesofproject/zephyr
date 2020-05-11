@@ -31,4 +31,50 @@ config 2ND_LEVEL_INTERRUPTS
 config DYNAMIC_INTERRUPTS
 	default y
 
+config LOG
+	default y
+
+# To prevent test uses TEST_LOGGING_MINIMAL
+config TEST_LOGGING_DEFAULTS
+	default n
+	depends on TEST
+
+if LOG
+
+config LOG_PRINTK
+	default y
+
+config LOG_BACKEND_RB
+	default y
+
+config LOG_BACKEND_RB_MEM_BASE
+	default 0xBE008000
+
+config LOG_BACKEND_RB_MEM_SIZE
+	default 8192
+
+endif # LOG
+
+if SMP
+
+config MP_NUM_CPUS
+	default 2
+
+config XTENSA_TIMER
+	default n
+
+config CAVS_TIMER
+	default y
+
+config IPM
+	default y
+
+config IPM_CAVS_IDC
+	default y if IPM
+
+config SCHED_IPI_SUPPORTED
+	default y if IPM_CAVS_IDC
+
+endif # SMP
+
 endif # SOC_SERIES_INTEL_CAVS_V18
