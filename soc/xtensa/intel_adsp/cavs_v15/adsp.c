@@ -7,28 +7,7 @@
 #include <device.h>
 #include <init.h>
 
-/* needed for SPF trace - temporary */
-#define RELATIVE_FILE "zephyr"
-
-#include <sof-config.h>
-
 #include <platform/lib/ipc.h>
-#include <platform/lib/mailbox.h>
-#include <platform/lib/shim.h>
-#include <platform/platform.h>
-#include <adsp/cache.h>
-
-#include <sof/debug/panic.h>
-//#include <sof/init.h>
-#include <sof/lib/cpu.h>
-#include <sof/lib/pm_runtime.h>
-//#include <sof/schedule/task.h>
-#include <sof/platform.h>
-#include <sof/sof.h>
-//#include <sof/trace/trace.h>
-//#include <ipc/trace.h>
-
-#include "soc.h"
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
@@ -124,33 +103,3 @@ static void send_fw_ready(void)
 	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
 }
 #endif /* ! CONFIG_SOF */
-
-static int adsp_init(struct device *dev)
-{
-#if defined(CONFIG_SOF)
-	struct sof *sof = sof_get();
-	int err;
-
-	pm_runtime_init(sof);
-
-	/* init the platform */
-	err = platform_init(sof);
-	if (err < 0)
-		panic(SOF_IPC_PANIC_PLATFORM);
-
-	trace_point(TRACE_BOOT_PLATFORM);
-
-#if CONFIG_NO_SLAVE_CORE_ROM
-	lp_sram_unpack();
-#endif
-
-	/* should not return */
-	err = task_main_start(sof);
-#endif /* CONFIG_SOF */
-
-	platform_boot_complete(0);
-
-	return 0;
-}
-
-SYS_INIT(adsp_init, APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
