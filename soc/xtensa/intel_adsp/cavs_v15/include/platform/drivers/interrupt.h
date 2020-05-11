@@ -6,7 +6,6 @@
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
 
-
 #ifndef __PLATFORM_DRIVERS_INTERRUPT_H__
 #define __PLATFORM_DRIVERS_INTERRUPT_H__
 

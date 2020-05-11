@@ -7,12 +7,10 @@
  *         Rander Wang <rander.wang@intel.com>
  */
 
-#ifndef __PLATFORM_LIB_MEMORY_H__
-#define __PLATFORM_LIB_MEMORY_H__
+#ifndef __PLATFORM_MEMORY_H__
+#define __PLATFORM_MEMORY_H__
 
 #include <cavs/lib/memory.h>
-#include <sof/lib/cpu.h>
-#include <config.h>
 
 /* physical DSP addresses */
 
@@ -273,5 +271,5 @@
 					SOF_STACK_TOTAL_SIZE)
 #define BOOT_LDR_STACK_SIZE		SOF_STACK_TOTAL_SIZE
 
-#endif /* __PLATFORM_LIB_MEMORY_H__ */
+#endif /* __PLATFORM_MEMORY_H__ */
 

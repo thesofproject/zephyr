@@ -8,8 +8,6 @@
  *         Xiuli Pan <xiuli.pan@linux.intel.com>
  */
 
-#ifdef __SOF_PLATFORM_H__
-
 #ifndef __PLATFORM_PLATFORM_H__
 #define __PLATFORM_PLATFORM_H__
 
@@ -19,9 +17,9 @@
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
-#include <sof/drivers/interrupt.h>
-#include <sof/lib/clk.h>
-#include <sof/lib/mailbox.h>
+#include <platform/drivers/interrupt.h>
+#include <platform/lib/clk.h>
+#include <platform/lib/mailbox.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -113,9 +111,3 @@ extern intptr_t _module_init_end;
 
 #endif
 #endif /* __PLATFORM_PLATFORM_H__ */
-
-#else
-
-#error "This file shouldn't be included from outside of sof/platform.h"
-
-#endif /* __SOF_PLATFORM_H__ */
