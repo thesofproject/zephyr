@@ -5,11 +5,10 @@
  * Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
  */
 
-
 #ifndef __PLATFORM_DRIVERS_DW_DMA_H__
 #define __PLATFORM_DRIVERS_DW_DMA_H__
 
 #include <cavs/drivers/dw-dma.h>
 
-#endif /* __PLATFORM_DW_DMA_H__ */
+#endif /* __PLATFORM_DRIVERS_DW_DMA_H__ */
 

@@ -12,7 +12,8 @@
 
 #include <cavs/drivers/interrupt.h>
 #include <sof/bit.h>
-#include <config.h>
+
+#include <sof-config.h>
 
 #define PLATFORM_IRQ_HW_NUM	XCHAL_NUM_INTERRUPTS
 #define PLATFORM_IRQ_FIRST_CHILD  PLATFORM_IRQ_HW_NUM
@@ -52,7 +53,7 @@
 #define IRQ_BIT_LVL2_CSME_IPC		6
 #define IRQ_BIT_LVL2_PMC_IPC		5
 
-/* Priority 2 Peripheral IRQ mappings */
+/* Level 2 Peripheral IRQ mappings */
 #define IRQ_EXT_HP_GPDMA_LVL2 IRQ_BIT_LVL2_HP_GP_DMA0(0)
 #define IRQ_EXT_IDC_LVL2 IRQ_BIT_LVL2_IDC
 #define IRQ_EXT_IPC_LVL2 IRQ_BIT_LVL2_HOST_IPC
@@ -81,7 +82,7 @@
 #define IRQ_BIT_LVL3_HOST_STREAM_OUT(x)	(16 + x)
 #define IRQ_BIT_LVL3_HOST_STREAM_IN(x)	(0 + x)
 
-/* Priority 3 Peripheral IRQ mappings */
+/* Level 3 Peripheral IRQ mappings */
 #define IRQ_EXT_CODE_DMA_LVL3 IRQ_BIT_LVL3_CODE_LOADER
 #define IRQ_EXT_HOST_DMA_IN_LVL3(channel) IRQ_BIT_LVL3_HOST_STREAM_IN(channel)
 #define IRQ_EXT_HOST_DMA_OUT_LVL3(channel) IRQ_BIT_LVL3_HOST_STREAM_OUT(channel)
@@ -103,7 +104,7 @@
 #define IRQ_BIT_LVL4_LINK_STREAM_OUT(x)	(16 + x)
 #define IRQ_BIT_LVL4_LINK_STREAM_IN(x)	(0 + x)
 
-/* Priority 4 Peripheral IRQ mappings */
+/* Level 4 Peripheral IRQ mappings */
 #define IRQ_EXT_LINK_DMA_IN_LVL4(channel) IRQ_BIT_LVL4_LINK_STREAM_IN(channel)
 #define IRQ_EXT_LINK_DMA_OUT_LVL4(channel) IRQ_BIT_LVL4_LINK_STREAM_OUT(channel)
 

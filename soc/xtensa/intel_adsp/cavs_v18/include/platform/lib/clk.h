@@ -31,4 +31,3 @@
 #define NUM_SSP_FREQ	2
 
 #endif /* __PLATFORM_LIB_CLK_H__ */
-

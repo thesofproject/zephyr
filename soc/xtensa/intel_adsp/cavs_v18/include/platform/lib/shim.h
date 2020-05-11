@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: BSD-3-Clause
+/* SPDX-License-Identifier: Apache-2.0
  *
  * Copyright(c) 2017 Intel Corporation. All rights reserved.
  *
@@ -10,9 +10,9 @@
 #ifndef __PLATFORM_LIB_SHIM_H__
 #define __PLATFORM_LIB_SHIM_H__
 
-#include <cavs/drivers/sideband-ipc.h>
-#include <sof/bit.h>
-#include <sof/lib/memory.h>
+#include <sys/util.h>
+#include <sof-config.h>
+#include <platform/lib/memory.h>
 
 #ifndef ASSEMBLY
 #include <stdint.h>
