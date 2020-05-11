@@ -9,6 +9,9 @@
 
 #define RELATIVE_FILE "zephyr/adsp.c"
 
+#include <device.h>
+#include <init.h>
+
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sof);
 
@@ -552,3 +555,33 @@ void platform_wait_for_interrupt(int level)
 	arch_wait_for_interrupt(level);
 #endif
 }
+
+static int adsp_init(struct device *dev)
+{
+#if defined(CONFIG_SOF)
+	struct sof *sof = sof_get();
+	int err;
+
+	pm_runtime_init(sof);
+
+	/* init the platform */
+	err = platform_init(sof);
+	if (err < 0)
+		panic(SOF_IPC_PANIC_PLATFORM);
+
+	trace_point(TRACE_BOOT_PLATFORM);
+
+#if CONFIG_NO_SLAVE_CORE_ROM
+	lp_sram_unpack();
+#endif
+
+	/* should not return */
+	err = task_main_start(sof);
+#endif /* CONFIG_SOF */
+
+	platform_boot_complete(0);
+
+	return 0;
+}
+
+SYS_INIT(adsp_init, APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
