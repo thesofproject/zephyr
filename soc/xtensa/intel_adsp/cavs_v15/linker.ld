@@ -425,7 +425,7 @@ SECTIONS
     *(.noinit.*)
   } >ram :ram_phdr
 
-  .lit4 SEGSTART_CACHED : ALIGN(4)
+  .lit4 : ALIGN(4)
   {
     _lit4_start = ABSOLUTE(.);
     *(*.lit4)
@@ -465,11 +465,13 @@ SECTIONS
 #define ROMABLE_REGION ucram :ucram_phdr
 #include <linker/common-ram.ld>
 
-  /* ANDY TEST */
-  .ucram SEGSTART_UNCACHED :
+  /* This section is cached.  By default it contains only declared
+   * thread stacks, but applications can put symbols here too.
+   */
+  .cached SEGSTART_CACHED :
   {
-    *(.ucram)
-  } >ucram :ucram_phdr
+    *(.cached .cached.*)
+  } >ram :ram_phdr
 
   .bss SEGSTART_UNCACHED (NOLOAD) : ALIGN(4096)
   {
