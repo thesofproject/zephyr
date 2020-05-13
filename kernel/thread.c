@@ -483,6 +483,13 @@ void z_setup_new_thread(struct k_thread *new_thread,
 	/* Initialize various struct k_thread members */
 	z_init_thread_base(&new_thread->base, prio, _THREAD_PRESTART, options);
 
+#ifdef KERNEL_COHERENCE
+        /* Check that the thread object is safe, but that the stack is
+         * still cached! */
+	__ASSERT_NO_MSG(arch_mem_coherent(new_thread));
+	__ASSERT_NO_MSG(!arch_mem_coherent(stack));
+#endif
+
 	arch_new_thread(new_thread, stack, stack_size, entry, p1, p2, p3,
 			  prio, options);
 	/* static threads overwrite it afterwards with real value */

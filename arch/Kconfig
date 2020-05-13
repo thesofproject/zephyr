@@ -388,6 +388,13 @@ config ARCH_HAS_RAMFUNC_SUPPORT
 config ARCH_HAS_NESTED_EXCEPTION_DETECTION
 	bool
 
+config ARCH_HAS_COHERENCE
+	bool
+	help
+	  When selected, the architecture supports the
+	  arch_mem_coherent() API and can link into incoherent/cached
+	  memory using the ".cached" linker section.
+
 #
 # Other architecture related options
 #
