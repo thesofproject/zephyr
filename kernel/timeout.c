@@ -86,6 +86,9 @@ static s32_t next_timeout(void)
 void z_add_timeout(struct _timeout *to, _timeout_func_t fn,
 		   k_timeout_t timeout)
 {
+#ifdef KERNEL_COHERENCE
+	__ASSERT_NO_MSG(arch_mem_coherent(to));
+#endif
 #ifdef CONFIG_LEGACY_TIMEOUT_API
 	k_ticks_t ticks = timeout;
 #else

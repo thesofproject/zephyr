@@ -378,6 +378,10 @@ static void update_cache(int preempt_ok)
 
 static void ready_thread(struct k_thread *thread)
 {
+#ifdef KERNEL_COHERENCE
+	__ASSERT_NO_MSG(arch_mem_coherent(thread));
+#endif
+
 	if (z_is_thread_ready(thread)) {
 		sys_trace_thread_ready(thread);
 		_priq_run_add(&_kernel.ready_q.runq, thread);
@@ -595,6 +599,10 @@ static void add_thread_timeout(struct k_thread *thread, k_timeout_t timeout)
 static void pend(struct k_thread *thread, _wait_q_t *wait_q,
 		 k_timeout_t timeout)
 {
+#ifdef KERNEL_COHERENCE
+	__ASSERT_NO_MSG(arch_mem_coherent(wait_q));
+#endif
+
 	LOCKED(&sched_spinlock) {
 		add_to_waitq_locked(thread, wait_q);
 	}

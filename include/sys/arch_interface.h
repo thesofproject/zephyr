@@ -645,6 +645,24 @@ FUNC_NORETURN void arch_syscall_oops(void *ssf);
 size_t arch_user_string_nlen(const char *s, size_t maxsize, int *err);
 #endif /* CONFIG_USERSPACE */
 
+#ifdef KERNEL_COHERENCE
+/**
+ * @brief Detect memory coherence type
+ *
+ * Required when ARCH_HAS_COHERENCE is true.  This function returns
+ * true if the byte pointed to lies within an architecture-defined
+ * "coherence region" (typically implemented with uncached memory) and
+ * can safely be used in multiprocessor code without explicit flush or
+ * invalidate operations.
+ *
+ * @note The result is for only the single byte at the specified
+ * address, this API is not required to check region boundaries or to
+ * expect misaligned pointers.  The expectation is that the code above
+ * will have queried the appropriate address(es).
+ */
+bool arch_mem_coherent(void *ptr);
+#endif
+
 /** @} */
 
 /**
