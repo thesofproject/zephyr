@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-if BOARD_UP_XTREME_ADSP
+if BOARD_INTEL_ADSP_CAVS18
 
 config BOARD
-	default "up_xtreme_adsp"
+	default "intel_adsp_cavs18"
 
 config CAVS_ICTL_0_OFFSET
 	default 6
@@ -51,4 +51,4 @@ config HEAP_MEM_POOL_SIZE
 	default 196608
 	depends on SOF
 
-endif # BOARD_UP_XTREME_ADSP
+endif # BOARD_INTEL_ADSP_CAVS18
