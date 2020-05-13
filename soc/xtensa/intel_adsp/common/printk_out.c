@@ -49,7 +49,8 @@ static __aligned(64) union {
 	u32_t cache_pad[16];
 } data_rec;
 
-#define data ((struct metadata *)(((char *) &data_rec.meta) - 0x20000000))
+/* Force to the low/uncached mapping, regardless of how it was linked */
+#define data ((struct metadata *)(((long) &data_rec.meta) & ~0x20000000))
 
 static inline struct slot *slot(int i)
 {
