@@ -5307,7 +5307,8 @@ static inline char *Z_THREAD_STACK_BUFFER(k_thread_stack_t *sym)
  * @param size Size of the stack memory region
  */
 #define K_THREAD_STACK_DEFINE(sym, size) \
-	struct z_thread_stack_element __noinit __aligned(STACK_ALIGN) sym[size]
+	struct z_thread_stack_element    \
+          __stackmem __aligned(STACK_ALIGN) sym[size]
 
 /**
  * @brief Calculate size of stacks to be allocated in a stack array
@@ -5335,7 +5336,7 @@ static inline char *Z_THREAD_STACK_BUFFER(k_thread_stack_t *sym)
  * @param size Size of the stack memory region
  */
 #define K_THREAD_STACK_ARRAY_DEFINE(sym, nmemb, size) \
-	struct z_thread_stack_element __noinit \
+	struct z_thread_stack_element __stackmem \
 		__aligned(STACK_ALIGN) sym[nmemb][K_THREAD_STACK_LEN(size)]
 
 /**
