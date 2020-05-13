@@ -106,15 +106,16 @@ static ALWAYS_INLINE unsigned int do_swap(unsigned int key,
 
 #ifdef CONFIG_SMP
 		_current_cpu->swap_ok = 0;
-
 		new_thread->base.cpu = arch_curr_cpu()->id;
 
 		if (!is_spinlock) {
 			z_smp_release_global_lock(new_thread);
 		}
 #endif
-		_current_cpu->current = new_thread;
 		wait_for_switch(new_thread);
+		arch_cohere_stacks(old_thread, NULL, new_thread);
+		_current_cpu->current = new_thread;
+
 		arch_switch(new_thread->switch_handle,
 			     &old_thread->switch_handle);
 		sys_trace_thread_switched_in();
