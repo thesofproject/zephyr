@@ -575,8 +575,6 @@ static int adsp_init(struct device *dev)
 	lp_sram_unpack();
 #endif
 
-	/* should not return */
-	err = task_main_start(sof);
 #endif /* CONFIG_SOF */
 
 	platform_boot_complete(0);
