@@ -6,3 +6,9 @@ find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 project(sample_sof)
 
 target_sources(app PRIVATE src/main.c)
+
+#set(sof_module ${ZEPHYR_BASE}/../modules/audio/sof)
+#target_include_directories(app PUBLIC
+#  ${sof_module}/src/arch/xtensa/include
+#  ${sof_module}/src/include
+#  )
