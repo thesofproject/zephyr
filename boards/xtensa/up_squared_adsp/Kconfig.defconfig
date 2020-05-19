@@ -47,8 +47,4 @@ config I2S_CAVS
 	default y
 	depends on I2S
 
-config HEAP_MEM_POOL_SIZE
-	default 196608
-	depends on SOF
-
 endif # BOARD_UP_SQUARED_ADSP
