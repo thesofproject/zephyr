@@ -8,6 +8,7 @@
 #include <init.h>
 
 #include <platform/lib/ipc.h>
+#include <platform/lib/mailbox.h>
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
@@ -33,6 +34,7 @@ static const struct adsp_ipc_fw_ready fw_ready_apl
 
 #if !defined(CONFIG_SOF)
 #define NUM_WINDOWS			2
+
 
 static const struct adsp_ipc_window sram_window = {
 	.ext_hdr = {
