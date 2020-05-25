@@ -9,6 +9,7 @@
 
 #include <platform/lib/ipc.h>
 #include <platform/lib/mailbox.h>
+#include <platform/lib/shim.h>
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
@@ -34,7 +35,6 @@ static const struct adsp_ipc_fw_ready fw_ready_apl
 
 #if !defined(CONFIG_SOF)
 #define NUM_WINDOWS			2
-
 
 static const struct adsp_ipc_window sram_window = {
 	.ext_hdr = {
@@ -104,4 +104,16 @@ static void send_fw_ready(void)
 	ipc_write(IPC_DIPCIE, 0);
 	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
 }
+
+static int adsp_init(struct device *dev)
+{
+	prepare_host_windows();
+
+	send_fw_ready();
+
+	return 0;
+}
+
+/* Init after IPM initialization and before logging (uses memory windows) */
+SYS_INIT(adsp_init, PRE_KERNEL_2, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
 #endif /* ! CONFIG_SOF */
