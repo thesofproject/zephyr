@@ -14,10 +14,10 @@
 
 
 #include <cavs/version.h>
-#include <platform/asm_ldo_management.h>
-#include <platform/asm_memory_management.h>
-#include <platform/memory.h>
-#include <platform/shim.h>
+#include <platform/lib/asm_ldo_management.h>
+#include <platform/lib/asm_memory_management.h>
+#include <platform/lib/memory.h>
+#include <platform/lib/shim.h>
 
 #if CAVS_VERSION >= CAVS_VERSION_1_8
 
