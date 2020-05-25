@@ -33,8 +33,11 @@
 #include <version.h>
 #include <stdint.h>
 
+#define trace_power(...)
+/* FIXME: correct logging
 #define trace_power(format, ...)	\
 	trace_event(TRACE_CLASS_POWER, format, ##__VA_ARGS__)
+*/
 
 #if !CONFIG_SUECREEK
 #include <cavs/lib/power_down.h>
