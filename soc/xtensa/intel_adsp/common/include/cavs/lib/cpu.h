@@ -13,8 +13,6 @@
 #ifndef __CAVS_LIB_CPU_H__
 #define __CAVS_LIB_CPU_H__
 
-#include <sof-config.h>
-
 /** \brief Number of available DSP cores (conf. by kconfig) */
 #define PLATFORM_CORE_COUNT	CONFIG_CORE_COUNT
 
