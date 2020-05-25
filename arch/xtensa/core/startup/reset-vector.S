@@ -361,8 +361,8 @@ _ResetHandler:
 	movi.n	a2, 34  /* apollolake */
 #endif
 
-#elif (CONFIG_SOC_SERIES_INTEL_CAVS_V18 ||
-      CONFIG_SOC_SERIES_INTEL_CAVS_V20 ||
+#elif (CONFIG_SOC_SERIES_INTEL_CAVS_V18 || \
+      CONFIG_SOC_SERIES_INTEL_CAVS_V20 || \
       CONFIG_SOC_SERIES_INTEL_CAVS_V25)
 	movi.n	a2, 68  /* eveything else CAVS */
 #else
