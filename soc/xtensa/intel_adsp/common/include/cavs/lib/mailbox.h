@@ -8,8 +8,6 @@
 #ifndef __CAVS_LIB_MAILBOX_H__
 #define __CAVS_LIB_MAILBOX_H__
 
-#include <sof-config.h>
-
 #include <platform/lib/memory.h>
 #include <stddef.h>
 #include <stdint.h>

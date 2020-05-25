@@ -8,8 +8,6 @@
 #ifndef __CAVS_LIB_MEMORY_H__
 #define __CAVS_LIB_MEMORY_H__
 
-#include <sof-config.h>
-
 #include <adsp/cache.h>
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 #include <stdint.h>
