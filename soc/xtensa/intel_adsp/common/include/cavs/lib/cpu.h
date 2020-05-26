@@ -13,7 +13,10 @@
 #ifndef __CAVS_LIB_CPU_H__
 #define __CAVS_LIB_CPU_H__
 
-#include <sof-config.h>
+/**
+ * FIXME: defined at the moment in SOF config
+ */
+#define CONFIG_CORE_COUNT 1
 
 /** \brief Number of available DSP cores (conf. by kconfig) */
 #define PLATFORM_CORE_COUNT	CONFIG_CORE_COUNT
