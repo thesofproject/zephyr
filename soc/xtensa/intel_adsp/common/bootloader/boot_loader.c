@@ -204,23 +204,23 @@ static int32_t hp_sram_pm_banks(uint32_t banks)
 	 * segment; current implementation supports 2 segments 0,1
 	 */
 	if (total_banks_count > EBB_SEGMENT_SIZE) {
-		ebb_avail_mask0 = (uint32_t)MASK(EBB_SEGMENT_SIZE - 1, 0);
-		ebb_avail_mask1 = (uint32_t)MASK(total_banks_count -
+		ebb_avail_mask0 = (uint32_t)GENMASK(EBB_SEGMENT_SIZE - 1, 0);
+		ebb_avail_mask1 = (uint32_t)GENMASK(total_banks_count -
 		EBB_SEGMENT_SIZE - 1, 0);
 	} else{
-		ebb_avail_mask0 = (uint32_t)MASK(total_banks_count - 1,
+		ebb_avail_mask0 = (uint32_t)GENMASK(total_banks_count - 1,
 		0);
 		ebb_avail_mask1 = 0;
 	}
 
 	/* bit masks of banks that have to be powered up in each segment */
 	if (banks > EBB_SEGMENT_SIZE) {
-		ebb_mask0 = (uint32_t)MASK(EBB_SEGMENT_SIZE - 1, 0);
-		ebb_mask1 = (uint32_t)MASK(banks - EBB_SEGMENT_SIZE - 1,
+		ebb_mask0 = (uint32_t)GENMASK(EBB_SEGMENT_SIZE - 1, 0);
+		ebb_mask1 = (uint32_t)GENMASK(banks - EBB_SEGMENT_SIZE - 1,
 		0);
 	} else{
 		/* assumption that ebb_in_use is > 0 */
-		ebb_mask0 = (uint32_t)MASK(banks - 1, 0);
+		ebb_mask0 = (uint32_t)GENMASK(banks - 1, 0);
 		ebb_mask1 = 0;
 	}
 
