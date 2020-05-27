@@ -19,20 +19,6 @@ zephyr_library_sources(adsp.c)
 zephyr_library_sources(main_entry.S)
 zephyr_library_sources(soc.c)
 
-# Common files for CAVS v1.8 onwards
-if(CONFIG_SOC_SERIES_INTEL_CAVS_V18
-   OR CONFIG_SOC_SERIES_INTEL_CAVS_V20
-   OR CONFIG_SOC_SERIES_INTEL_CAVS_V25)
-  set_source_files_properties(power_down.S PROPERTIES COMPILE_FLAGS -DASSEMBLY)
-  zephyr_library_sources(power_down.S)
-
-  set_source_files_properties(lps_pic_restore_vector.S PROPERTIES COMPILE_FLAGS -DASSEMBLY)
-  zephyr_library_sources(lps_pic_restore_vector.S)
-
-  set_source_files_properties(lps_wait.c PROPERTIES COMPILE_FLAGS -std=gnu99)
-  zephyr_library_sources(lps_wait.c)
-endif()
-
 if(CONFIG_SMP)
   set_source_files_properties(arch/cpu.c PROPERTIES COMPILE_FLAGS -std=gnu99)
   zephyr_library_sources(arch/cpu.c)
