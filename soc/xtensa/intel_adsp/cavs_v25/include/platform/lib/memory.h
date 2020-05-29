@@ -11,8 +11,6 @@
 #define __PLATFORM_LIB_MEMORY_H__
 
 #include <cavs/lib/memory.h>
-#include <sof/lib/cpu.h>
-#include <config.h>
 
 /* physical DSP addresses */
 
@@ -130,6 +128,7 @@
 
 /* HP SRAM */
 #define HP_SRAM_BASE		0xBE000000
+#define SOF_STACK_BASE		(HP_SRAM_BASE + HP_SRAM_SIZE)
 
 /* HP SRAM windows */
 /* window 0 */
@@ -152,6 +151,7 @@
 /* window 1 */
 #define SRAM_INBOX_BASE		(SRAM_OUTBOX_BASE + SRAM_OUTBOX_SIZE)
 #define SRAM_INBOX_SIZE		0x2000
+
 /* window 2 */
 #define SRAM_DEBUG_BASE		(SRAM_INBOX_BASE + SRAM_INBOX_SIZE)
 #define SRAM_DEBUG_SIZE		0x800
@@ -180,10 +180,34 @@
 #define HP_SRAM_WIN3_BASE	SRAM_TRACE_BASE
 #define HP_SRAM_WIN3_SIZE	SRAM_TRACE_SIZE
 
+/* HP SRAM Base */
+#define HP_SRAM_VECBASE_RESET	(SRAM_TRACE_BASE + SRAM_TRACE_SIZE)
+
+/* text and data share the same HP L2 SRAM on Cannonlake */
+#define SOF_FW_START		(HP_SRAM_VECBASE_RESET + 0x6400)
+#define SOF_FW_BASE		(SOF_FW_START)
+
+/* max size for all var-size sections (text/rodata/bss) */
+#define SOF_FW_MAX_SIZE		(HP_SRAM_BASE + HP_SRAM_SIZE - SOF_FW_BASE)
+
+#define SOF_TEXT_START		(SOF_FW_START)
+#define SOF_TEXT_BASE		(SOF_FW_START)
+
+/* SOF Core S configuration */
+/* TODO: remove once kconfig is aligned */
+#ifndef PLATFORM_CORE_COUNT
+#define PLATFORM_CORE_COUNT	4
+#endif
+#define SOF_CORE_S_SIZE SRAM_BANK_SIZE
+#define SOF_CORE_S_T_SIZE ((PLATFORM_CORE_COUNT - 1) * SOF_CORE_S_SIZE)
+
+
 /* LP SRAM */
 #define LP_SRAM_BASE			0xBE800000
 
-#if CONFIG_SMP
+#define HEAP_BUFFER_SIZE	0x50000
+
+#if (CONFIG_CAVS_LPS) || __ZEPHYR__
 /* alternate reset vector */
 #define LP_SRAM_ALT_RESET_VEC_BASE	LP_SRAM_BASE
 #define LP_SRAM_ALT_RESET_VEC_SIZE	0x180
@@ -197,10 +221,11 @@
 #define LP_SRAM_CODE_SIZE		0x220
 
 #define LP_SRAM_START			(LP_SRAM_CODE_BASE + LP_SRAM_CODE_SIZE)
-#elif
+#else
 #define LP_SRAM_START			LP_SRAM_BASE
 #endif
 
+#define HEAP_LP_BUFFER_BLOCK_SIZE		0x180
 
 #if CONFIG_LP_MEMORY_BANKS
 #define HEAP_LP_BUFFER_COUNT \

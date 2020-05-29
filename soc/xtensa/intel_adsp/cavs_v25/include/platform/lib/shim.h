@@ -10,12 +10,21 @@
 #ifndef __PLATFORM_LIB_SHIM_H__
 #define __PLATFORM_LIB_SHIM_H__
 
-#include <cavs/drivers/sideband-ipc.h>
-#include <sof/bit.h>
-#include <sof/lib/memory.h>
+#include <sys/util.h>
+#include <sof-config.h>
+#include <platform/lib/memory.h>
 
 #ifndef ASSEMBLY
 #include <stdint.h>
+#endif
+
+#if !defined(__ASSEMBLER__) && !defined(LINKER)
+#include <sys/sys_io.h>
+#include <arch/common/sys_io.h>
+#endif
+
+#ifndef BIT
+#define BIT(b)			(1 << (b))
 #endif
 
 /* DSP IPC for Host Registers */
@@ -231,6 +240,10 @@
 #define LSRMCTL			0x71D54
 #define LSPGISTS		0x71D58
 
+#define SHIM_LSPGCTL		0x50
+#define SHIM_LSPGISTS		0x58
+
+
 #define SHIM_L2_MECS		(SHIM_BASE + 0xd0)
 
 /** \brief LDO Control */
@@ -250,7 +263,7 @@
 
 #define DSP_INIT_IOPO	0x71A68
 #define IOPO_DMIC_FLAG		BIT(0)
-#define IOPO_I2S_FLAG		MASK(DAI_NUM_SSP_BASE + DAI_NUM_SSP_EXT + 7, 8)
+#define IOPO_I2S_FLAG		GENMASK(DAI_NUM_SSP_BASE + DAI_NUM_SSP_EXT + 7, 8)
 
 #define DSP_INIT_GENO	0x71A6C
 #define GENO_MDIVOSEL		BIT(1)
@@ -291,12 +304,12 @@ static inline void shim_write16(uint16_t reg, uint16_t val)
 
 static inline uint32_t shim_read(uint32_t reg)
 {
-	return *((volatile uint32_t*)(SHIM_BASE + reg));
+	return sys_read32(SHIM_BASE + reg);
 }
 
 static inline void shim_write(uint32_t reg, uint32_t val)
 {
-	*((volatile uint32_t*)(SHIM_BASE + reg)) = val;
+	sys_write32(val, (SHIM_BASE + reg));
 }
 
 static inline uint64_t shim_read64(uint32_t reg)
@@ -343,7 +356,7 @@ static inline void irq_write(uint32_t reg, uint32_t val)
 
 static inline uint32_t ipc_read(uint32_t reg)
 {
-	return *((volatile uint32_t*)(IPC_HOST_BASE + reg));
+	return sys_read32(IPC_HOST_BASE + reg);
 }
 
 static inline void ipc_write(uint32_t reg, uint32_t val)
