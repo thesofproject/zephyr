@@ -15,6 +15,7 @@
 #ifndef __PLATFORM_LIB_PM_RUNTIME_H__
 #define __PLATFORM_LIB_PM_RUNTIME_H__
 
+#include <sof-config.h>
 #include <cavs/lib/pm_runtime.h>
 #include <stdint.h>
 
