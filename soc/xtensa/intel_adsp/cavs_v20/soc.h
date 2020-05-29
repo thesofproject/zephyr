@@ -1,117 +1,256 @@
-/* SPDX-License-Identifier: BSD-3-Clause
- *
- * Copyright(c) 2017 Intel Corporation. All rights reserved.
- *
- * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
- *         Keyon Jie <yang.jie@linux.intel.com>
- *         Rander Wang <rander.wang@intel.com>
- *         Xiuli Pan <xiuli.pan@linux.intel.com>
+/*
+ * Copyright (c) 2019 Intel Corporation
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef __SOF_PLATFORM_H__
+#include <string.h>
+#include <errno.h>
 
-#ifndef __PLATFORM_PLATFORM_H__
-#define __PLATFORM_PLATFORM_H__
+#include <sys/sys_io.h>
 
-#define PLATFORM_RESET_MHE_AT_BOOT	1
+/* TODO: need full relative path atm sine soc.h is globally included ?
+ * TODO: de-duplicate soc.h in soc and ADSP common headers */
+#include "../common/include/adsp/cache.h"
 
-#define PLATFORM_MEM_INIT_AT_BOOT	1
+#include "memory.h"
 
-#if !defined(__ASSEMBLER__) && !defined(LINKER)
+#ifndef __INC_SOC_H
+#define __INC_SOC_H
 
-#include <sof/drivers/interrupt.h>
-#include <sof/lib/clk.h>
-#include <sof/lib/mailbox.h>
-#include <stddef.h>
-#include <stdint.h>
-
-struct ll_schedule_domain;
-struct timer;
-
-/*! \def PLATFORM_DEFAULT_CLOCK
- *  \brief clock source for audio pipeline
- *
- *  There are two types of clock: cpu clock which is a internal clock in
- *  xtensa core, and ssp clock which is provided by external HW IP.
- *  The choice depends on HW features on different platform
- */
-#define PLATFORM_DEFAULT_CLOCK CLK_SSP
-
-#define MAX_GPDMA_COUNT 2
-
-/* Host page size */
-#define HOST_PAGE_SIZE		4096
-#define PLATFORM_PAGE_TABLE_SIZE	256
-
-/* IDC Interrupt */
-#define PLATFORM_IDC_INTERRUPT		IRQ_EXT_IDC_LVL2
-#define PLATFORM_IDC_INTERRUPT_NAME	irq_name_level2
-
-/* IPC Interrupt */
-#define PLATFORM_IPC_INTERRUPT		IRQ_EXT_IPC_LVL2
-#define PLATFORM_IPC_INTERRUPT_NAME	irq_name_level2
-
-/* pipeline IRQ */
-#define PLATFORM_SCHEDULE_IRQ	IRQ_NUM_SOFTWARE2
-#define PLATFORM_SCHEDULE_IRQ_NAME	NULL
-
-/* Platform stream capabilities */
-#define PLATFORM_MAX_CHANNELS	8
-#define PLATFORM_MAX_STREAMS	16
-
-/* local buffer size of DMA tracing */
-#define DMA_TRACE_LOCAL_SIZE	(HOST_PAGE_SIZE * 2)
-
-/* trace bytes flushed during panic */
-#define DMA_FLUSH_TRACE_SIZE    (MAILBOX_TRACE_SIZE >> 2)
-
-/* the interval of DMA trace copying */
-#define DMA_TRACE_PERIOD		500000
+/* macros related to interrupt handling */
+#define XTENSA_IRQ_NUM_SHIFT			0
+#define CAVS_IRQ_NUM_SHIFT			8
+#define XTENSA_IRQ_NUM_MASK			0xff
+#define CAVS_IRQ_NUM_MASK			0xff
 
 /*
- * the interval of reschedule DMA trace copying in special case like half
- * fullness of local DMA trace buffer
+ * IRQs are mapped on 2 levels. 3rd and 4th level are left as 0x00.
+ *
+ * 1. Peripheral Register bit offset.
+ * 2. CAVS logic bit offset.
  */
-#define DMA_TRACE_RESCHEDULE_TIME	500
+#define XTENSA_IRQ_NUMBER(_irq) \
+	((_irq >> XTENSA_IRQ_NUM_SHIFT) & XTENSA_IRQ_NUM_MASK)
+#define CAVS_IRQ_NUMBER(_irq) \
+	(((_irq >> CAVS_IRQ_NUM_SHIFT) & CAVS_IRQ_NUM_MASK) - 1)
 
-/* DSP default delay in cycles */
-#define PLATFORM_DEFAULT_DELAY	12
+/* Macro that aggregates the bi-level interrupt into an IRQ number */
+#define SOC_AGGREGATE_IRQ(cavs_irq, core_irq)		\
+	( \
+	 ((core_irq & XTENSA_IRQ_NUM_MASK) << XTENSA_IRQ_NUM_SHIFT) | \
+	 (((cavs_irq + 1) & CAVS_IRQ_NUM_MASK) << CAVS_IRQ_NUM_SHIFT) \
+	)
 
-/* minimal L1 exit time in cycles */
-#define PLATFORM_FORCE_L1_EXIT_TIME	985
+#define CAVS_L2_AGG_INT_LEVEL2			DT_CAVS_ICTL_0_IRQ
+#define CAVS_L2_AGG_INT_LEVEL3			DT_CAVS_ICTL_1_IRQ
+#define CAVS_L2_AGG_INT_LEVEL4			DT_CAVS_ICTL_2_IRQ
+#define CAVS_L2_AGG_INT_LEVEL5			DT_CAVS_ICTL_3_IRQ
 
-/* the SSP port fifo depth */
-#define SSP_FIFO_DEPTH		16
+#define CAVS_ICTL_INT_CPU_OFFSET(x)		(0x40 * x)
 
-/* the watermark for the SSP fifo depth setting */
-#define SSP_FIFO_WATERMARK	8
+#define IOAPIC_EDGE				0
+#define IOAPIC_HIGH				0
 
-/* minimal SSP port delay in cycles */
-#define PLATFORM_SSP_DELAY	1600
+/* low power DMACs */
+#define LP_GP_DMA_SIZE				0x00001000
+#define DW_DMA0_BASE_ADDR			0x0000C000
+#define DW_DMA1_BASE_ADDR			(0x0000C000 +\
+						1 * LP_GP_DMA_SIZE)
+#define DW_DMA2_BASE_ADDR			(0x0000C000 +\
+						2 * LP_GP_DMA_SIZE)
 
-/* Platform defined trace code */
-static inline void platform_panic(uint32_t p)
-{
-	mailbox_sw_reg_write(SRAM_REG_FW_STATUS, p & 0x3fffffff);
-	ipc_write(IPC_DIPCIDD, MAILBOX_EXCEPTION_OFFSET + 2 * 0x20000);
-	ipc_write(IPC_DIPCIDR, 0x80000000 | (p & 0x3fffffff));
-}
+#define DW_DMA0_IRQ				0x00001110
+#define DW_DMA1_IRQ				0x0000010A
+#define DW_DMA2_IRQ				0x0000010D
 
-/**
- * \brief Platform specific CPU entering idle.
- * May be power-optimized using platform specific capabilities.
- * @param level Interrupt level.
+/* address of DMA ownership register. We need to properly configure
+ * this register in order to access the DMA registers.
  */
-void platform_wait_for_interrupt(int level);
+#define CAVS_DMA0_OWNERSHIP_REG			(0x00071A60)
+#define CAVS_DMA1_OWNERSHIP_REG			(0x00071A62)
+#define CAVS_DMA2_OWNERSHIP_REG			(0x00071A64)
 
-extern intptr_t _module_init_start;
-extern intptr_t _module_init_end;
+#define DMA_HANDSHAKE_DMIC_RXA			0
+#define DMA_HANDSHAKE_DMIC_RXB			1
+#define DMA_HANDSHAKE_SSP0_TX			2
+#define DMA_HANDSHAKE_SSP0_RX			3
+#define DMA_HANDSHAKE_SSP1_TX			4
+#define DMA_HANDSHAKE_SSP1_RX			5
+#define DMA_HANDSHAKE_SSP2_TX			6
+#define DMA_HANDSHAKE_SSP2_RX			7
+#define DMA_HANDSHAKE_SSP3_TX			8
+#define DMA_HANDSHAKE_SSP3_RX			9
 
-#endif
-#endif /* __PLATFORM_PLATFORM_H__ */
+/* DMA Channel Allocation
+ * FIXME: I2S Driver assigns channel in Kconfig.
+ * Perhaps DTS is a better option
+ */
+#define DMIC_DMA_DEV_NAME			CONFIG_DMA_0_NAME
+#define DMA_CHANNEL_DMIC_RXA			0
+#define DMA_CHANNEL_DMIC_RXB			1
 
-#else
+/* I2S */
+#define I2S_CAVS_IRQ(i2s_num)			\
+	SOC_AGGREGATE_IRQ(0, (i2s_num), CAVS_L2_AGG_INT_LEVEL5)
 
-#error "This file shouldn't be included from outside of sof/platform.h"
+#define I2S0_CAVS_IRQ				I2S_CAVS_IRQ(0)
+#define I2S1_CAVS_IRQ				I2S_CAVS_IRQ(1)
+#define I2S2_CAVS_IRQ				I2S_CAVS_IRQ(2)
+#define I2S3_CAVS_IRQ				I2S_CAVS_IRQ(3)
 
-#endif /* __SOF_PLATFORM_H__ */
+#define SSP_MN_DIV_SIZE				(8)
+#define SSP_MN_DIV_BASE(x)			\
+	(0x00078D00 + ((x) * SSP_MN_DIV_SIZE))
+
+/* MCLK control */
+#define SOC_MCLK_DIV_CTRL_BASE			0x00008E00
+#define SOC_NUM_MCLK_OUTPUTS			2
+#define SOC_MDIVCTRL_MCLK_OUT_EN(mclk)		BIT(mclk)
+#define SOC_MDIVXR_SET_DIVIDER_BYPASS		BIT_MASK(12)
+
+struct soc_mclk_control_regs {
+	u32_t	mdivctrl;
+	u32_t	reserved[31];
+	u32_t	mdivxr[SOC_NUM_MCLK_OUTPUTS];
+};
+
+#define PDM_BASE				0x00010000
+
+#define SOC_NUM_LPGPDMAC			3
+#define SOC_NUM_CHANNELS_IN_DMAC		8
+
+/* SOC Resource Allocation Registers */
+#define SOC_RESOURCE_ALLOC_REG_BASE		0x00071A60
+/* bit field definition for LP GPDMA ownership register */
+#define SOC_LPGPDMAC_OWNER_DSP			\
+	(BIT(15) | BIT_MASK(SOC_NUM_CHANNELS_IN_DMAC))
+
+#define SOC_NUM_I2S_INSTANCES			4
+/* bit field definition for IO peripheral ownership register */
+#define SOC_DSPIOP_I2S_OWNSEL_DSP		\
+	(BIT_MASK(SOC_NUM_I2S_INSTANCES) << 8)
+#define SOC_DSPIOP_DMIC_OWNSEL_DSP		BIT(0)
+
+/* bit field definition for general ownership register */
+#define SOC_GENO_TIMESTAMP_OWNER_DSP		BIT(2)
+#define SOC_GENO_MNDIV_OWNER_DSP		BIT(1)
+
+struct soc_resource_alloc_regs {
+	union {
+		u16_t	lpgpdmacxo[SOC_NUM_LPGPDMAC];
+		u16_t	reserved[4];
+	};
+	u32_t	dspiopo;
+	u32_t	geno;
+};
+
+/* DMIC SHIM Registers */
+#define SOC_DMIC_SHIM_REG_BASE			0x00071E80
+#define SOC_DMIC_SHIM_DMICLCTL_SPA		BIT(0)
+#define SOC_DMIC_SHIM_DMICLCTL_CPA		BIT(8)
+
+struct soc_dmic_shim_regs {
+	u32_t	dmiclcap;
+	u32_t	dmiclctl;
+};
+
+/* SOC DSP SHIM Registers */
+#define SOC_DSP_SHIM_REG_BASE			0x00001000
+
+/* SOC DSP SHIM Register - Clock Control */
+#define SOC_CLKCTL_REQ_AUDIO_PLL_CLK		BIT(31)
+#define SOC_CLKCTL_REQ_XTAL_CLK			BIT(30)
+#define SOC_CLKCTL_REQ_FAST_CLK			BIT(29)
+
+#define SOC_CLKCTL_TCPLCG_POS(x)		(16 + x)
+#define SOC_CLKCTL_TCPLCG_DIS(x)		(1 << SOC_CLKCTL_TCPLCG_POS(x))
+
+#define SOC_CLKCTL_DPCS_POS(x)			(8 + x)
+#define SOC_CLKCTL_DPCS_DIV1(x)			(0 << SOC_CLKCTL_DPCS_POS(x))
+#define SOC_CLKCTL_DPCS_DIV2(x)			(1 << SOC_CLKCTL_DPCS_POS(x))
+#define SOC_CLKCTL_DPCS_DIV4(x)			(3 << SOC_CLKCTL_DPCS_POS(x))
+
+#define SOC_CLKCTL_TCPAPLLS			BIT(7)
+
+#define SOC_CLKCTL_LDCS_POS			(5)
+#define SOC_CLKCTL_LDCS_LMPCS			(0 << SOC_CLKCTL_LDCS_POS)
+#define SOC_CLKCTL_LDCS_LDOCS			(1 << SOC_CLKCTL_LDCS_POS)
+
+#define SOC_CLKCTL_HDCS_POS			(4)
+#define SOC_CLKCTL_HDCS_HMPCS			(0 << SOC_CLKCTL_HDCS_POS)
+#define SOC_CLKCTL_HDCS_HDOCS			(1 << SOC_CLKCTL_HDCS_POS)
+
+#define SOC_CLKCTL_LDOCS_POS			(3)
+#define SOC_CLKCTL_LDOCS_PLL			(0 << SOC_CLKCTL_LDOCS_POS)
+#define SOC_CLKCTL_LDOCS_FAST			(1 << SOC_CLKCTL_LDOCS_POS)
+
+#define SOC_CLKCTL_HDOCS_POS			(2)
+#define SOC_CLKCTL_HDOCS_PLL			(0 << SOC_CLKCTL_HDOCS_POS)
+#define SOC_CLKCTL_HDOCS_FAST			(1 << SOC_CLKCTL_HDOCS_POS)
+
+#define SOC_CLKCTL_LPMEM_PLL_CLK_SEL_POS	(1)
+#define SOC_CLKCTL_LPMEM_PLL_CLK_SEL_DIV2	\
+	(0 << SOC_CLKCTL_LPMEM_PLL_CLK_SEL_POS)
+#define SOC_CLKCTL_LPMEM_PLL_CLK_SEL_DIV4	\
+	(1 << SOC_CLKCTL_LPMEM_PLL_CLK_SEL_POS)
+
+#define SOC_CLKCTL_HPMEM_PLL_CLK_SEL_POS	(0)
+#define SOC_CLKCTL_HPMEM_PLL_CLK_SEL_DIV2	\
+	(0 << SOC_CLKCTL_HPMEM_PLL_CLK_SEL_POS)
+#define SOC_CLKCTL_HPMEM_PLL_CLK_SEL_DIV4	\
+	(1 << SOC_CLKCTL_HPMEM_PLL_CLK_SEL_POS)
+
+/* SOC DSP SHIM Register - Power Control */
+#define SOC_PWRCTL_DISABLE_PWR_GATING_DSP0	BIT(0)
+#define SOC_PWRCTL_DISABLE_PWR_GATING_DSP1	BIT(1)
+
+/* DSP Wall Clock Timers (0 and 1) */
+#define DSP_WCT_IRQ(x) \
+	SOC_AGGREGATE_IRQ((22 + x), CAVS_L2_AGG_INT_LEVEL2)
+
+#define DSP_WCT_CS_TA(x)			BIT(x)
+#define DSP_WCT_CS_TT(x)			BIT(4 + x)
+
+struct soc_dsp_shim_regs {
+	u32_t	reserved[8];
+	union {
+		struct {
+			u32_t walclk32_lo;
+			u32_t walclk32_hi;
+		};
+		u64_t	walclk;
+	};
+	u32_t	dspwctcs;
+	u32_t	reserved1[1];
+	union {
+		struct {
+			u32_t dspwct0c32_lo;
+			u32_t dspwct0c32_hi;
+		};
+		u64_t	dspwct0c;
+	};
+	union {
+		struct {
+			u32_t dspwct1c32_lo;
+			u32_t dspwct1c32_hi;
+		};
+		u64_t	dspwct1c;
+	};
+	u32_t	reserved2[14];
+	u32_t	clkctl;
+	u32_t	clksts;
+	u32_t	reserved3[4];
+	u16_t	pwrctl;
+	u16_t	pwrsts;
+	u32_t	lpsctl;
+	u32_t	lpsdmas0;
+	u32_t	lpsdmas1;
+	u32_t	reserved4[22];
+};
+
+
+extern void z_soc_irq_enable(u32_t irq);
+extern void z_soc_irq_disable(u32_t irq);
+extern int z_soc_irq_is_enabled(unsigned int irq);
+
+#endif /* __INC_SOC_H */
