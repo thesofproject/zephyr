@@ -18,8 +18,13 @@
 #include <user/trace.h>
 #include <stdint.h>
 
+#ifdef __ZEPHYR__
+#define trace_mem_pm(__e, ...)
+#else
 #define trace_mem_pm(__e, ...) \
 	trace_event(TRACE_CLASS_MEM, __e, ##__VA_ARGS__)
+#endif
+
 #if CAVS_VERSION >= CAVS_VERSION_1_8
 
 #define EBB_SEGMENT_SIZE_ZERO_BASE (EBB_SEGMENT_SIZE - 1)
