@@ -11,8 +11,6 @@
 #define __PLATFORM_LIB_MEMORY_H__
 
 #include <cavs/lib/memory.h>
-#include <sof/lib/cpu.h>
-#include <config.h>
 
 /* physical DSP addresses */
 
@@ -128,10 +126,9 @@
 #define LOG_ENTRY_ELF_BASE	0x20000000
 #define LOG_ENTRY_ELF_SIZE	0x2000000
 
-
-
 /* HP SRAM */
 #define HP_SRAM_BASE		0xBE000000
+#define SOF_STACK_BASE		(HP_SRAM_BASE + HP_SRAM_SIZE)
 
 /* HP SRAM windows */
 /* window 0 */
@@ -185,8 +182,29 @@
 /* HP SRAM Base */
 #define HP_SRAM_VECBASE_RESET	(SRAM_TRACE_BASE + SRAM_TRACE_SIZE)
 
+/* text and data share the same HP L2 SRAM on Cannonlake */
+#define SOF_FW_START		(HP_SRAM_VECBASE_RESET + 0x6400)
+#define SOF_FW_BASE		(SOF_FW_START)
+
+/* max size for all var-size sections (text/rodata/bss) */
+#define SOF_FW_MAX_SIZE		(HP_SRAM_BASE + HP_SRAM_SIZE - SOF_FW_BASE)
+
+#define SOF_TEXT_START		(SOF_FW_START)
+#define SOF_TEXT_BASE		(SOF_FW_START)
+
+/* SOF Core S configuration */
+/* TODO: remove once kconfig is aligned */
+#ifndef PLATFORM_CORE_COUNT
+#define PLATFORM_CORE_COUNT	4
+#endif
+#define SOF_CORE_S_SIZE SRAM_BANK_SIZE
+#define SOF_CORE_S_T_SIZE ((PLATFORM_CORE_COUNT - 1) * SOF_CORE_S_SIZE)
+
+
 /* LP SRAM */
 #define LP_SRAM_BASE		0xBE800000
+
+#define HEAP_BUFFER_SIZE	0x50000
 
 #define PLATFORM_HEAP_SYSTEM		PLATFORM_CORE_COUNT /* one per core */
 #define PLATFORM_HEAP_SYSTEM_RUNTIME	PLATFORM_CORE_COUNT /* one per core */
