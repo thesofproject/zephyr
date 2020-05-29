@@ -128,6 +128,7 @@
 
 /* HP SRAM */
 #define HP_SRAM_BASE		0xBE000000
+#define SOF_STACK_BASE		(HP_SRAM_BASE + HP_SRAM_SIZE)
 
 /* HP SRAM windows */
 /* window 0 */
@@ -183,7 +184,7 @@
 #define HP_SRAM_VECBASE_RESET	(SRAM_TRACE_BASE + SRAM_TRACE_SIZE)
 
 /* text and data share the same HP L2 SRAM on Cannonlake */
-#define SOF_FW_START		(HP_SRAM_VECBASE_RESET + 0x400)
+#define SOF_FW_START		(HP_SRAM_VECBASE_RESET + 0x6400)
 #define SOF_FW_BASE		(SOF_FW_START)
 
 /* max size for all var-size sections (text/rodata/bss) */
@@ -192,12 +193,23 @@
 #define SOF_TEXT_START		(SOF_FW_START)
 #define SOF_TEXT_BASE		(SOF_FW_START)
 
+/* SOF Core S configuration */
+/* TODO: remove once kconfig is aligned */
+#ifndef PLATFORM_CORE_COUNT
+#define PLATFORM_CORE_COUNT	4
+#endif
+#define SOF_CORE_S_SIZE SRAM_BANK_SIZE
+#define SOF_CORE_S_T_SIZE ((PLATFORM_CORE_COUNT - 1) * SOF_CORE_S_SIZE)
+
 
 /* LP SRAM */
 #define LP_SRAM_BASE		0xBE800000
 
+#define HEAP_BUFFER_SIZE	0x50000
 
-#if (CONFIG_CAVS_LPS)
+
+/* always true for Zephyr atm */
+#if (CONFIG_CAVS_LPS) || __ZEPHYR__
 #define LPS_RESTORE_VECTOR_OFFSET 0x1000
 #define LPS_RESTORE_VECTOR_SIZE 0x800
 #define LPS_RESTORE_VECTOR_ADDR (LP_SRAM_BASE + LPS_RESTORE_VECTOR_OFFSET)
