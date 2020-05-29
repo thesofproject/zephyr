@@ -11,13 +11,17 @@ config SOC
 	string
 	default "intel_cavs_18"
 
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	default 400000000 if XTENSA_TIMER
+	default 19200000 if CAVS_TIMER
+
 config IRQ_OFFLOAD_INTNUM
 	default 0
 
 # This series does not have MISC0.
 # Since EXCSAVE7 is unused by Zephyr, use it instead.
 config XTENSA_KERNEL_CPU_PTR_SR
-	default "EXCSAVE7"
+	default "EXCSAVE2"
 
 config KERNEL_ENTRY
 	default "_MainEntry"

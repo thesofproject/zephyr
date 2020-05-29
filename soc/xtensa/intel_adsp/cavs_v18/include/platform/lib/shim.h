@@ -18,6 +18,15 @@
 #include <stdint.h>
 #endif
 
+#if !defined(__ASSEMBLER__) && !defined(LINKER)
+#include <sys/sys_io.h>
+#include <arch/common/sys_io.h>
+#endif
+
+#ifndef BIT
+#define BIT(b)			(1 << (b))
+#endif
+
 /* DSP IPC for Host Registers */
 #define IPC_DIPCTDR		0x00
 #define IPC_DIPCTDA		0x04
@@ -63,7 +72,7 @@
 #define REG_IRQ_IL2SD(xcpu)	(0xc + (xcpu * IRQ_CPU_OFFSET))
 
 /* all mask valid bits */
-#define REG_IRQ_IL2MD_ALL		0x03F181F0
+#define REG_IRQ_IL2MD_ALL	0x03F181F0
 
 #define REG_IRQ_IL3MSD(xcpu)	(0x10 + (xcpu * IRQ_CPU_OFFSET))
 #define REG_IRQ_IL3MCD(xcpu)	(0x14 + (xcpu * IRQ_CPU_OFFSET))
@@ -71,7 +80,7 @@
 #define REG_IRQ_IL3SD(xcpu)	(0x1c + (xcpu * IRQ_CPU_OFFSET))
 
 /* all mask valid bits */
-#define REG_IRQ_IL3MD_ALL		0x807F81FF
+#define REG_IRQ_IL3MD_ALL	0x807F81FF
 
 #define REG_IRQ_IL4MSD(xcpu)	(0x20 + (xcpu * IRQ_CPU_OFFSET))
 #define REG_IRQ_IL4MCD(xcpu)	(0x24 + (xcpu * IRQ_CPU_OFFSET))
@@ -79,7 +88,7 @@
 #define REG_IRQ_IL4SD(xcpu)	(0x2c + (xcpu * IRQ_CPU_OFFSET))
 
 /* all mask valid bits */
-#define REG_IRQ_IL4MD_ALL		0x807F81FF
+#define REG_IRQ_IL4MD_ALL	0x807F81FF
 
 #define REG_IRQ_IL5MSD(xcpu)	(0x30 + (xcpu * IRQ_CPU_OFFSET))
 #define REG_IRQ_IL5MCD(xcpu)	(0x34 + (xcpu * IRQ_CPU_OFFSET))
@@ -87,7 +96,7 @@
 #define REG_IRQ_IL5SD(xcpu)	(0x3c + (xcpu * IRQ_CPU_OFFSET))
 
 /* all mask valid bits */
-#define REG_IRQ_IL5MD_ALL		0xFFFFC0CF
+#define REG_IRQ_IL5MD_ALL	0xFFFFC0CF
 
 #define REG_IRQ_IL2RSD		0x100
 #define REG_IRQ_IL3RSD		0x104
@@ -228,6 +237,10 @@
 #define LSRMCTL			0x71D54
 #define LSPGISTS		0x71D58
 
+#define SHIM_LSPGCTL		0x50
+#define SHIM_LSPGISTS		0x58
+
+
 #define SHIM_L2_MECS		(SHIM_BASE + 0xd0)
 
 /** \brief LDO Control */
@@ -288,12 +301,12 @@ static inline void shim_write16(uint16_t reg, uint16_t val)
 
 static inline uint32_t shim_read(uint32_t reg)
 {
-	return *((volatile uint32_t*)(SHIM_BASE + reg));
+	return sys_read32(SHIM_BASE + reg);
 }
 
 static inline void shim_write(uint32_t reg, uint32_t val)
 {
-	*((volatile uint32_t*)(SHIM_BASE + reg)) = val;
+	sys_write32(val, (SHIM_BASE + reg));
 }
 
 static inline uint64_t shim_read64(uint32_t reg)
@@ -340,12 +353,12 @@ static inline void irq_write(uint32_t reg, uint32_t val)
 
 static inline uint32_t ipc_read(uint32_t reg)
 {
-	return *((volatile uint32_t*)(IPC_HOST_BASE + reg));
+	return sys_read32(IPC_HOST_BASE + reg);
 }
 
 static inline void ipc_write(uint32_t reg, uint32_t val)
 {
-	*((volatile uint32_t*)(IPC_HOST_BASE + reg)) = val;
+	sys_write32(val, (IPC_HOST_BASE + reg));
 }
 
 static inline uint32_t idc_read(uint32_t reg, uint32_t core_id)
