@@ -111,6 +111,19 @@ MEMORY
   static_log_entries_seg (!ari) :
         org = LOG_ENTRY_ELF_BASE,
         len = LOG_ENTRY_ELF_SIZE
+
+  lpsram_alt_reset_vec_seg :
+        org = LP_SRAM_ALT_RESET_VEC_BASE,
+        len = LP_SRAM_ALT_RESET_VEC_SIZE
+  lpsram_alt_reset_int_vec_seg :
+        org = LP_SRAM_ALT_RESET_INT_VEC_BASE,
+        len = LP_SRAM_ALT_RESET_INT_VEC_SIZE
+  lpsram_code_seg :
+        org = LP_SRAM_CODE_BASE,
+        len = LP_SRAM_CODE_SIZE
+  lpsram_mem :
+        org = LP_SRAM_START,
+        len = LP_SRAM_SIZE - (LP_SRAM_START - LP_SRAM_BASE)
 }
 
 PHDRS
@@ -140,11 +153,18 @@ PHDRS
 
   static_uuid_entries_phdr PT_NOTE;
   static_log_entries_phdr PT_NOTE;
+  
+  lpsram_mem_phdr PT_LOAD;
+  sram_alt_fw_reset_vec_phdr PT_LOAD;
+  sram_alt_fw_reset_vec_int_phdr PT_LOAD;
+  lpsram_code_phdr PT_LOAD;
 }
 _rom_store_table = 0;
 PROVIDE(_memmap_vecbase_reset = XCHAL_VECBASE_RESET_PADDR_SRAM);
 
 ENTRY(CONFIG_KERNEL_ENTRY)
+EXTERN(_LpsramHeader)
+EXTERN(_AltResetVector)
 
 /* Various memory-map dependent cache attribute settings: */
 _memmap_cacheattr_wb_base = 0x44024000;
@@ -182,17 +202,17 @@ _memmap_cacheattr_bp_allvalid = 0x22222222;
  * attributes.
  */
 #ifndef CONFIG_SMP
-_memmap_cacheattr_intel_apl_adsp = 0xFF42FFF2;
+_memmap_cacheattr_intel_cavs25_adsp = 0xFF42FFF2;
 #else
 /*
  * FIXME: Make 0xA0000000 - 0xBFFFFFFF to bypass cache under SMP
  * since there is no data cache manipulation for spinlock, kernel
  * object, scheduler, etc...
  */
-_memmap_cacheattr_intel_apl_adsp = 0xFF22FFF2;
+_memmap_cacheattr_intel_cavs25_adsp = 0xFF22FFF2;
 #endif
 
-PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_apl_adsp);
+PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_cavs25_adsp);
 SECTIONS
 {
 
@@ -347,6 +367,30 @@ SECTIONS
     . = ALIGN(4096);
   } >ram :ram_phdr
 
+  .AlternateResetVector.text : ALIGN(64)
+  {
+    _alternate_reset_vector_start = ABSOLUTE(.);
+    KEEP (*(*.AlternateResetVector.text))
+    . = ALIGN(16);
+    _alternate_reset_vector_start_end = ABSOLUTE(.);
+  } >lpsram_alt_reset_vec_seg AT> ram : sram_alt_fw_reset_vec_phdr
+
+  .AlternateResetL2IntVector.text : ALIGN(16)
+  {
+    _alternate_reset_l2_int_vector_start = ABSOLUTE(.);
+    KEEP (*(*.AlternateResetL2IntVector.text))
+    . = ALIGN(16);
+    _alternate_reset_l2_int_vector_end = ABSOLUTE(.);
+  } >lpsram_alt_reset_int_vec_seg AT> ram : sram_alt_fw_reset_vec_int_phdr
+
+  .LpsramCode.text : ALIGN(16)
+  {
+    _lpsram_code_start = ABSOLUTE(.);
+    KEEP (*(*.LpsramCode.text))
+    . = ALIGN(16);
+    _lpsram_code_end = ABSOLUTE(.);
+  } >lpsram_code_seg AT> ram : lpsram_code_phdr
+
   .rodata : ALIGN(4096)
   {
     _rodata_start = ABSOLUTE(.);
@@ -433,6 +477,30 @@ SECTIONS
   } >ram :ram_phdr
 #include <linker/common-ram.ld>
 
+  .AltBootManifest : ALIGN(8)
+  {
+    /* Single entry of strorage manifest
+     * consist of 3 items. Entries array
+     * is preceded by a single dword with
+     * entries count. */
+    _loader_storage_manifest_start = ABSOLUTE(.);
+    /* Number of entries*/
+    LONG(3);
+    /* Entry 1 */
+    LONG(LOADADDR(.AlternateResetVector.text));
+    LONG(ADDR(.AlternateResetVector.text));
+    LONG(SIZEOF(.AlternateResetVector.text));
+    /* Entry 2 */
+    LONG(LOADADDR(.AlternateResetL2IntVector.text));
+    LONG(ADDR(.AlternateResetL2IntVector.text));
+    LONG(SIZEOF(.AlternateResetL2IntVector.text));
+	/* Entry 3 */
+	LONG(LOADADDR(.LpsramCode.text));
+    LONG(ADDR(.LpsramCode.text));
+    LONG(SIZEOF(.LpsramCode.text));
+	_loader_storage_manifest_end = ABSOLUTE(.);
+  } >ram :ram_phdr
+
   .bss (NOLOAD) : ALIGN(4096)
   {
     . = ALIGN(4096);
@@ -450,6 +518,12 @@ SECTIONS
     *(.bss.*)
     *(.gnu.linkonce.b.*)
     *(COMMON)
+
+     . = ALIGN (64);
+    _sof_core_s_start = ABSOLUTE(.);
+    . = . + SOF_CORE_S_T_SIZE;
+    _sof_core_s_end = ABSOLUTE(.);
+
     . = ALIGN(8);
     _bss_end = ABSOLUTE(.);
   } >ram :ram_phdr
