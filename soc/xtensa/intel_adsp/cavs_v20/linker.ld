@@ -182,17 +182,17 @@ _memmap_cacheattr_bp_allvalid = 0x22222222;
  * attributes.
  */
 #ifndef CONFIG_SMP
-_memmap_cacheattr_intel_apl_adsp = 0xFF42FFF2;
+_memmap_cacheattr_intel_cavs20_adsp = 0xFF42FFF2;
 #else
 /*
  * FIXME: Make 0xA0000000 - 0xBFFFFFFF to bypass cache under SMP
  * since there is no data cache manipulation for spinlock, kernel
  * object, scheduler, etc...
  */
-_memmap_cacheattr_intel_apl_adsp = 0xFF22FFF2;
+_memmap_cacheattr_intel_cavs20_adsp = 0xFF22FFF2;
 #endif
 
-PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_apl_adsp);
+PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_intel_cavs20_adsp);
 SECTIONS
 {
 
@@ -450,6 +450,12 @@ SECTIONS
     *(.bss.*)
     *(.gnu.linkonce.b.*)
     *(COMMON)
+
+     . = ALIGN (64);
+    _sof_core_s_start = ABSOLUTE(.);
+    . = . + SOF_CORE_S_T_SIZE;
+    _sof_core_s_end = ABSOLUTE(.);
+
     . = ALIGN(8);
     _bss_end = ABSOLUTE(.);
   } >ram :ram_phdr
