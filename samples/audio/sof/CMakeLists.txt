@@ -14,15 +14,11 @@ zephyr_library_sources(
     src/dai.c
     src/clk.c
     src/dma.c
-    src/pm_memory.c
-    src/pm_runtime.c
   )
 
 set_source_files_properties(src/clk.c PROPERTIES COMPILE_FLAGS -std=gnu99)
 set_source_files_properties(src/dai.c PROPERTIES COMPILE_FLAGS -std=gnu99)
 set_source_files_properties(src/dma.c PROPERTIES COMPILE_FLAGS -std=gnu99)
-set_source_files_properties(src/pm_memory.c PROPERTIES COMPILE_FLAGS -std=gnu99)
-set_source_files_properties(src/pm_runtime.c PROPERTIES COMPILE_FLAGS -std=gnu99)
 
 set(sof_module ${ZEPHYR_BASE}/../modules/audio/sof)
 zephyr_library_include_directories(app PUBLIC
