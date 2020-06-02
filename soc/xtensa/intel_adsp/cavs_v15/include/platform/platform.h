@@ -16,7 +16,6 @@
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
-#include <platform/drivers/interrupt.h>
 #include <platform/lib/clk.h>
 #include <platform/lib/mailbox.h>
 #include <stddef.h>
