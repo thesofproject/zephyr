@@ -9,7 +9,7 @@
 #ifndef __PLATFORM_MEMORY_H__
 #define __PLATFORM_MEMORY_H__
 
-#include <cavs/lib/memory.h>
+#include <cavs/memory.h>
 
 /* Memory banks */
 

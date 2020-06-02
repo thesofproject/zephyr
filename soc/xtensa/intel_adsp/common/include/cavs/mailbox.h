@@ -5,8 +5,9 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
-#ifndef __CAVS_LIB_MAILBOX_H__
-#define __CAVS_LIB_MAILBOX_H__
+
+#ifndef __CAVS_MAILBOX_H__
+#define __CAVS_MAILBOX_H__
 
 #include <platform/lib/memory.h>
 #include <stddef.h>
@@ -78,5 +79,5 @@ static inline uint32_t mailbox_sw_reg_read(size_t offset)
 	return *ptr;
 }
 
-#endif /* __CAVS_LIB_MAILBOX_H__ */
+#endif /* __CAVS_MAILBOX_H__ */
 
