@@ -5,13 +5,13 @@
  * Author: Bartosz Kokoszko <bartoszx.kokoszko@linux.intel.com>
  */
 
-#ifndef __CAVS_LIB_MEMORY_H__
-#define __CAVS_LIB_MEMORY_H__
+#ifndef __CAVS_MEMORY_H__
+#define __CAVS_MEMORY_H__
 
 #include <adsp/cache.h>
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 #include <stdint.h>
-#include <cavs/lib/cpu.h>
+#include <cavs/cpu.h>
 #endif
 
 #define DCACHE_LINE_SIZE	XCHAL_DCACHE_LINESIZE
@@ -68,8 +68,6 @@
 #define PLATFORM_TASK_DEFAULT_STACK_SIZE	3072
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
-
-struct sof;
 
 /**
  * \brief Data shared between different cores.
@@ -142,8 +140,6 @@ static inline void *platform_rfree_prepare(void *ptr)
 	return is_uncached(ptr) ? uncache_to_cache(ptr) : ptr;
 }
 
-void platform_init_memmap(struct sof *sof);
-
 #endif
 
-#endif /* __CAVS_LIB_MEMORY_H__ */
+#endif /* __CAVS_MEMORY_H__ */
