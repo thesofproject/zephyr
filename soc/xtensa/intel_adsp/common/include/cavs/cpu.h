@@ -10,8 +10,8 @@
  * \brief DSP parameters, common for cAVS platforms.
  */
 
-#ifndef __CAVS_LIB_CPU_H__
-#define __CAVS_LIB_CPU_H__
+#ifndef __CAVS_CPU_H__
+#define __CAVS_CPU_H__
 
 /**
  * FIXME: defined at the moment in SOF config
@@ -24,4 +24,4 @@
 /** \brief Id of master DSP core */
 #define PLATFORM_MASTER_CORE_ID	0
 
-#endif /* __CAVS_LIB_CPU_H__ */
+#endif /* __CAVS_CPU_H__ */
