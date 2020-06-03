@@ -7,7 +7,7 @@
 #include <device.h>
 #include <init.h>
 
-#include <platform/lib/ipc.h>
+#include <ipc.h>
 #include <platform/lib/mailbox.h>
 #include <platform/lib/shim.h>
 
