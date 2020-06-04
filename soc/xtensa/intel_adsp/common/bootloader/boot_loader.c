@@ -7,7 +7,7 @@
  */
 
 #include <platform/soc.h>
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 #include <soc.h>
 #include "manifest.h"
 
