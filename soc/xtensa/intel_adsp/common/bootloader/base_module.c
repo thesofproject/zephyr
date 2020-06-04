@@ -7,7 +7,7 @@
  */
 
 #include "manifest.h"
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 
 /*
  * Each module has an entry in the FW manifest header. This is NOT part of

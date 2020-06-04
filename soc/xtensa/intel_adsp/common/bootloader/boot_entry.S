@@ -15,7 +15,7 @@
 
 #include <platform/shim.h>
 #include <platform/soc.h>
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 #include <xtensa/corebits.h>
 #include <xtensa/config/core-isa.h>
 

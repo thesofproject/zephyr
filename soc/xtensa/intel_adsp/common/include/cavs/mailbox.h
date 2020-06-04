@@ -9,9 +9,10 @@
 #ifndef __CAVS_MAILBOX_H__
 #define __CAVS_MAILBOX_H__
 
-#include <platform/lib/memory.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include <platform/memory.h>
 
 /*
  * The Window Region on HPSRAM for cAVS platforms is organised like this :-
