@@ -6,7 +6,7 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#include <platform/lib/platform.h>
+#include <platform/soc.h>
 #include <platform/lib/memory.h>
 #include <soc.h>
 #include "manifest.h"
