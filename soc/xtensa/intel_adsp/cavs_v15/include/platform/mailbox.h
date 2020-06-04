@@ -9,7 +9,7 @@
 #ifndef __INCLUDE_PLATFORM_MAILBOX__
 #define __INCLUDE_PLATFORM_MAILBOX__
 
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 #include <cavs/mailbox.h>
 
 /*

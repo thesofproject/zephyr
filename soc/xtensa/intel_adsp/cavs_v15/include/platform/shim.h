@@ -10,7 +10,7 @@
 #define __PLATFORM_LIB_SHIM_H__
 
 #include <sys/util.h>
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 
 #ifndef ASSEMBLY
 #include <stdint.h>

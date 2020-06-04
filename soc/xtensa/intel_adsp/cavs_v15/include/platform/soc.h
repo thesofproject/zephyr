@@ -12,7 +12,7 @@
 
 #include <xtensa/config/core.h>
 #include <sof-config.h>
-#include <platform/lib/memory.h>
+#include <platform/memory.h>
 
 #define PLATFORM_RESET_MHE_AT_BOOT		1
 
