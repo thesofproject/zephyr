@@ -12,16 +12,6 @@
 #include "manifest.h"
 
 #include <cavs/version.h>
-//#include <sof/bit.h>
-//#include <sof/lib/cache.h>
-//#include <sof/lib/io.h>
-//#include <sof/lib/memory.h>
-//#include <sof/lib/shim.h>
-//#include <sof/lib/wait.h>
-//#include <sof/platform.h>
-//#include <sof/sof.h>
-//#include <sof/trace/trace.h>
-//#include <user/manifest.h>
 #include <sof-config.h>
 #include <stddef.h>
 #include <stdint.h>
