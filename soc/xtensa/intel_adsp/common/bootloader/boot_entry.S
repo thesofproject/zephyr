@@ -13,7 +13,7 @@
  * 2) Stack is in first HPSRAM bank.
  */
 
-#include <platform/lib/shim.h>
+#include <platform/shim.h>
 #include <platform/lib/platform.h>
 #include <platform/lib/memory.h>
 #include <xtensa/corebits.h>
