@@ -28,9 +28,9 @@
 
 #if !defined(__ASSEMBLER__) && !defined(LINKER)
 
-#include <platform/lib/mailbox.h>
-#include <platform/lib/io.h>
-#include <platform/lib/shim.h>
+#include <platform/mailbox.h>
+#include <platform/io.h>
+#include <platform/shim.h>
 
 /* Host page size */
 #define HOST_PAGE_SIZE		4096
