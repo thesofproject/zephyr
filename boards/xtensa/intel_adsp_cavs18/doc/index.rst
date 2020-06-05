@@ -1,4 +1,4 @@
-.. _Up_Squared_Audio_DSP:
+.. _Up_Xtreme_Audio_DSP:
 
 Up Xtreme Audio DSP
 ####################
