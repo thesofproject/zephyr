@@ -20,8 +20,7 @@ LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 #include "soc.h"
 #include "memory.h"
 
-#include <sof-config.h>
-#include <platform/lib/shim.h>
+#include <platform/shim.h>
 
 #ifdef CONFIG_SCHED_IPI_SUPPORTED
 #include <drivers/ipm.h>
@@ -185,7 +184,7 @@ void arch_start_cpu(int cpu_num, k_thread_stack_t *stack, int sz,
 	idc_reg = idc_read(IPC_IDCCTL, cpu_num);
 	idc_reg |= IPC_IDCCTL_IDCTBIE(0);
 	idc_write(IPC_IDCCTL, cpu_num, idc_reg);
-	sys_set_bit(DT_CAVS_ICTL_BASE_ADDR + 0x04 +
+	sys_set_bit(DT_REG_ADDR(DT_NODELABEL(cavs0)) + 0x04 +
 		    CAVS_ICTL_INT_CPU_OFFSET(cpu_num), 8);
 
 	/* Send power up message to the other core */
@@ -198,7 +197,7 @@ void arch_start_cpu(int cpu_num, k_thread_stack_t *stack, int sz,
 	idc_reg = idc_read(IPC_IDCCTL, cpu_num);
 	idc_reg &= ~IPC_IDCCTL_IDCTBIE(0);
 	idc_write(IPC_IDCCTL, cpu_num, idc_reg);
-	sys_clear_bit(DT_CAVS_ICTL_BASE_ADDR + 0x04 +
+	sys_clear_bit(DT_REG_ADDR(DT_NODELABEL(cavs0)) + 0x04 +
 		      CAVS_ICTL_INT_CPU_OFFSET(cpu_num), 8);
 
 	do {

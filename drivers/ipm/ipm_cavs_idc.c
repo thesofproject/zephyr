@@ -13,7 +13,7 @@
 #include <arch/common/sys_io.h>
 
 #include <soc.h>
-#include <platform/lib/shim.h>
+#include <platform/shim.h>
 
 #include "ipm_cavs_idc.h"
 
