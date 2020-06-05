@@ -7,6 +7,7 @@ zephyr_interface_library_named(INTEL_ADSP_COMMON)
 
 zephyr_library_named(intel_adsp_common)
 zephyr_library_include_directories(include)
+zephyr_library_include_directories(${ZEPHYR_BASE}/drivers)
 
 if(CONFIG_SOF)
 	zephyr_library_include_directories(INTEL_ADSP_COMMON INTERFACE  ${PROJECT_SOURCE_DIR}/../modules/audio/sof/src/include)
@@ -18,11 +19,7 @@ zephyr_library_sources(adsp.c)
 
 zephyr_library_sources(main_entry.S)
 zephyr_library_sources(soc.c)
-
-if(CONFIG_SMP)
-  set_source_files_properties(arch/cpu.c PROPERTIES COMPILE_FLAGS -std=gnu99)
-  zephyr_library_sources(arch/cpu.c)
-endif()
+zephyr_library_sources_ifdef(CONFIG_SMP soc_mp.c)
 
 zephyr_library_link_libraries(INTEL_ADSP_COMMON)
 

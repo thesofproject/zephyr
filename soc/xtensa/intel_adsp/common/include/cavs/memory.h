@@ -142,4 +142,13 @@ static inline void *platform_rfree_prepare(void *ptr)
 
 #endif
 
+/**
+ * FIXME check that correct core count is used
+ */
+#include <cavs/cpu.h>
+/* SOF Core S configuration */
+#define SRAM_BANK_SIZE		(64 * 1024)
+#define SOF_CORE_S_SIZE		SRAM_BANK_SIZE
+#define SOF_CORE_S_T_SIZE	((PLATFORM_CORE_COUNT - 1) * SOF_CORE_S_SIZE)
+
 #endif /* __CAVS_MEMORY_H__ */
