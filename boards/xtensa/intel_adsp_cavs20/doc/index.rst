@@ -1,4 +1,4 @@
-.. _Up_Squared_Audio_DSP:
+.. _Intel_Audio_DSP_CAVS20:
 
 Up Xtreme Audio DSP
 ####################
