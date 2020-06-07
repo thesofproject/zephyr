@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <platform/memory.h>
+#include <memory.h>
 
 /*
  * The Window Region on HPSRAM for cAVS platforms is organised like this :-

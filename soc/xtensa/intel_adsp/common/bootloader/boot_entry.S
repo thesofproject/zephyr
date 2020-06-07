@@ -13,9 +13,9 @@
  * 2) Stack is in first HPSRAM bank.
  */
 
-#include <platform/shim.h>
-#include <platform/soc.h>
-#include <platform/memory.h>
+#include <soc/shim.h>
+#include <soc/platform.h>
+#include <soc/memory.h>
 #include <xtensa/corebits.h>
 #include <xtensa/config/core-isa.h>
 
