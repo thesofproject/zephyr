@@ -10,7 +10,20 @@
 #ifndef __PLATFORM_MEMORY_H__
 #define __PLATFORM_MEMORY_H__
 
-#include <cavs/lib/memory.h>
+#include "../../../common/include/cavs/memory.h"
+
+/* Memory banks */
+
+#define NUM_LP_MEMORY_BANKS		2
+
+#define NUM_HP_MEMORY_BANKS		47
+
+#define SRAM_BANK_SIZE                  (64 * 1024)
+
+#define EBB_BANKS_IN_SEGMENT            32
+
+#define EBB_SEGMENT_SIZE                EBB_BANKS_IN_SEGMENT
+
 
 /* physical DSP addresses */
 
