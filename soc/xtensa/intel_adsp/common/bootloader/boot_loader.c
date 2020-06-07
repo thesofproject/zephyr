@@ -6,15 +6,17 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#include <platform/soc.h>
-#include <platform/memory.h>
-#include <soc.h>
-#include "manifest.h"
-
-#include <cavs/version.h>
-#include <sof-config.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <cavs/version.h>
+#include <sof-config.h>
+
+#include <soc/platform.h>
+#include <soc/memory.h>
+#include <soc/shim.h>
+#include <soc/io.h>
+#include <soc.h>
+#include "manifest.h"
 
 #if CONFIG_SUECREEK
 #define MANIFEST_BASE	BOOT_LDR_MANIFEST_BASE

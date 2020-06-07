@@ -14,7 +14,7 @@
 OUTPUT_ARCH(xtensa)
 
 #include <devicetree.h>
-#include "memory.h"
+#include <soc/memory.h>
 #include <autoconf.h>
 #include <linker/sections.h>
 
