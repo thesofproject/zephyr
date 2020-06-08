@@ -45,13 +45,35 @@ target_include_directories(bootloader PUBLIC
   ${ZEPHYR_BASE}/../modules/audio/sof/zephyr/include
   )
 
+# TODO: pre-process linker script. How do we use toplevel infrastructure ??
+set(bootloader_linker_script "boot_ldr")
+add_custom_command(TARGET bootloader
+    PRE_LINK
+    DEPENDS ${bootloader_linker_script}.x
+    COMMENT "Generating Bottloder!!!!!!!"
+    COMMAND ${CMAKE_C_COMPILER}
+    -x assembler-with-cpp
+    ${NOSYSDEF_CFLAG}
+    -MD
+    -D_LINKER
+    -D_ASMLANGUAGE
+    -I ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
+    ${current_defines}
+    ${linker_pass_define}
+    -E ${SOC_DIR}/${ARCH}/${SOC_FAMILY}/common/bootloader/${bootloader_linker_script}.x
+    -P # Prevent generation of debug `#line' directives.
+    -o ${bootloader_linker_script}.ld
+    VERBATIM
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+ )
+
 set_source_files_properties(boot_entry.S PROPERTIES COMPILE_FLAGS -DASSEMBLY)
 set_source_files_properties(${ARCH_DIR}/${ARCH}/core/startup/reset-vector.S PROPERTIES COMPILE_FLAGS -DBOOTLOADER)
 
 target_compile_options(bootloader PUBLIC -fno-inline-functions -mlongcalls -mtext-section-literals -imacros${CMAKE_BINARY_DIR}/zephyr/include/generated/autoconf.h)
 
 target_link_libraries(bootloader PUBLIC -Wl,--no-check-sections -ucall_user_start -Wl,-static -nostdlib)
-target_link_libraries(bootloader PRIVATE -T${SOC_DIR}/${ARCH}/${SOC_FAMILY}/common/bootloader/boot_ldr.x)
+target_link_libraries(bootloader PRIVATE -T${ZEPHYR_BASE}/build/zephyr/${bootloader_linker_script}.ld)
 
 if(CONFIG_XTENSA_HAL)
   target_link_libraries(bootloader PRIVATE XTENSA_HAL)

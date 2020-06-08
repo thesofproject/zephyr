@@ -1,29 +1,32 @@
 OUTPUT_ARCH(xtensa)
+
+#include <soc/memory.h>
+
 PROVIDE(__memctl_default = 0x00000000);
 PROVIDE(_MemErrorHandler = 0x00000000);
 MEMORY
 {
   boot_entry_text :
-        org = 0xB000A000,
-        len = 0x86
+        org = IMR_BOOT_LDR_TEXT_ENTRY_BASE,
+        len = IMR_BOOT_LDR_TEXT_ENTRY_SIZE
   boot_entry_lit :
-        org = (0xB000A000 + 0x86),
-        len = 0x70
+        org = IMR_BOOT_LDR_LIT_BASE,
+        len = IMR_BOOT_LDR_LIT_SIZE
   sof_text :
-        org = ((0xB000A000 + 0x86) + 0x70),
-        len = 0x1C00,
+        org = IMR_BOOT_LDR_TEXT_BASE,
+        len = IMR_BOOT_LDR_TEXT_SIZE,
   sof_data :
-        org = 0xB0002000,
-        len = 0x1000
+        org = IMR_BOOT_LDR_DATA_BASE,
+        len = IMR_BOOT_LDR_DATA_SIZE
   sof_bss_data :
-        org = 0xB0100000,
-        len = 0x10000
+        org = IMR_BOOT_LDR_BSS_BASE,
+        len = IMR_BOOT_LDR_BSS_SIZE
   sof_stack :
-        org = 0xBE000000,
-        len = (1 * 0x1000)
+        org = BOOT_LDR_STACK_BASE,
+        len = BOOT_LDR_STACK_SIZE
   wnd0 :
-        org = ((((((0xBE000000 + 0x8000) + 0x2000) + 0x800) + 0x800) + 0x1000) + 0x2000),
-        len = (0x1000 + 0x1000)
+        org = HP_SRAM_WIN0_BASE,
+        len = HP_SRAM_WIN0_SIZE
 }
 PHDRS
 {
