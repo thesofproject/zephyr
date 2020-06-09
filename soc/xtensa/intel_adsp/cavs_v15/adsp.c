@@ -9,6 +9,8 @@
 
 #include <ipc.h>
 #include <soc/shim.h>
+#include <soc/io.h>
+#include <cavs/mailbox.h>
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
