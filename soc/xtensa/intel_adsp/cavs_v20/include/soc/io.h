@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <sys/sys_io.h>
 #include <arch/common/sys_io.h>
-#include "memory1.h"
+#include <soc/memory.h>
 
 static inline uint32_t io_reg_read(uint32_t reg)
 {
