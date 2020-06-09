@@ -73,7 +73,7 @@ set_source_files_properties(${ARCH_DIR}/${ARCH}/core/startup/reset-vector.S PROP
 target_compile_options(bootloader PUBLIC -fno-inline-functions -mlongcalls -mtext-section-literals -imacros${CMAKE_BINARY_DIR}/zephyr/include/generated/autoconf.h)
 
 target_link_libraries(bootloader PUBLIC -Wl,--no-check-sections -ucall_user_start -Wl,-static -nostdlib)
-target_link_libraries(bootloader PRIVATE -T${ZEPHYR_BASE}/build/zephyr/${bootloader_linker_script}.ld)
+target_link_libraries(bootloader PRIVATE -T${CMAKE_BINARY_DIR}/zephyr/${bootloader_linker_script}.ld)
 
 if(CONFIG_XTENSA_HAL)
   target_link_libraries(bootloader PRIVATE XTENSA_HAL)
