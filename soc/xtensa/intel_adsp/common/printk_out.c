@@ -5,7 +5,7 @@
  */
 #include <zephyr.h>
 #include <adsp/cache.h>
-#include <platform/shim.h>
+#include <soc/shim.h>
 
 /* Simple char-at-a-time output rig to the host kernel from a ADSP
  * device.  The protocol uses an array of "slots" in shared memory,
@@ -69,9 +69,9 @@ int arch_printk_char_out(int c)
 		 * host access.  In general this is done by the
 		 * bootloader, but potentially not early enough
 		 */
-		sys_write32(HP_SRAM_WIN3_SIZE | 0x7,
+		sys_write32(SRAM_TRACE_SIZE | 0x7,
 			    DMWLO(3));
-		sys_write32(HP_SRAM_WIN3_BASE | DMWBA_READONLY | DMWBA_ENABLE,
+		sys_write32(SRAM_TRACE_BASE | DMWBA_READONLY | DMWBA_ENABLE,
 			    DMWBA(3));
 
 		slot(0)->hdr.magic = 0;
