@@ -24,8 +24,13 @@
 #define SLOT_SIZE 64
 #define SLOT_MAGIC 0x55aa
 
-#define NSLOTS (CONFIG_ADSP_LOG_WIN_SIZE / SLOT_SIZE)
+#define NSLOTS (SRAM_TRACE_SIZE / SLOT_SIZE)
 #define MSGSZ (SLOT_SIZE - sizeof(struct slot_hdr))
+
+/* Translates a SRAM pointer into an address of the same memory in the
+ * uncached region from 0x80000000-0x9fffffff
+ */
+#define UNCACHED_PTR(p) ((void*)(((int)p) & ~0x20000000))
 
 struct slot_hdr {
 	uint16_t magic;
@@ -50,12 +55,11 @@ static __aligned(64) union {
 	uint32_t cache_pad[16];
 } data_rec;
 
-/* Force the pointer into the uncached region no matter how it was linked */
-#define data ((struct metadata *)(((long) &data_rec.meta) & ~0x20000000))
+#define data ((struct metadata *)UNCACHED_PTR(&data_rec.meta))
 
 static inline struct slot *slot(int i)
 {
-	struct slot *slots = (struct slot *)(long) CONFIG_ADSP_LOG_WIN_BASE;
+	struct slot *slots = UNCACHED_PTR(SRAM_TRACE_BASE);
 
 	return &slots[i];
 }
@@ -65,15 +69,6 @@ int arch_printk_char_out(int c)
 	k_spinlock_key_t key = k_spin_lock(&data->lock);
 
 	if (!data->initialized) {
-		/* Ensure the window registers are set up to allow
-		 * host access.  In general this is done by the
-		 * bootloader, but potentially not early enough
-		 */
-		sys_write32(SRAM_TRACE_SIZE | 0x7,
-			    DMWLO(3));
-		sys_write32(SRAM_TRACE_BASE | DMWBA_READONLY | DMWBA_ENABLE,
-			    DMWBA(3));
-
 		slot(0)->hdr.magic = 0;
 		slot(0)->hdr.id = 0;
 		data->curr_slot = data->n_bytes = 0;
