@@ -11,7 +11,7 @@
 #define __PLATFORM_LIB_SHIM_H__
 
 #include <sys/util.h>
-#include "memory1.h"
+#include <soc/memory.h>
 
 #ifndef ASSEMBLY
 #include <stdint.h>
