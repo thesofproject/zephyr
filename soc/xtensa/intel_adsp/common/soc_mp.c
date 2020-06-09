@@ -17,10 +17,10 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 
-#include "soc.h"
-#include "include/memory.h"
+#include <soc.h>
+#include <soc/io.h>
 
-#include <platform/shim.h>
+#include <soc/shim.h>
 
 #include <drivers/ipm.h>
 #include <ipm/ipm_cavs_idc.h>
