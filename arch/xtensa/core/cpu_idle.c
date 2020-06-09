@@ -9,9 +9,10 @@
 static inline void arch_cpu_idle_delay(void)
 {
 	int i;
+	uint32_t ps;
 
 	/* this sequence must be atomic on LX6 */
-	__asm__ __volatile__(	"rsil	%0, 5");
+	__asm__ __volatile__(	"rsil	%0, 5" : "=r"(ps));
 
 	/* LX6 needs a delay */
 	for (i = 0; i < 128; i++)
