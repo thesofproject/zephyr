@@ -50,7 +50,7 @@ set(bootloader_linker_script "boot_ldr")
 add_custom_command(TARGET bootloader
     PRE_LINK
     DEPENDS ${bootloader_linker_script}.x
-    COMMENT "Generating Bottloder!!!!!!!"
+    COMMENT "Generating Bootloader!!!!!!!"
     COMMAND ${CMAKE_C_COMPILER}
     -x assembler-with-cpp
     ${NOSYSDEF_CFLAG}
