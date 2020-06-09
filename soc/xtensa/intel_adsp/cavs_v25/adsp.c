@@ -7,9 +7,8 @@
 #include <device.h>
 #include <init.h>
 
-#include <platform/lib/ipc.h>
-#include <platform/lib/mailbox.h>
-#include <platform/lib/shim.h>
+#include <ipc.h>
+#include <soc/shim.h>
 
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {

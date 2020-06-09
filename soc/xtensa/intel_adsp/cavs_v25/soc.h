@@ -12,7 +12,7 @@
  * TODO: de-duplicate soc.h in soc and ADSP common headers */
 #include "../common/include/adsp/cache.h"
 
-#include "memory.h"
+//#include "memory.h"
 
 #ifndef __INC_SOC_H
 #define __INC_SOC_H
