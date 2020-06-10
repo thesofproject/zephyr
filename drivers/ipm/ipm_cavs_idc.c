@@ -14,7 +14,7 @@
 
 #include <soc.h>
 #include <soc/shim.h>
-#include <soc/io.h>
+#include <adsp/io.h>
 
 #include "ipm_cavs_idc.h"
 
