@@ -15,7 +15,7 @@ LOG_MODULE_REGISTER(sof);
 
 #include <ipc.h>
 #include <soc/shim.h>
-#include <soc/io.h>
+#include <adsp/io.h>
 #include <cavs/mailbox.h>
 
 /* TODO: Cleanup further */
