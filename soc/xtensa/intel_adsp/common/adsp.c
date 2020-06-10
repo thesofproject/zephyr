@@ -124,6 +124,8 @@ const int n_iomux = ARRAY_SIZE(iomux_data);
 
 #endif
 
+#define SRAM_WINDOW_HOST_OFFSET(x) (0x80000 + x * 0x20000)
+
 static const struct adsp_ipc_fw_ready fw_ready_apl
 	__attribute__((section(".fw_ready"))) __attribute__((used)) = {
 	.hdr = {
@@ -214,8 +216,13 @@ static void send_fw_ready(void)
 
 	SOC_DCACHE_FLUSH((void *)MAILBOX_DSPBOX_BASE, MAILBOX_DSPBOX_SIZE);
 
-	ipc_write(IPC_DIPCIE, 0);
+#if defined(CONFIG_SOC_SERIES_INTEL_CAVS_V15)
+	ipc_write(IPC_DIPCIE, SRAM_WINDOW_HOST_OFFSET(0) >> 12);
 	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
+#else
+	ipc_write(IPC_DIPCIDD, SRAM_WINDOW_HOST_OFFSET(0) >> 12);
+	ipc_write(IPC_DIPCIDR, 0x80000000 | ADSP_IPC_FW_READY);
+#endif
 }
 
 static int adsp_init(struct device *dev)
