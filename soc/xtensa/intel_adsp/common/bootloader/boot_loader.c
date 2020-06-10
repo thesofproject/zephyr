@@ -14,7 +14,7 @@
 #include <soc/platform.h>
 #include <soc/memory.h>
 #include <soc/shim.h>
-#include <soc/io.h>
+#include <adsp/io.h>
 #include <soc.h>
 #include "manifest.h"
 

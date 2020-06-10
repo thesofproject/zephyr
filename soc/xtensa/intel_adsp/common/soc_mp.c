@@ -18,7 +18,7 @@
 LOG_MODULE_REGISTER(soc_mp, CONFIG_SOC_LOG_LEVEL);
 
 #include <soc.h>
-#include <soc/io.h>
+#include <adsp/io.h>
 
 #include <soc/shim.h>
 
