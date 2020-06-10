@@ -58,6 +58,7 @@ add_custom_command(TARGET bootloader
     -D_LINKER
     -D_ASMLANGUAGE
     -I ${SOC_DIR}/${ARCH}/${SOC_PATH}/include
+    -I ${SOC_DIR}/${ARCH}/${SOC_FAMILY}/common/include
     ${current_defines}
     ${linker_pass_define}
     -E ${SOC_DIR}/${ARCH}/${SOC_FAMILY}/common/bootloader/${bootloader_linker_script}.x
