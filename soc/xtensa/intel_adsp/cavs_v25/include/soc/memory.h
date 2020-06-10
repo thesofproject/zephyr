@@ -6,6 +6,8 @@
 #ifndef __INC_MEMORY_H
 #define __INC_MEMORY_H
 
+#include <cavs/cpu.h>
+
 /* L2 HP SRAM */
 #define HP_RAM_RESERVE_HEADER_SPACE		0x00010000
 
@@ -176,6 +178,9 @@
 #define SRAM_TRACE_BASE		0xbe000000
 #define SRAM_TRACE_SIZE		0x2000
 
+#define HP_SRAM_WIN3_BASE       SRAM_TRACE_BASE
+#define HP_SRAM_WIN3_SIZE       SRAM_TRACE_SIZE
+
 /* window 2 */
 #define SRAM_DEBUG_BASE		(SRAM_TRACE_BASE + SRAM_TRACE_SIZE)
 #define SRAM_DEBUG_SIZE		0x800
@@ -204,6 +209,11 @@
 #define SOF_TEXT_START	0xbe010400
 
 #define SOF_TEXT_BASE	SOF_TEXT_START
+
+/* SRAM window 0 FW "registers" */
+#define SRAM_REG_FW_TRACEP_SLAVE_CORE_BASE      0x14
+#define SRAM_REG_FW_END \
+        (SRAM_REG_FW_TRACEP_SLAVE_CORE_BASE + (PLATFORM_CORE_COUNT - 1) * 0x4)
 
 /* Host page size */
 #define HOST_PAGE_SIZE		4096
