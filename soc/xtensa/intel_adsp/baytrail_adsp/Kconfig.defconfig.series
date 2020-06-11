@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-if SOC_SERIES_INTEL_BAYTRAIL_ADSP
+if SOC_SERIES_INTEL_ADSP_BAYTRAIL
 
 config SOC_SERIES
 	string
@@ -31,4 +31,4 @@ config 2ND_LEVEL_INTERRUPTS
 config DYNAMIC_INTERRUPTS
 	default y
 
-endif # SOC_SERIES_INTEL_BAYTRAIL_ADSP
+endif # SOC_SERIES_INTEL_ADSP_BAYTRAIL
