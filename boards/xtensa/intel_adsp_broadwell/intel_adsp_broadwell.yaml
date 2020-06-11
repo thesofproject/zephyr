@@ -1,0 +1,9 @@
+identifier: intel_adsp_baytrail
+name: Broadwell Audio DSP
+type: mcu
+arch: xtensa
+toolchain:
+  - zephyr
+testing:
+  ignore_tags:
+     - net
