@@ -5,13 +5,9 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifdef __SOF_LIB_MAILBOX_H__
+#ifndef __INC_SOF_MAILBOX_H
+#define __INC_SOF_MAILBOX_H
 
-#ifndef __PLATFORM_LIB_MAILBOX_H__
-#define __PLATFORM_LIB_MAILBOX_H__
-
-#include <sof/lib/memory.h>
-#include <config.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -57,18 +53,4 @@
 #define MAILBOX_TRACE_BASE \
 	(MAILBOX_BASE + MAILBOX_TRACE_OFFSET)
 
-static inline void mailbox_sw_reg_write(size_t offset, uint32_t src)
-{
-	volatile uint32_t *ptr;
-
-	ptr = (volatile uint32_t *)(MAILBOX_DEBUG_BASE + offset);
-	*ptr = src;
-}
-
-#endif /* __PLATFORM_LIB_MAILBOX_H__ */
-
-#else
-
-#error "This file shouldn't be included from outside of sof/lib/mailbox.h"
-
-#endif /* __SOF_LIB_MAILBOX_H__ */
+#endif /* __INC_SOF_MAILBOX_H */

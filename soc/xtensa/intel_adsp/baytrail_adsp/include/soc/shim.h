@@ -5,12 +5,10 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifdef __SOF_LIB_SHIM_H__
+#ifndef __INC_SOC_SHIM_H
+#define __INC_SOC_SHIM_H
 
-#ifndef __PLATFORM_LIB_SHIM_H__
-#define __PLATFORM_LIB_SHIM_H__
-
-#include <sof/lib/memory.h>
+#include <soc/memory.h>
 #include <stdint.h>
 
 #define SHIM_CSR		0x00
@@ -138,20 +136,4 @@
 #define SHIM_SSP_DIV_ENA	(1 << 30)
 #define SHIM_SSP_DIV_UPD	(1 << 29)
 
-static inline uint32_t shim_read(uint32_t reg)
-{
-	return *((volatile uint32_t*)(SHIM_BASE + reg));
-}
-
-static inline void shim_write(uint32_t reg, uint32_t val)
-{
-	*((volatile uint32_t*)(SHIM_BASE + reg)) = val;
-}
-
-#endif /* __PLATFORM_LIB_SHIM_H__ */
-
-#else
-
-#error "This file shouldn't be included from outside of sof/lib/shim.h"
-
-#endif /* __SOF_LIB_SHIM_H__ */
+#endif /* __INC_SOC_SHIM_H */
