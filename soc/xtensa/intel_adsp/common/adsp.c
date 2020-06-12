@@ -16,7 +16,12 @@ LOG_MODULE_REGISTER(sof);
 #include <ipc.h>
 #include <soc/shim.h>
 #include <adsp/io.h>
+
+#if defined(CONFIG_SOC_SERIES_INTEL_ADSP_BAYTRAIL)
+#include <soc/mailbox.h>
+#else
 #include <cavs/mailbox.h>
+#endif
 
 /* TODO: Cleanup further */
 
@@ -217,11 +222,18 @@ static void send_fw_ready(void)
 	SOC_DCACHE_FLUSH((void *)MAILBOX_DSPBOX_BASE, MAILBOX_DSPBOX_SIZE);
 
 #if defined(CONFIG_SOC_SERIES_INTEL_CAVS_V15)
-	ipc_write(IPC_DIPCIE, SRAM_WINDOW_HOST_OFFSET(0) >> 12);
-	ipc_write(IPC_DIPCI, (0x80000000 | ADSP_IPC_FW_READY));
+	sys_write32(SRAM_WINDOW_HOST_OFFSET(0) >> 12,
+		    IPC_HOST_BASE + IPC_DIPCIE);
+	sys_write32(0x80000000 | ADSP_IPC_FW_READY,
+		    IPC_HOST_BASE + IPC_DIPCI);
+#elif defined(CONFIG_SOC_SERIES_INTEL_ADSP_BAYTRAIL)
+	shim_write(SHIM_IPCDL, SOF_IPC_FW_READY | MAILBOX_HOST_OFFSET >> 3);
+	shim_write(SHIM_IPCDH, SHIM_IPCDH_BUSY);
 #else
-	ipc_write(IPC_DIPCIDD, SRAM_WINDOW_HOST_OFFSET(0) >> 12);
-	ipc_write(IPC_DIPCIDR, 0x80000000 | ADSP_IPC_FW_READY);
+	sys_write32(SRAM_WINDOW_HOST_OFFSET(0) >> 12,
+		    IPC_HOST_BASE + IPC_DIPCIDD);
+	sys_write32(0x80000000 | ADSP_IPC_FW_READY,
+		    IPC_HOST_BASE + IPC_DIPCIDR);
 #endif
 }
 
