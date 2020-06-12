@@ -62,34 +62,4 @@ static inline void shim_write64(uint32_t reg, uint64_t val)
 	*((volatile uint64_t*)(SHIM_BASE + reg)) = val;
 }
 
-static inline uint32_t irq_read(uint32_t reg)
-{
-	return *((volatile uint32_t*)(IRQ_BASE + reg));
-}
-
-static inline void irq_write(uint32_t reg, uint32_t val)
-{
-	*((volatile uint32_t*)(IRQ_BASE + reg)) = val;
-}
-
-static inline uint32_t ipc_read(uint32_t reg)
-{
-	return sys_read32(IPC_HOST_BASE + reg);
-}
-
-static inline void ipc_write(uint32_t reg, uint32_t val)
-{
-	sys_write32(val, (IPC_HOST_BASE + reg));
-}
-
-static inline uint32_t idc_read(uint32_t reg, uint32_t core_id)
-{
-	return *((volatile uint32_t*)(IPC_DSP_BASE(core_id) + reg));
-}
-
-static inline void idc_write(uint32_t reg, uint32_t core_id, uint32_t val)
-{
-	*((volatile uint32_t*)(IPC_DSP_BASE(core_id) + reg)) = val;
-}
-
 #endif
