@@ -5,45 +5,10 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifdef __SOF_LIB_MEMORY_H__
+#ifndef __INC_MEMORY_H
+#define __INC_MEMORY_H
 
-#ifndef __PLATFORM_LIB_MEMORY_H__
-#define __PLATFORM_LIB_MEMORY_H__
-
-#include <config.h>
-
-#if !defined(__ASSEMBLER__) && !defined(LINKER)
-
-struct sof;
-
-/**
- * \brief Data shared between different cores.
- * Does nothing, since BYT doesn't support SMP.
- */
-#define SHARED_DATA
-
-void platform_init_memmap(struct sof *sof);
-
-static inline void *platform_shared_get(void *ptr, int bytes)
-{
-	return ptr;
-}
-
-/**
- * \brief Function for keeping shared data synchronized.
- * It's used after usage of data shared by different cores.
- * Such data is either statically marked with SHARED_DATA
- * or dynamically allocated with SOF_MEM_FLAG_SHARED flag.
- * Does nothing, since BYT doesn't support SMP.
- */
-static inline void platform_shared_commit(void *ptr, int bytes) { }
-
-static inline void *platform_rfree_prepare(void *ptr)
-{
-	return ptr;
-}
-
-#endif
+#include <soc/mailbox.h>
 
 #define PLATFORM_DCACHE_ALIGN	sizeof(void *)
 
@@ -169,40 +134,7 @@ static inline void *platform_rfree_prepare(void *ptr)
 #define PLATFORM_HEAP_RUNTIME		1
 #define PLATFORM_HEAP_BUFFER		1
 
-/* Stack configuration */
-#define SOF_STACK_SIZE		0x1000
-#define SOF_STACK_TOTAL_SIZE	SOF_STACK_SIZE
-#define SOF_STACK_BASE		(DRAM0_BASE + DRAM0_SIZE)
-#define SOF_STACK_END		(SOF_STACK_BASE - SOF_STACK_TOTAL_SIZE)
+#define SRAM_TRACE_BASE			MAILBOX_TRACE_BASE
+#define SRAM_TRACE_SIZE			MAILBOX_TRACE_SIZE
 
-/* Vector and literal addresses and sizes - do not use core-isa.h */
-#define SOF_MEM_RESET_VECT		0xff2c0000
-#define SOF_MEM_VECBASE			0xff2c0400
-#define SOF_MEM_INTLEVEL2_VECT		0xff2c057c
-#define SOF_MEM_INTLEVEL3_VECT		0xff2c059c
-#define SOF_MEM_INTLEVEL4_VECT		0xff2c05bc
-#define SOF_MEM_INTLEVEL5_VECT		0xff2c05dc
-#define SOF_MEM_INTLEVEL6_VECT		0xff2c05fc
-#define SOF_MEM_INTLEVEL7_VECT		0xff2c061c
-#define SOF_MEM_KERNEL_VECT		0xff2c063c
-#define SOF_MEM_USER_VECT		0xff2c065c
-#define SOF_MEM_DOUBLEEXC_VECT		0xff2c067c
-
-#define SOF_MEM_VECT_LIT_SIZE		0x4
-#define SOF_MEM_VECT_TEXT_SIZE		0x1c
-#define SOF_MEM_VECT_SIZE		(SOF_MEM_VECT_TEXT_SIZE + \
-					SOF_MEM_VECT_LIT_SIZE)
-
-#define SOF_MEM_RESET_TEXT_SIZE	0x2e0
-#define SOF_MEM_RESET_LIT_SIZE		0x120
-#define SOF_MEM_VECBASE_LIT_SIZE	0x178
-
-#define SOF_MEM_RO_SIZE			0x8
-
-#endif /* __PLATFORM_LIB_MEMORY_H__ */
-
-#else
-
-#error "This file shouldn't be included from outside of sof/lib/memory.h"
-
-#endif /* __SOF_LIB_MEMORY_H__ */
+#endif /* __INC_MEMORY_H */
