@@ -91,7 +91,7 @@ static void compare_isr(void *arg)
 	/* Clear the triggered bit */
 	shim_regs->dspwctcs |= DSP_WCT_CS_TT(TIMER);
 
-	last_count += dticks * CYC_PER_TICK;
+	last_count = curr;
 
 #ifndef CONFIG_TICKLESS_KERNEL
 	uint64_t next = last_count + CYC_PER_TICK;
