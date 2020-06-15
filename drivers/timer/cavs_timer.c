@@ -118,6 +118,29 @@ int z_clock_driver_init(struct device *device)
 	return 0;
 }
 
+#if CONFIG_SOF
+void z_clock_set_timeout(s32_t ticks, bool idle)
+{
+	ARG_UNUSED(idle);
+/* Does the tickless kernel really care about aligning to a tick ??? */
+#ifdef CONFIG_TICKLESS_KERNEL
+	ticks = ticks == K_TICKS_FOREVER ? MAX_TICKS : ticks;
+	ticks = MAX(MIN(ticks - 1, (s32_t)MAX_TICKS), 0);
+
+	k_spinlock_key_t key = k_spin_lock(&lock);
+	u64_t curr = count();
+	u64_t next = curr + ticks * CYC_PER_TICK;
+
+	if ((next - curr) < MIN_DELAY) {
+		next += CYC_PER_TICK;
+	}
+
+	set_compare(next);
+	k_spin_unlock(&lock, key);
+#endif
+}
+#else
+
 void z_clock_set_timeout(s32_t ticks, bool idle)
 {
 	ARG_UNUSED(idle);
@@ -130,6 +153,7 @@ void z_clock_set_timeout(s32_t ticks, bool idle)
 	u64_t curr = count();
 	u64_t next;
 	u32_t adj, cyc = ticks * CYC_PER_TICK;
+
 
 	/* Round up to next tick boundary */
 	adj = (u32_t)(curr - last_count) + (CYC_PER_TICK - 1);
@@ -149,6 +173,7 @@ void z_clock_set_timeout(s32_t ticks, bool idle)
 	k_spin_unlock(&lock, key);
 #endif
 }
+#endif
 
 u32_t z_clock_elapsed(void)
 {
