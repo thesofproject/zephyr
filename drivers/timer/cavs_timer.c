@@ -141,7 +141,7 @@ void z_clock_set_timeout(int32_t ticks, bool idle)
 	cyc = (cyc / CYC_PER_TICK) * CYC_PER_TICK;
 	next = last_count + cyc;
 
-	if (((uint32_t)next - (uint32_t)curr) < MIN_DELAY) {
+	if ((next - curr) < MIN_DELAY) {
 		next += CYC_PER_TICK;
 	}
 
