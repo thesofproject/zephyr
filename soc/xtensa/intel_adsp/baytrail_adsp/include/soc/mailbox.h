@@ -5,11 +5,8 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __INC_SOF_MAILBOX_H
-#define __INC_SOF_MAILBOX_H
-
-#include <stddef.h>
-#include <stdint.h>
+#ifndef __INC_SOC_MAILBOX_H
+#define __INC_SOC_MAILBOX_H
 
 #define MAILBOX_HOST_OFFSET	0x144000
 
@@ -53,4 +50,4 @@
 #define MAILBOX_TRACE_BASE \
 	(MAILBOX_BASE + MAILBOX_TRACE_OFFSET)
 
-#endif /* __INC_SOF_MAILBOX_H */
+#endif /* __INC_SOC_MAILBOX_H */
