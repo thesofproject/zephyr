@@ -7,100 +7,100 @@
  * Use spaces for formatting as cpp ignore tab sizes.
  */
 
-#include <soc/memory.h>
-#include <xtensa/config/core-isa.h>
-
 OUTPUT_ARCH(xtensa)
+
+#include <devicetree.h>
+#include <xtensa/config/core-isa.h>
+#include <soc/memory.h>
+#include <autoconf.h>
+#include <linker/sections.h>
+
+#include <linker/linker-defs.h>
+#include <linker/linker-tool.h>
+
+#define RAMABLE_REGION sof_data :sof_data_phdr
+#define ROMABLE_REGION sof_data :sof_data_phdr
 
 MEMORY
 {
   vector_reset_text :
-        org = SOF_MEM_RESET_VECT,
-        len = SOF_MEM_RESET_TEXT_SIZE
+        org = MEM_RESET_VECT,
+        len = MEM_RESET_TEXT_SIZE
   vector_reset_lit :
-        org = SOF_MEM_RESET_VECT + SOF_MEM_RESET_TEXT_SIZE,
-        len = SOF_MEM_RESET_LIT_SIZE
+        org = MEM_RESET_VECT + MEM_RESET_TEXT_SIZE,
+        len = MEM_RESET_LIT_SIZE
   vector_base_text :
-        org = SOF_MEM_VECBASE,
-        len = SOF_MEM_VECBASE_LIT_SIZE
+        org = MEM_VECBASE,
+        len = MEM_VECBASE_LIT_SIZE
   vector_int2_lit :
-        org = SOF_MEM_INTLEVEL2_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL2_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int2_text :
-        org = SOF_MEM_INTLEVEL2_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL2_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_int3_lit :
-        org = SOF_MEM_INTLEVEL3_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL3_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int3_text :
-        org = SOF_MEM_INTLEVEL3_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL3_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_int4_lit :
-        org = SOF_MEM_INTLEVEL4_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL4_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int4_text :
-        org = SOF_MEM_INTLEVEL4_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL4_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_int5_lit :
-        org = SOF_MEM_INTLEVEL5_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL5_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int5_text :
-        org = SOF_MEM_INTLEVEL5_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL5_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_int6_lit :
-        org = SOF_MEM_INTLEVEL6_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL6_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int6_text :
-        org = SOF_MEM_INTLEVEL6_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL6_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_int7_lit :
-        org = SOF_MEM_INTLEVEL7_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_INTLEVEL7_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_int7_text :
-        org = SOF_MEM_INTLEVEL7_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_INTLEVEL7_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_kernel_lit :
-        org = SOF_MEM_KERNEL_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_KERNEL_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_kernel_text :
-        org = SOF_MEM_KERNEL_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_KERNEL_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_user_lit :
-        org = SOF_MEM_USER_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_USER_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_user_text :
-        org = SOF_MEM_USER_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_USER_VECT,
+        len = MEM_VECT_TEXT_SIZE
   vector_double_lit :
-        org = SOF_MEM_DOUBLEEXC_VECT - SOF_MEM_VECT_LIT_SIZE,
-        len = SOF_MEM_VECT_LIT_SIZE
+        org = MEM_DOUBLEEXC_VECT - MEM_VECT_LIT_SIZE,
+        len = MEM_VECT_LIT_SIZE
   vector_double_text :
-        org = SOF_MEM_DOUBLEEXC_VECT,
-        len = SOF_MEM_VECT_TEXT_SIZE
+        org = MEM_DOUBLEEXC_VECT,
+        len = MEM_VECT_TEXT_SIZE
   sof_text_start :
-        org = SOF_MEM_DOUBLEEXC_VECT + SOF_MEM_VECT_SIZE,
-        len = (IRAM_BASE + IRAM_SIZE) - (SOF_MEM_DOUBLEEXC_VECT + SOF_MEM_VECT_SIZE)
+        org = MEM_DOUBLEEXC_VECT + MEM_VECT_SIZE,
+        len = (IRAM_BASE + IRAM_SIZE) - (MEM_DOUBLEEXC_VECT + MEM_VECT_SIZE)
   sof_data_ro :
         org = DRAM0_BASE,
-        len = SOF_MEM_RO_SIZE
+        len = MEM_RO_SIZE
   sof_data :
-        org = DRAM0_BASE + SOF_MEM_RO_SIZE,
-        len = HEAP_SYSTEM_BASE - (DRAM0_BASE + SOF_MEM_RO_SIZE)
-  system_heap :
-        org = HEAP_SYSTEM_BASE,
-        len = HEAP_SYSTEM_SIZE
-  system_runtime_heap :
-        org = HEAP_SYS_RUNTIME_BASE,
-        len = HEAP_SYS_RUNTIME_SIZE
-  runtime_heap :
-        org = HEAP_RUNTIME_BASE,
-        len = HEAP_RUNTIME_SIZE
-  buffer_heap :
-        org = HEAP_BUFFER_BASE,
-        len = HEAP_BUFFER_SIZE
+        org = DRAM0_BASE + MEM_RO_SIZE,
+        len = STACK_END - (DRAM0_BASE + MEM_RO_SIZE)
   sof_stack :
-        org = SOF_STACK_END,
-        len = SOF_STACK_BASE - SOF_STACK_END
+        org = STACK_END,
+        len = STACK_BASE - STACK_END
+  static_uuid_entries_seg (!ari) :
+        org = UUID_ENTRY_ELF_BASE,
+        len = UUID_ENTRY_ELF_SIZE
   static_log_entries_seg (!ari) :
         org = LOG_ENTRY_ELF_BASE,
         len = LOG_ENTRY_ELF_SIZE
@@ -134,20 +134,18 @@ PHDRS
   sof_data_ro_phdr PT_LOAD;
   sof_data_phdr PT_LOAD;
   sof_data_bss_phdr PT_LOAD;
-  system_heap_phdr PT_LOAD;
-  system_runtime_heap_phdr PT_LOAD;
-  runtime_heap_phdr PT_LOAD;
-  buffer_heap_phdr PT_LOAD;
   sof_stack_phdr PT_LOAD;
+
+  static_uuid_entries_phdr PT_NOTE;
   static_log_entries_phdr PT_NOTE;
 }
 
 /*  Default entry point:  */
-ENTRY(_ResetVector)
+ENTRY(CONFIG_KERNEL_ENTRY)
 _rom_store_table = 0;
 
 /* ABI0 does not use Window base */
-PROVIDE(_memmap_vecbase_reset = SOF_MEM_VECBASE);
+PROVIDE(_memmap_vecbase_reset = MEM_VECBASE);
 
 /* Various memory-map dependent cache attribute settings: */
 _memmap_cacheattr_wb_base = 0x44024000;
@@ -320,8 +318,10 @@ SECTIONS
   {
     _stext = .;
     _text_start = ABSOLUTE(.);
+    KEEP(*(.MainEntry.text))
     *(.entry.text)
     *(.init.literal)
+    *(.iram0.text)
     KEEP(*(.init))
     *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
@@ -383,6 +383,8 @@ SECTIONS
     _module_init_end = ABSOLUTE(.);
   } >sof_data :sof_data_phdr
 
+  #include <linker/common-rom.ld>
+
   .data : ALIGN(4)
   {
     _data_start = ABSOLUTE(.);
@@ -410,6 +412,8 @@ SECTIONS
     _lit4_end = ABSOLUTE(.);
   } >sof_data :sof_data_phdr
 
+  #include <linker/common-ram.ld>
+
   .bss (NOLOAD) : ALIGN(8)
   {
     . = ALIGN (8);
@@ -432,11 +436,12 @@ SECTIONS
   } >sof_data :sof_data_bss_phdr
 
   /* stack */
-  _end = SOF_STACK_END;
-  PROVIDE(end = SOF_STACK_END);
-  _stack_sentry = SOF_STACK_END;
-  __stack = SOF_STACK_BASE;
+  _end = STACK_END;
+  PROVIDE(end = STACK_END);
+  _stack_sentry = STACK_END;
+  __stack = STACK_BASE;
 
+  .comment  0 : { *(.comment) }
   .debug  0 :  { *(.debug) }
   .line  0 :  { *(.line) }
   .debug_srcinfo  0 :  { *(.debug_srcinfo) }
@@ -454,6 +459,8 @@ SECTIONS
   .debug_funcnames  0 :  { *(.debug_funcnames) }
   .debug_typenames  0 :  { *(.debug_typenames) }
   .debug_varnames  0 :  { *(.debug_varnames) }
+  .debug_ranges  0 :  { *(.debug_ranges) }
+  .xtensa.info  0 : { *(.xtensa.info) }
 
   .xt.insn 0 :
   {
@@ -488,43 +495,17 @@ SECTIONS
     KEEP (*(.gnu.linkonce.xt.profile_files.*))
   }
 
-  .system_heap (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _system_heap_start = ABSOLUTE(.);
-    . = . + HEAP_SYSTEM_SIZE;
-    _system_heap_end = ABSOLUTE(.);
-  } >system_heap :system_heap_phdr
-
-  .system_runtime_heap (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _system_runtime_heap_start = ABSOLUTE(.);
-    . = . + HEAP_SYS_RUNTIME_SIZE;
-    _system_runtime_heap_end = ABSOLUTE(.);
-  } >system_runtime_heap :system_runtime_heap_phdr
-
-  .runtime_heap (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _runtime_heap_start = ABSOLUTE(.);
-    . = . + HEAP_RUNTIME_SIZE;
-    _runtime_heap_end = ABSOLUTE(.);
-  } >runtime_heap :runtime_heap_phdr
-
-  .buffer_heap (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (32);
-    _buffer_heap_start = ABSOLUTE(.);
-    . = . + HEAP_BUFFER_SIZE;
-    _buffer_heap_end = ABSOLUTE(.);
-  } >buffer_heap :buffer_heap_phdr
+  /*
+  #ifdef CONFIG_GEN_ISR_TABLES
+  #include <linker/intlist.ld>
+  #endif
+  */
 
   .sof_stack (NOLOAD) : ALIGN(8)
   {
     . = ALIGN (4096);
     _sof_stack_start = ABSOLUTE(.);
-    . = . + SOF_STACK_TOTAL_SIZE;
+    . = . + STACK_TOTAL_SIZE;
     _sof_stack_end = ABSOLUTE(.);
   } >sof_stack :sof_stack_phdr
 
@@ -538,4 +519,16 @@ SECTIONS
     KEEP (*(.fw_ready))
     KEEP (*(.fw_ready_metadata))
   } >sof_data :sof_data_phdr
+
+  .noinit : ALIGN(4)
+  {
+    *(.noinit)
+    *(.noinit.*)
+  } >sof_data :sof_data_phdr
+
+  .static_uuid_entries (COPY) : ALIGN(1024)
+  {
+    *(*.static_uuids)
+  } > static_uuid_entries_seg :static_uuid_entries_phdr
+
 }
