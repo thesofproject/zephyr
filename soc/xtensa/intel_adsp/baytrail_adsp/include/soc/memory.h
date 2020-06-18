@@ -10,10 +10,33 @@
 
 #include <soc/mailbox.h>
 
-#define PLATFORM_DCACHE_ALIGN	sizeof(void *)
+#define PLATFORM_DCACHE_ALIGN	XCHAL_DCACHE_LINESIZE
 
 /** \brief EDF task's default stack size in bytes. */
 #define PLATFORM_TASK_DEFAULT_STACK_SIZE	2048
+
+/* Vector and literal addresses and sizes - do not use core-isa.h */
+#define MEM_RESET_VECT			0xff2c0000
+#define MEM_VECBASE			0xff2c0400
+#define MEM_INTLEVEL2_VECT		0xff2c057c
+#define MEM_INTLEVEL3_VECT		0xff2c059c
+#define MEM_INTLEVEL4_VECT		0xff2c05bc
+#define MEM_INTLEVEL5_VECT		0xff2c05dc
+#define MEM_INTLEVEL6_VECT		0xff2c05fc
+#define MEM_INTLEVEL7_VECT		0xff2c061c
+#define MEM_KERNEL_VECT			0xff2c063c
+#define MEM_USER_VECT			0xff2c065c
+#define MEM_DOUBLEEXC_VECT		0xff2c067c
+
+#define MEM_VECT_LIT_SIZE		0x4
+#define MEM_VECT_TEXT_SIZE		0x1c
+#define MEM_VECT_SIZE			(MEM_VECT_TEXT_SIZE + MEM_VECT_LIT_SIZE)
+
+#define MEM_RESET_TEXT_SIZE		0x2e0
+#define MEM_RESET_LIT_SIZE		0x120
+#define MEM_VECBASE_LIT_SIZE		0x178
+
+#define MEM_RO_SIZE			0x8
 
 /* physical DSP addresses */
 
@@ -79,9 +102,9 @@
  * +---------------------+----------------+-----------------------------------+
  * | HEAP_BUFFER_BASE    | Module Buffers |  HEAP_BUFFER_SIZE                 |
  * +---------------------+----------------+-----------------------------------+
- * | SOF_STACK_END      | Stack          |  SOF_STACK_SIZE                  |
+ * | STACK_END           | Stack          |  STACK_SIZE                       |
  * +---------------------+----------------+-----------------------------------+
- * | SOF_STACK_BASE     |                |                                   |
+ * | STACK_BASE          |                |                                   |
  * +---------------------+----------------+-----------------------------------+
  */
 
@@ -123,7 +146,7 @@
 
 #define HEAP_BUFFER_BASE	(HEAP_RUNTIME_BASE + HEAP_RUNTIME_SIZE)
 #define HEAP_BUFFER_SIZE \
-	(DRAM0_SIZE - HEAP_RUNTIME_SIZE - SOF_STACK_TOTAL_SIZE -\
+	(DRAM0_SIZE - HEAP_RUNTIME_SIZE - STACK_TOTAL_SIZE -\
 	HEAP_SYS_RUNTIME_SIZE - HEAP_SYSTEM_SIZE - SOF_DATA_SIZE)
 
 #define HEAP_BUFFER_BLOCK_SIZE		0x100
@@ -136,5 +159,12 @@
 
 #define SRAM_TRACE_BASE			MAILBOX_TRACE_BASE
 #define SRAM_TRACE_SIZE			MAILBOX_TRACE_SIZE
+
+/* Stack configuration */
+#define STACK_SIZE		0x1000
+#define STACK_TOTAL_SIZE	STACK_SIZE
+#define STACK_BASE		(DRAM0_BASE + DRAM0_SIZE)
+#define STACK_END		(STACK_BASE - STACK_TOTAL_SIZE)
+
 
 #endif /* __INC_MEMORY_H */
