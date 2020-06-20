@@ -78,7 +78,7 @@ static void *mp_top;
 
 static void mp_entry2(void)
 {
-	volatile int ps, ie;
+	volatile int ie;
 	u32_t idc_reg;
 
 	/* We don't know what the boot ROM might have touched and we
@@ -88,15 +88,8 @@ static void mp_entry2(void)
 
 	/* Copy over VECBASE from the main CPU for an initial value
 	 * (will need to revisit this if we ever allow a user API to
-	 * change interrupt vectors at runtime).  Make sure interrupts
-	 * are locally disabled, then synthesize a PS value that will
-	 * enable them for the user code to pass to irq_unlock()
-	 * later.
+	 * change interrupt vectors at runtime).
 	 */
-	__asm__ volatile("rsr.PS %0" : "=r"(ps));
-	ps &= ~(PS_EXCM_MASK | PS_INTLEVEL_MASK);
-	__asm__ volatile("wsr.PS %0" : : "r"(ps));
-
 	ie = 0;
 	__asm__ volatile("wsr.INTENABLE %0" : : "r"(ie));
 	__asm__ volatile("wsr.VECBASE %0" : : "r"(start_rec.vecbase));
