@@ -95,9 +95,6 @@ MEMORY
   sof_data :
         org = DRAM0_BASE + MEM_RO_SIZE,
         len = STACK_END - (DRAM0_BASE + MEM_RO_SIZE)
-  sof_stack :
-        org = STACK_END,
-        len = STACK_BASE - STACK_END
   static_uuid_entries_seg (!ari) :
         org = UUID_ENTRY_ELF_BASE,
         len = UUID_ENTRY_ELF_SIZE
@@ -134,7 +131,6 @@ PHDRS
   sof_data_ro_phdr PT_LOAD;
   sof_data_phdr PT_LOAD;
   sof_data_bss_phdr PT_LOAD;
-  sof_stack_phdr PT_LOAD;
 
   static_uuid_entries_phdr PT_NOTE;
   static_log_entries_phdr PT_NOTE;
@@ -500,14 +496,6 @@ SECTIONS
   #include <linker/intlist.ld>
   #endif
   */
-
-  .sof_stack (NOLOAD) : ALIGN(8)
-  {
-    . = ALIGN (4096);
-    _sof_stack_start = ABSOLUTE(.);
-    . = . + STACK_TOTAL_SIZE;
-    _sof_stack_end = ABSOLUTE(.);
-  } >sof_stack :sof_stack_phdr
 
   .static_log_entries (COPY) : ALIGN(1024)
   {
