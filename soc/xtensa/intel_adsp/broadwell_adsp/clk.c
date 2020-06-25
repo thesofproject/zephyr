@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: BSD-3-Clause
-//
-// Copyright(c) 2019 Intel Corporation. All rights reserved.
-//
-// Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
-//         Janusz Jankowski <janusz.jankowski@linux.intel.com>
-
+/* SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(c) 2019 Intel Corporation. All rights reserved.
+ *
+ * Author: Tomasz Lauda <tomasz.lauda@linux.intel.com>
+ *         Janusz Jankowski <janusz.jankowski@linux.intel.com>
+ */
 #define RELATIVE_FILE "zephyr/clk.c"
 
 #include <sof/common.h>

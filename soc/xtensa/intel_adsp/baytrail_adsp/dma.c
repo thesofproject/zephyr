@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: BSD-3-Clause
-//
-// Copyright(c) 2016 Intel Corporation. All rights reserved.
-//
-// Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
-
+/* SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(c) 2016 Intel Corporation. All rights reserved.
+ *
+ * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
+ */
 #define RELATIVE_FILE "zephyr/dma.c"
 
 #include <sof/common.h>
