@@ -11,6 +11,9 @@ config SOC
 	string
 	default "intel_bdw_adsp"
 
+config SYS_CLOCK_TICKS_PER_SEC
+	default 50000 if SOF
+
 config IRQ_OFFLOAD_INTNUM
 	default 0
 
