@@ -12,7 +12,7 @@ config SOC
 	default "intel_byt_adsp"
 
 config SYS_CLOCK_TICKS_PER_SEC
-	default 50000 if SOF
+	default 50000
 
 config IRQ_OFFLOAD_INTNUM
 	default 0

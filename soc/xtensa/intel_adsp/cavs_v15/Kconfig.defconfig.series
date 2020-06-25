@@ -28,7 +28,7 @@ config SYS_CLOCK_HW_CYCLES_PER_SEC
 	default 19200000 if CAVS_TIMER
 
 config SYS_CLOCK_TICKS_PER_SEC
-	default 50000 if SOF
+	default 50000
 
 config IRQ_OFFLOAD_INTNUM
 	default 0
