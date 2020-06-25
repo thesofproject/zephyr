@@ -1,4 +1,4 @@
-/*
+s/*
  * Copyright (c) 2019 Intel Corporation
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -70,9 +70,6 @@
 #define MEM_VECT_TEXT_SIZE			0x38
 #define MEM_VECT_SIZE				(MEM_VECT_TEXT_SIZE +\
 						MEM_VECT_LIT_SIZE)
-
-/* The memerror vector address is copied as is from core-isa.h */
-//#define XCHAL_MEMERROR_VECTOR_PADDR		0x9F180400
 
 #define MEM_ERROR_TEXT_SIZE			0x180
 #define MEM_ERROR_LIT_SIZE			0x8

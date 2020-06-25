@@ -94,7 +94,6 @@ static void parse_module(struct sof_man_fw_header *hdr,
 	/* each module has 3 segments */
 	for (i = 0; i < MANIFEST_SEGMENT_COUNT; i++) {
 
-		//trace_point(TRACE_BOOT_LDR_PARSE_SEGMENT + i);
 		switch (mod->segment[i].flags.r.type) {
 		case SOF_MAN_SEGMENT_TEXT:
 		case SOF_MAN_SEGMENT_DATA:
@@ -138,7 +137,6 @@ static uint32_t get_fw_size_in_use(void)
 
 	/* Calculate fw size passed in BASEFW module in MANIFEST */
 	for (i = MAN_SKIP_ENTRIES; i < hdr->num_module_entries; i++) {
-		//trace_point(TRACE_BOOT_LDR_PARSE_MODULE + i);
 		mod = (struct sof_man_module *)((char *)desc +
 						SOF_MAN_MODULE_OFFSET(i));
 		if (strcmp((char *)mod->name, "BASEFW"))
@@ -169,7 +167,6 @@ static void parse_manifest(void)
 	/* copy module to SRAM  - skip bootloader module */
 	for (i = MAN_SKIP_ENTRIES; i < hdr->num_module_entries; i++) {
 
-		//trace_point(TRACE_BOOT_LDR_PARSE_MODULE + i);
 		mod = (void *)((uintptr_t)desc + SOF_MAN_MODULE_OFFSET(i));
 		parse_module(hdr, mod);
 	}
@@ -311,7 +308,6 @@ static int32_t lp_sram_init(void)
 	status = io_reg_read(LSPGISTS);
 	while (status) {
 		if (!timeout_counter--) {
-			//platform_panic(SOF_IPC_PANIC_MEM);
 			break;
 		}
 		idelay(delay_count);
@@ -329,35 +325,28 @@ void boot_master_core(void)
 {
 	int32_t result;
 
-	//trace_point(TRACE_BOOT_LDR_ENTRY);
 
 	/* init the HPSRAM */
-	//trace_point(TRACE_BOOT_LDR_HPSRAM);
 	result = hp_sram_init();
 	if (result < 0) {
-		//platform_panic(SOF_IPC_PANIC_MEM);
 		return;
 	}
 
 #if CONFIG_LP_SRAM
 	/* init the LPSRAM */
-	//trace_point(TRACE_BOOT_LDR_LPSRAM);
 
 	result = lp_sram_init();
 	if (result < 0) {
-		//platform_panic(SOF_IPC_PANIC_MEM);
 		return;
 	}
 #endif
 
 #if CONFIG_BOOT_LOADER
 	/* parse manifest and copy modules */
-	//trace_point(TRACE_BOOT_LDR_MANIFEST);
 	parse_manifest();
 
 	hp_sram_power_off_unused_banks(get_fw_size_in_use());
 #endif
 	/* now call SOF entry */
-	//trace_point(TRACE_BOOT_LDR_JUMP);
 	__start();
 }

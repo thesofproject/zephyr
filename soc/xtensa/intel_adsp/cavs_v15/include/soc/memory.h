@@ -74,9 +74,6 @@
 #define MEM_VECT_SIZE				(MEM_VECT_TEXT_SIZE +\
 						MEM_VECT_LIT_SIZE)
 
-/* The memerror vector address is copied as is from core-isa.h */
-//#define XCHAL_MEMERROR_VECTOR_PADDR		0xBEFE0400
-
 #define MEM_ERROR_TEXT_SIZE			0x180
 #define MEM_ERROR_LIT_SIZE			0x8
 
