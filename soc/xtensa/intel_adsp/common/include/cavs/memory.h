@@ -94,4 +94,9 @@
 /* SOF Core S configuration */
 #define SRAM_BANK_SIZE		(64 * 1024)
 
+/* low power sequencer */
+#define LPS_RESTORE_VECTOR_OFFSET 0x1000
+#define LPS_RESTORE_VECTOR_SIZE 0x800
+#define LPS_RESTORE_VECTOR_ADDR (LP_SRAM_BASE + LPS_RESTORE_VECTOR_OFFSET)
+
 #endif /* __CAVS_MEMORY_H__ */
