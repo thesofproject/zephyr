@@ -112,7 +112,9 @@ int z_clock_driver_init(struct device *device)
 	uint64_t curr = count();
 
 	IRQ_CONNECT(TIMER_IRQ, 0, compare_isr, 0, 0);
+#ifndef CONFIG_TICKLESS_KERNEL
 	set_compare(curr + CYC_PER_TICK);
+#endif
 	last_count = curr;
 	irq_enable(TIMER_IRQ);
 	return 0;
