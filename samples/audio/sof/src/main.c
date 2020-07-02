@@ -14,7 +14,7 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_DBG);
  * but triggers include chain issue
  * FIXME
  */
-int task_main_start(void);
+int sof_main(int argc, char *argv[]);
 
 /**
  * TODO: Here comes SOF initialization
@@ -26,8 +26,8 @@ void main(void)
 
 	LOG_INF("SOF on %s", CONFIG_BOARD);
 
-	/* task_main_start is actually SOF initialization */
-	ret = task_main_start();
+	/* sof_main is actually SOF initialization */
+	ret = sof_main(0, NULL);
 	if (ret) {
 		LOG_ERR("SOF initialization failed");
 	}
