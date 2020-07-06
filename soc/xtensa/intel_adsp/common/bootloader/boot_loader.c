@@ -9,7 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <cavs/version.h>
-#include <sof-config.h>
 
 #include <soc/platform.h>
 #include <soc/memory.h>

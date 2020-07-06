@@ -10,8 +10,6 @@
 #ifndef __PLATFORM_PLATFORM_H__
 #define __PLATFORM_PLATFORM_H__
 
-#include <sof-config.h>
-
 #define PLATFORM_RESET_MHE_AT_BOOT		1
 
 #define PLATFORM_DISABLE_L2CACHE_AT_BOOT	1

@@ -10,8 +10,6 @@
 #ifndef __PLATFORM_PLATFORM_H__
 #define __PLATFORM_PLATFORM_H__
 
-#include <sof-config.h>
-
 #define PLATFORM_MASTER_CORE_ID			0
 
 #define MAX_CORE_COUNT				4
