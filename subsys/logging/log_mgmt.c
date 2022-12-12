@@ -122,7 +122,7 @@ uint32_t *z_log_link_get_dynamic_filter(uint8_t domain_id, uint32_t source_id)
 	const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 	uint32_t source_offset = 0;
 
-	__ASSERT_NO_MSG(link != NULL);
+	assert(link != NULL);
 
 	source_offset = get_source_offset(link, rel_domain_id);
 
@@ -186,7 +186,7 @@ static uint16_t link_source_count(uint8_t domain_id)
 	uint8_t rel_domain_id;
 	const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 
-	__ASSERT_NO_MSG(link != NULL);
+	assert(link != NULL);
 
 	return log_link_sources_count(link, rel_domain_id);
 }
@@ -222,7 +222,7 @@ static const char *link_source_name_get(uint8_t domain_id, uint32_t source_id)
 		const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 		int err;
 
-		__ASSERT_NO_MSG(link != NULL);
+		assert(link != NULL);
 
 		err = log_link_get_source_name(link, rel_domain_id, source_id,
 					       cached, &cache_size);
@@ -267,7 +267,7 @@ static const char *link_domain_name_get(uint8_t domain_id)
 		const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 		int err;
 
-		__ASSERT_NO_MSG(link != NULL);
+		assert(link != NULL);
 
 		err = log_link_get_domain_name(link, rel_domain_id, cached, &cache_size);
 		if (err < 0) {
@@ -296,7 +296,7 @@ static uint8_t link_compiled_level_get(uint8_t domain_id, uint32_t source_id)
 	const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 	uint8_t level;
 
-	__ASSERT_NO_MSG(link != NULL);
+	assert(link != NULL);
 
 	return !log_link_get_levels(link, rel_domain_id, source_id, &level, NULL) ?
 		level : 0;
@@ -320,7 +320,7 @@ int z_log_link_set_runtime_level(uint8_t domain_id, uint16_t source_id, uint8_t 
 	uint8_t rel_domain_id;
 	const struct log_link *link = get_link_domain(domain_id, &rel_domain_id);
 
-	__ASSERT_NO_MSG(link != NULL);
+	assert(link != NULL);
 
 	return log_link_set_runtime_level(link, rel_domain_id, source_id, level);
 }
