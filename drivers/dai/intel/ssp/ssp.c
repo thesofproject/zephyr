@@ -1545,6 +1545,13 @@ static int dai_ssp_set_config_blob(struct dai_intel_ssp *dp, const struct dai_co
 	    ssp->state[DAI_DIR_CAPTURE] > DAI_STATE_READY)
 		return 0;
 
+	/* Configure I2S master link clock
+	 * Temporarily force BIT(27) but in final implementation on main
+	 * this should be send from topology in blob->i2s_dma_control
+	 */
+	sys_write32(sys_read32(dai_ip_base(dp) + I2SLCTL_OFFSET) | BIT(27),
+		    dai_ip_base(dp) + I2SLCTL_OFFSET);
+
 	ssc0 = blob->i2s_driver_config.i2s_config.ssc0;
 	sstsa = blob->i2s_driver_config.i2s_config.sstsa;
 	ssrsa = blob->i2s_driver_config.i2s_config.ssrsa;
