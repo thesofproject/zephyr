@@ -257,9 +257,9 @@ void sys_clock_announce(int32_t ticks)
 	}
 
 	announce_remaining = ticks;
+	struct _timeout *t = first();
 
-	while (first() != NULL && first()->dticks <= announce_remaining) {
-		struct _timeout *t = first();
+	while ((t != NULL) && (t->dticks <= announce_remaining)) {
 		int dt = t->dticks;
 
 		curr_tick += dt;
@@ -270,10 +270,11 @@ void sys_clock_announce(int32_t ticks)
 		t->fn(t);
 		key = k_spin_lock(&timeout_lock);
 		announce_remaining -= dt;
+		t = first();
 	}
 
-	if (first() != NULL) {
-		first()->dticks -= announce_remaining;
+	if (t != NULL) {
+		t->dticks -= announce_remaining;
 	}
 
 	curr_tick += announce_remaining;
