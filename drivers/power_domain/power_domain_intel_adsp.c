@@ -24,6 +24,9 @@ static int pd_intel_adsp_set_power_enable(struct pg_bits *bits, bool power_enabl
 	if (power_enable) {
 		sys_write16(sys_read16((mem_addr_t)&ACE_DfPMCCU.dfpwrctl) | SPA_bit_mask,
 			    (mem_addr_t)&ACE_DfPMCCU.dfpwrctl);
+		while ((sys_read16((mem_addr_t)&ACE_DfPMCCU.dfpwrsts) & BIT(bits->CPA_bit)) == 0) {
+			k_busy_wait(1);
+		}
 	} else {
 		sys_write16(sys_read16((mem_addr_t)&ACE_DfPMCCU.dfpwrctl) & ~(SPA_bit_mask),
 			    (mem_addr_t)&ACE_DfPMCCU.dfpwrctl);
