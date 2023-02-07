@@ -129,16 +129,17 @@ static int intel_adsp_gpdma_config(const struct device *dev, uint32_t channel,
 
 static int intel_adsp_gpdma_start(const struct device *dev, uint32_t channel)
 {
-	int ret;
+	int ret = pm_device_runtime_get(dev);
+
+	if (ret < 0) {
+		return ret;
+	}
 
 	intel_adsp_gpdma_llp_enable(dev, channel);
 	ret = dw_dma_start(dev, channel);
 	if (ret != 0) {
 		intel_adsp_gpdma_llp_disable(dev, channel);
-	}
-
-	if (ret == 0) {
-		ret = pm_device_runtime_get(dev);
+		pm_device_runtime_put(dev);
 	}
 
 	return ret;
