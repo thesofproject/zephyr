@@ -26,7 +26,7 @@
 __imr void power_init(void)
 {
 	/* Disable idle power gating */
-	DSPCS.bootctl[0].bctl |= DSPBR_BCTL_WAITIPCG | DSPBR_BCTL_WAITIPPG;
+	DSPCS.bootctl[0].bctl |= DSPBR_BCTL_WAITIPPG;
 }
 
 #ifdef CONFIG_PM
