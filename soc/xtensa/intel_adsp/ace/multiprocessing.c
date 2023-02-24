@@ -7,6 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/check.h>
 #include <zephyr/arch/cpu.h>
+#include <ksched.h>
 
 #include <soc.h>
 #include <adsp_boot.h>
@@ -82,9 +83,16 @@ void soc_start_core(int cpu_num)
 	int retry = CORE_POWER_CHECK_NUM;
 
 	if (cpu_num > 0) {
+		extern void dsp_restore_vector(void);
 		/* Initialize the ROM jump address */
 		uint32_t *rom_jump_vector = (uint32_t *) ROM_JUMP_ADDR;
-		*rom_jump_vector = (uint32_t) z_soc_mp_asm_entry;
+
+		if (z_is_thread_suspended(_kernel.cpus[cpu_num].idle_thread)) {
+			*rom_jump_vector = (uint32_t) dsp_restore_vector;
+		} else {
+			*rom_jump_vector = (uint32_t) z_soc_mp_asm_entry;
+		}
+
 		z_xtensa_cache_flush(rom_jump_vector, sizeof(*rom_jump_vector));
 		ACE_PWRCTL->wpdsphpxpg |= BIT(cpu_num);
 
