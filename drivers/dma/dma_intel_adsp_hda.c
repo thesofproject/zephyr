@@ -247,8 +247,17 @@ int intel_adsp_hda_dma_start(const struct device *dev, uint32_t channel)
 {
 	const struct intel_adsp_hda_dma_cfg *const cfg = dev->config;
 	uint32_t size;
+	enum pm_device_state dev_state;
 
 	__ASSERT(channel < cfg->dma_channels, "Channel does not exist");
+
+	int ret = pm_device_state_get(dev, &dev_state);
+	if (ret != 0) {
+		return ret;
+	}
+	if (dev_state == PM_DEVICE_STATE_OFF) {
+		ret = pm_device_runtime_get(dev);
+	}
 
 	if (intel_adsp_hda_is_enabled(cfg->base, cfg->regblock_size, channel)) {
 		return 0;
@@ -278,20 +287,25 @@ int intel_adsp_hda_dma_stop(const struct device *dev, uint32_t channel)
 	return pm_device_runtime_put(dev);
 }
 
-int intel_adsp_hda_dma_init(const struct device *dev)
+void intel_adsp_hda_power_on(const struct device *dev)
 {
-	struct intel_adsp_hda_dma_data *data = dev->data;
 	const struct intel_adsp_hda_dma_cfg *const cfg = dev->config;
 
 	for (uint32_t i = 0; i < cfg->dma_channels; i++) {
 		intel_adsp_hda_init(cfg->base, cfg->regblock_size, i);
 	}
+}
+
+int intel_adsp_hda_dma_init(const struct device *dev)
+{
+	struct intel_adsp_hda_dma_data *data = dev->data;
+	const struct intel_adsp_hda_dma_cfg *const cfg = dev->config;
 
 	data->ctx.dma_channels = cfg->dma_channels;
 	data->ctx.atomic = data->channels_atomic;
 	data->ctx.magic = DMA_MAGIC;
 
-	pm_device_init_suspended(dev);
+	pm_device_init_off(dev);
 	return pm_device_runtime_enable(dev);
 }
 
@@ -323,9 +337,11 @@ int intel_adsp_hda_dma_get_attribute(const struct device *dev, uint32_t type, ui
 int intel_adsp_hda_dma_pm_action(const struct device *dev, enum pm_device_action action)
 {
 	switch (action) {
+	case PM_DEVICE_ACTION_TURN_ON:
+		intel_adsp_hda_power_on(dev);
+		break;
 	case PM_DEVICE_ACTION_SUSPEND:
 	case PM_DEVICE_ACTION_RESUME:
-	case PM_DEVICE_ACTION_TURN_ON:
 	case PM_DEVICE_ACTION_TURN_OFF:
 		break;
 	default:
