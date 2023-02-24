@@ -1766,6 +1766,14 @@ static int dai_ssp_set_config_blob(struct dai_intel_ssp *dp, const struct dai_co
 			return err;
 	} else {
 		dai_ssp_set_reg_config(dp, cfg, &blob->i2s_driver_config.i2s_config);
+		/* Configure I2S master link clock
+		 * Temporarily force BIT(27) but in final implementation
+		 * this should be send from topology in blob 1_5
+		 */
+		if(blob->i2s_driver_config.i2s_config.ssc0 & BIT(6)) {
+			sys_write32(sys_read32(dai_ip_base(dp) + I2SLCTL_OFFSET) | BIT(27),
+				dai_ip_base(dp) + I2SLCTL_OFFSET);
+		}
 		err = dai_ssp_set_clock_control_ver_1(dp, &blob->i2s_driver_config.mclk_config);
 		if (err)
 			return err;
