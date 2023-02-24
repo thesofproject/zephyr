@@ -371,7 +371,9 @@ static void init_idle_thread(int i)
 
 void z_init_cpu(int id)
 {
-	init_idle_thread(id);
+	if (!z_is_thread_suspended(&z_idle_threads[id]))
+		init_idle_thread(id);
+
 	_kernel.cpus[id].idle_thread = &z_idle_threads[id];
 	_kernel.cpus[id].id = id;
 	_kernel.cpus[id].irq_stack =
