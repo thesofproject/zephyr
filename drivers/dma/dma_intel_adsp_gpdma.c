@@ -378,6 +378,13 @@ int intel_adsp_gpdma_get_attribute(const struct device *dev, uint32_t type, uint
 
 int intel_adsp_gpdma_init(const struct device *dev)
 {
+	struct dw_dma_dev_data *const dev_data = dev->data;
+
+	/* Setup context and atomics for channels */
+	dev_data->dma_ctx.magic = DMA_MAGIC;
+	dev_data->dma_ctx.dma_channels = DW_MAX_CHAN;
+	dev_data->dma_ctx.atomic = dev_data->channels_atomic;
+
 #if CONFIG_PM_DEVICE
 	pm_device_init_off(dev);
 	return pm_device_runtime_enable(dev);
