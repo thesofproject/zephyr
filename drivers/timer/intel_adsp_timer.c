@@ -60,6 +60,12 @@ static uint64_t last_count;
 const int32_t z_sys_timer_irq_for_test = TIMER_IRQ; /* See tests/kernel/context */
 #endif
 
+/**
+ * @brief Used to alternate driver initialization when initialized
+ * during boot or after idle state that restores context.
+ */
+static bool sys_clock_driver_reinit;
+
 static void set_compare(uint64_t time)
 {
 	/* Disarm the comparator to prevent spurious triggers */
@@ -217,13 +223,22 @@ void smp_timer_init(void)
 static int sys_clock_driver_init(void)
 {
 	uint64_t curr = count();
-
-	IRQ_CONNECT(TIMER_IRQ, 0, compare_isr, 0, 0);
+	if (!sys_clock_driver_reinit) {
+		IRQ_CONNECT(TIMER_IRQ, 0, compare_isr, 0, 0);
+	}
 	set_compare(curr + CYC_PER_TICK);
 	last_count = curr;
 	irq_init();
 	return 0;
 }
+
+#ifdef CONFIG_PM
+void sys_clock_idle_exit(void)
+{
+	sys_clock_driver_reinit = true;
+	sys_clock_driver_init();
+}
+#endif /* CONFIG_PM */
 
 SYS_INIT(sys_clock_driver_init, PRE_KERNEL_2,
 	 CONFIG_SYSTEM_CLOCK_INIT_PRIORITY);
