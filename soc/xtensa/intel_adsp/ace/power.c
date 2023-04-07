@@ -216,10 +216,11 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 	ARG_UNUSED(substate_id);
 	uint32_t cpu = arch_proc_id();
 
+	/* save interrupt state and turn off all interrupts */
+	core_desc[cpu].intenable = XTENSA_RSR("INTENABLE");
+	z_xt_ints_off(0xffffffff);
+
 	if (state == PM_STATE_SOFT_OFF) {
-		/* save interrupt state and turn off all interrupts */
-		core_desc[cpu].intenable = XTENSA_RSR("INTENABLE");
-		z_xt_ints_off(0xffffffff);
 		core_desc[cpu].bctl = DSPCS.bootctl[cpu].bctl;
 		DSPCS.bootctl[cpu].bctl &= ~DSPBR_BCTL_WAITIPCG;
 		if (cpu == 0) {
@@ -279,8 +280,6 @@ __weak void pm_state_set(enum pm_state state, uint8_t substate_id)
 			power_gate_entry(cpu);
 		}
 	} else if (state == PM_STATE_RUNTIME_IDLE) {
-		core_desc[cpu].intenable = XTENSA_RSR("INTENABLE");
-		z_xt_ints_off(0xffffffff);
 		DSPCS.bootctl[cpu].bctl &= ~DSPBR_BCTL_WAITIPPG;
 		DSPCS.bootctl[cpu].bctl &= ~DSPBR_BCTL_WAITIPCG;
 		ACE_PWRCTL->wpdsphpxpg &= ~BIT(cpu);
@@ -320,7 +319,6 @@ __weak void pm_state_exit_post_ops(enum pm_state state, uint8_t substate_id)
 #endif /* CONFIG_ADSP_IMR_CONTEXT_SAVE */
 		soc_cpus_active[cpu] = true;
 		z_xtensa_cache_flush_inv_all();
-		z_xt_ints_on(core_desc[cpu].intenable);
 	} else if (state == PM_STATE_RUNTIME_IDLE) {
 		if (cpu != 0) {
 			/* NOTE: HW should support dynamic power gating on secondary cores.
@@ -347,10 +345,11 @@ __weak void pm_state_exit_post_ops(enum pm_state state, uint8_t substate_id)
 
 		soc_cpus_active[cpu] = true;
 		z_xtensa_cache_flush_inv_all();
-		z_xt_ints_on(core_desc[cpu].intenable);
 	} else {
 		__ASSERT(false, "invalid argument - unsupported power state");
 	}
+
+	z_xt_ints_on(core_desc[cpu].intenable);
 }
 
 #endif
