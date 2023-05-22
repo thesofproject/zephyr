@@ -126,6 +126,9 @@ void soc_start_core(int cpu_num)
 
 	DSPCS.capctl[cpu_num].ctl |= DSPCS_CTL_SPA;
 
+	/* Prevent idle from powering us off */
+	DSPCS.bootctl[cpu_num].bctl |= DSPBR_BCTL_WAITIPCG | DSPBR_BCTL_WAITIPPG;
+
 	/* Waiting for power up */
 	while (((DSPCS.capctl[cpu_num].ctl & DSPCS_CTL_CPA) != DSPCS_CTL_CPA) &&
 	       (retry > 0)) {
