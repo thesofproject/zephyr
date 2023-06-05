@@ -74,6 +74,9 @@ void adsp_clock_init(void)
 	uint32_t platform_lowest_freq_idx = ADSP_CLOCK_FREQ_LOWEST;
 	int i;
 
+	/* RDDRP 1: Request PMC to keep DDR resource alive */
+	ACE_DfPMCCH.dfspsreq |= BIT(4);
+
 #ifdef ADSP_CLOCK_HAS_WOVCRO
 #ifdef CONFIG_SOC_SERIES_INTEL_ACE
 	ACE_DfPMCCU.dfclkctl |= ACE_CLKCTL_WOVCRO;
