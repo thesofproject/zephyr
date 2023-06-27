@@ -18,13 +18,16 @@ static const struct dma_driver_api intel_adsp_hda_dma_host_in_api = {
 	.get_attribute = intel_adsp_hda_dma_get_attribute,
 	.chan_filter = intel_adsp_hda_dma_chan_filter,
 };
-
-#define INTEL_ADSP_HDA_DMA_HOST_IN_INIT(inst)                                                      \
+#include <adsp_interrupt.h>
+#define INTEL_ADSP_HDA_DMA_HOST_IN_INIT(inst)            \
+	static void intel_adsp_hda_dma##inst##_irq_config(void);		\
+									                                          \
 	static const struct intel_adsp_hda_dma_cfg intel_adsp_hda_dma##inst##_config = {           \
 		.base = DT_INST_REG_ADDR(inst),                                                    \
 		.regblock_size  = DT_INST_REG_SIZE(inst),					   \
 		.dma_channels = DT_INST_PROP(inst, dma_channels),                                  \
-		.direction = MEMORY_TO_HOST                                                        \
+		.direction = MEMORY_TO_HOST,                                                        \
+		.irq_config = intel_adsp_hda_dma##inst##_irq_config,	\
 	};                                                                                         \
 												   \
 	static struct intel_adsp_hda_dma_data intel_adsp_hda_dma##inst##_data = {};                \
@@ -36,6 +39,16 @@ static const struct dma_driver_api intel_adsp_hda_dma_host_in_api = {
 			      &intel_adsp_hda_dma##inst##_data,                                    \
 			      &intel_adsp_hda_dma##inst##_config, POST_KERNEL,                     \
 			      CONFIG_DMA_INIT_PRIORITY,                                            \
-			      &intel_adsp_hda_dma_host_in_api);
+			      &intel_adsp_hda_dma_host_in_api);		\
+									\
+	static void intel_adsp_hda_dma##inst##_irq_config(void)		\
+	{								\
+		IRQ_CONNECT(DT_INST_IRQN(inst),			\
+			    DT_INST_IRQ(inst, priority), intel_adsp_hda_dma_isr,	\
+			    DEVICE_DT_INST_GET(inst),			\
+			    DT_INST_IRQ(inst, sense));			\
+		irq_enable(DT_INST_IRQN(inst));			\
+		ACE_DINT[0].ie[ACE_INTL_HDAHIDMA] = 1; \
+	}
 
 DT_INST_FOREACH_STATUS_OKAY(INTEL_ADSP_HDA_DMA_HOST_IN_INIT)
