@@ -7,10 +7,7 @@
 #include <adsp_ipc_regs.h>
 #include <adsp_interrupt.h>
 #include <zephyr/irq.h>
-#include <zephyr/pm/state.h>
-#include <zephyr/pm/pm.h>
-#include <zephyr/pm/device.h>
-#include <errno.h>
+
 
 void intel_adsp_ipc_set_message_handler(const struct device *dev,
 	intel_adsp_ipc_handler_t fn, void *arg)
@@ -89,7 +86,6 @@ void z_intel_adsp_ipc_isr(const void *devarg)
 
 int intel_adsp_ipc_init(const struct device *dev)
 {
-	pm_device_busy_set(dev);
 	struct intel_adsp_ipc_data *devdata = dev->data;
 	const struct intel_adsp_ipc_config *config = dev->config;
 
@@ -106,14 +102,11 @@ int intel_adsp_ipc_init(const struct device *dev)
 	config->regs->tda = INTEL_ADSP_IPC_DONE;
 #endif
 	config->regs->ctl |= (INTEL_ADSP_IPC_CTL_IDIE | INTEL_ADSP_IPC_CTL_TBIE);
-	pm_device_busy_clear(dev);
-
 	return 0;
 }
 
 void intel_adsp_ipc_complete(const struct device *dev)
 {
-	pm_device_busy_set(dev);
 	const struct intel_adsp_ipc_config *config = dev->config;
 
 #ifdef CONFIG_SOC_SERIES_INTEL_ACE
@@ -121,8 +114,6 @@ void intel_adsp_ipc_complete(const struct device *dev)
 #else
 	config->regs->tda = INTEL_ADSP_IPC_DONE;
 #endif
-
-	pm_device_busy_clear(dev);
 }
 
 bool intel_adsp_ipc_is_complete(const struct device *dev)
@@ -135,14 +126,12 @@ bool intel_adsp_ipc_is_complete(const struct device *dev)
 bool intel_adsp_ipc_send_message(const struct device *dev,
 			   uint32_t data, uint32_t ext_data)
 {
-	pm_device_busy_set(dev);
 	const struct intel_adsp_ipc_config *config = dev->config;
 	struct intel_adsp_ipc_data *devdata = dev->data;
 	k_spinlock_key_t key = k_spin_lock(&devdata->lock);
 
 	if ((config->regs->idr & INTEL_ADSP_IPC_BUSY) != 0 || devdata->tx_ack_pending) {
 		k_spin_unlock(&devdata->lock, key);
-		pm_device_busy_clear(dev);
 		return false;
 	}
 
@@ -151,8 +140,6 @@ bool intel_adsp_ipc_send_message(const struct device *dev,
 	config->regs->idd = ext_data;
 	config->regs->idr = data | INTEL_ADSP_IPC_BUSY;
 	k_spin_unlock(&devdata->lock, key);
-	pm_device_busy_clear(dev);
-
 	return true;
 }
 
@@ -218,157 +205,12 @@ static int dt_init(const struct device *dev)
 	return intel_adsp_ipc_init(dev);
 }
 
-#ifdef CONFIG_PM_DEVICE
-
-void intel_adsp_ipc_set_resume_handler(const struct device *dev,
-	intel_adsp_ipc_resume_handler_t fn, void *arg)
-{
-	struct ipc_control_driver_api *api =
-		(struct ipc_control_driver_api *)dev->api;
-	struct intel_adsp_ipc_data *devdata = dev->data;
-	k_spinlock_key_t key = k_spin_lock(&devdata->lock);
-
-	api->resume_fn = fn;
-	api->resume_fn_args = arg;
-
-	k_spin_unlock(&devdata->lock, key);
-}
-
-void intel_adsp_ipc_set_suspend_handler(const struct device *dev,
-	intel_adsp_ipc_suspend_handler_t fn, void *arg)
-{
-	struct ipc_control_driver_api *api =
-		(struct ipc_control_driver_api *)dev->api;
-	struct intel_adsp_ipc_data *devdata = dev->data;
-	k_spinlock_key_t key = k_spin_lock(&devdata->lock);
-
-	api->suspend_fn = fn;
-	api->suspend_fn_args = arg;
-
-	k_spin_unlock(&devdata->lock, key);
-}
-
-/**
- * @brief Waits for IPC device to become non-busy.
- * Peforms @see retries number of checks for the busy status each time after @see usec_to_wait
- * elapsed.
- *
- * @param usec_to_wait Time to wait in microseconds before checking again for the busy status.
- * @param retries Number of retries Number of times to repeat a busy check.
- * @return true Returned when device became non-busy during expected timeline.
- * @return false Returned when device is still busy when expected timeline elapsed.
- */
-static bool wait_ipc_device_not_busy(uint32_t usec_to_wait, uint32_t retries)
-{
-	if (pm_device_is_busy(INTEL_ADSP_IPC_HOST_DEV)) {
-		while (retries > 0) {
-			k_busy_wait(usec_to_wait);
-			if (!pm_device_is_busy(INTEL_ADSP_IPC_HOST_DEV))
-				return true;
-			retries--;
-		}
-		return false;
-	}
-
-	return true;
-}
-
-/**
- * @brief Manages IPC driver power state change.
- *
- * @param dev IPC device.
- * @param action Power state to be changed to.
- * @return int Returns 0 on success or optionaly error code from the
- * registered ipc_power_control_api callbacks. Returning error code from functions
- * invoked during power stansition, does not release the pm_device_state_lock.
- * It must be released manually by the caller during error handling process.
- *
- * @note Power state of the IPC Device is changed atomically.
- * PM lock is taken at the start of each power transition to prevent power state change
- * if the process fails.
- * If IPC Device performs hardware operation, this function waits for 5 seconds in total
- * for IPC Device to become non-busy (to finish all pending transactions).
- * Note: when devices change power state using pm_suspend_devices() function, busy devices are
- * ignored. However, calling pm_device_action_run() directly on the device, does not prevent
- * busy device from power transition.
- */
-static int ipc_pm_action(const struct device *dev, enum pm_device_action action)
-{
-	const struct ipc_control_driver_api *api =
-		(const struct ipc_control_driver_api *)dev->api;
-
-	/* wait up to 5 seconds for IPC device to become non-busy */
-	if (!wait_ipc_device_not_busy(1000000, 5))
-		return -EBUSY;
-
-	int ret = 0;
-
-	switch (action) {
-	case PM_DEVICE_ACTION_SUSPEND:
-		pm_device_state_lock(dev);
-		if (api->suspend_fn) {
-			ret = api->suspend_fn(dev, api->suspend_fn_args);
-			if (ret)
-				break;
-		}
-		pm_device_state_unlock(dev);
-		break;
-	case PM_DEVICE_ACTION_RESUME:
-		pm_device_state_lock(dev);
-		irq_enable(DT_IRQN(INTEL_ADSP_IPC_HOST_DTNODE));
-		if (!irq_is_enabled(DT_IRQN(INTEL_ADSP_IPC_HOST_DTNODE))) {
-			ret = -ECANCELED;
-			break;
-		}
-		ace_ipc_intc_unmask();
-		ret = intel_adsp_ipc_init(dev);
-		if (ret)
-			break;
-		if (api->resume_fn) {
-			ret = api->resume_fn(dev, api->resume_fn_args);
-			if (ret)
-				break;
-		}
-		pm_device_state_unlock(dev);
-		break;
-	case PM_DEVICE_ACTION_TURN_OFF:
-		break;
-	case PM_DEVICE_ACTION_TURN_ON:
-		break;
-	default:
-		return ret;
-	}
-
-	return ret;
-}
-
-/**
- * @brief Callback functions to be executed by Zephyr application
- * during IPC device suspend and resume.
- */
-static const struct ipc_control_driver_api ipc_power_control_api = {
-	.resume_fn = NULL,
-	.resume_fn_args = NULL,
-	.suspend_fn = NULL,
-	.suspend_fn_args = NULL
-};
-
-PM_DEVICE_DT_DEFINE(INTEL_ADSP_IPC_HOST_DTNODE, ipc_pm_action);
-
-#endif /* CONFIG_PM_DEVICE */
-
 static const struct intel_adsp_ipc_config ipc_host_config = {
 	.regs = (void *)INTEL_ADSP_IPC_REG_ADDRESS,
 };
 
 static struct intel_adsp_ipc_data ipc_host_data;
 
-#ifdef CONFIG_PM_DEVICE
-DEVICE_DT_DEFINE(INTEL_ADSP_IPC_HOST_DTNODE, dt_init, PM_DEVICE_DT_GET(INTEL_ADSP_IPC_HOST_DTNODE),
-	&ipc_host_data, &ipc_host_config, PRE_KERNEL_2, 0, &ipc_power_control_api);
-#else /* CONFIG_PM_DEVICE */
 DEVICE_DT_DEFINE(INTEL_ADSP_IPC_HOST_DTNODE, dt_init, NULL, &ipc_host_data, &ipc_host_config,
 		 PRE_KERNEL_2, 0, NULL);
-#endif /* CONFIG_PM_DEVICE */
-
-#endif /* DT_NODE_EXISTS(INTEL_ADSP_IPC_HOST_DTNODE) */
+#endif
