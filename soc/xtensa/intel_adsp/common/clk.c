@@ -9,7 +9,9 @@
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
 #include <zephyr/spinlock.h>
-
+#if CONFIG_SOC_SERIES_INTEL_ACE
+#include <adsp_boot.h>
+#endif
 #include <adsp_clk.h>
 #include <adsp_shim.h>
 #include <zephyr/pm/policy.h>
@@ -158,6 +160,9 @@ uint32_t adsp_clock_source_frequency(int source)
 void adsp_clock_idle_entry(void)
 {
 #if CONFIG_SOC_SERIES_INTEL_ACE
+	if (!pm_policy_state_lock_is_active(PM_STATE_ACTIVE, 2))
+		DSPCS.bootctl[arch_proc_id()].bctl &= ~DSPBR_BCTL_WAITIPCG;
+
 	if (pm_policy_state_lock_is_active(PM_STATE_ACTIVE, 1))
 		return;
 
@@ -171,6 +176,8 @@ void adsp_clock_idle_entry(void)
 void adsp_clock_idle_exit(void)
 {
 #if CONFIG_SOC_SERIES_INTEL_ACE
+	DSPCS.bootctl[arch_proc_id()].bctl |= DSPBR_BCTL_WAITIPCG;
+
 	if (!atomic_get(&clock_sd_count))
 		return;
 
