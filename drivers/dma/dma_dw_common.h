@@ -201,7 +201,11 @@ struct dw_lli {
 	 * in case of more than two items
 	 */
 	uint32_t reserved;
-} __packed;
+	uint8_t reserved_to_size_128[CONFIG_DCACHE_LINE_SIZE];
+} __packed __aligned(CONFIG_DCACHE_LINE_SIZE * 2);
+
+BUILD_ASSERT(sizeof(struct dw_lli)  == (CONFIG_DCACHE_LINE_SIZE * 2), "list size != CONFIG_DCACHE_LINE_SIZE");
+
 
 /* pointer data for DW DMA buffer */
 struct dw_dma_ptr_data {
@@ -247,7 +251,7 @@ struct dw_dma_dev_data {
 	struct dma_context dma_ctx;
 	struct dw_drv_plat_data *channel_data;
 	struct dw_dma_chan_data chan[DW_CHAN_COUNT];
-	struct dw_lli lli_pool[DW_CHAN_COUNT][CONFIG_DMA_DW_LLI_POOL_SIZE] __aligned(64);
+	struct dw_lli lli_pool[DW_CHAN_COUNT][CONFIG_DMA_DW_LLI_POOL_SIZE] __aligned(128);
 
 	ATOMIC_DEFINE(channels_atomic, DW_CHAN_COUNT);
 };
