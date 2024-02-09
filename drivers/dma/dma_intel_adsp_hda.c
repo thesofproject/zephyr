@@ -442,25 +442,31 @@ void intel_adsp_hda_dma_isr(void)
 #endif
 	};
 
+	int pending_interrupts = 0;
+
 	for (i = 0; i < ARRAY_SIZE(host_dev); i++) {
 		dma_ctx = (struct dma_context *)host_dev[i]->data;
 		cfg = host_dev[i]->config;
 
 		for (j = 0; j < dma_ctx->dma_channels; j++) {
 			if (atomic_test_bit(dma_ctx->atomic, j)) {
-				clear_l1_exit |=
-					intel_adsp_hda_check_buffer_interrupt(cfg->base,
-									      cfg->regblock_size,
-									      j);
-				intel_adsp_hda_disable_buffer_interrupt(cfg->base,
-									cfg->regblock_size, j);
-				intel_adsp_hda_clear_buffer_interrupt(cfg->base,
-								      cfg->regblock_size, j);
+				if (!intel_adsp_hda_is_buffer_interrupt_enabled(cfg->base, cfg->regblock_size, j))
+					continue;
+
+				if (intel_adsp_hda_check_buffer_interrupt(cfg->base, cfg->regblock_size, j)) {
+					clear_l1_exit = true;
+					intel_adsp_hda_disable_buffer_interrupt(cfg->base,
+										cfg->regblock_size, j);
+					intel_adsp_hda_clear_buffer_interrupt(cfg->base,
+									      cfg->regblock_size, j);
+				} else {
+					pending_interrupts++;
+				}
 			}
 		}
 	}
 
-	if (clear_l1_exit) {
+	if (clear_l1_exit && pending_interrupts == 0) {
 		intel_adsp_allow_dmi_l1_state();
 	}
 #endif

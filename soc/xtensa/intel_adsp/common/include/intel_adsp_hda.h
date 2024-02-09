@@ -488,6 +488,12 @@ static inline uint32_t intel_adsp_hda_check_buffer_interrupt(uint32_t base, uint
 	return (*DGCS(base, regblock_size, sid) & DGCS_BSC) == DGCS_BSC;
 }
 
+static inline bool intel_adsp_hda_is_buffer_interrupt_enabled(uint32_t base, uint32_t regblock_size, uint32_t sid)
+{
+	return (*DGCS(base, regblock_size, sid) & DGCS_BSCIE) == DGCS_BSCIE;
+}
+
+
 /**
  * @brief Set the Sample Container Size (SCS)
  *
