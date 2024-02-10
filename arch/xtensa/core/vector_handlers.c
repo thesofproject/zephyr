@@ -32,6 +32,23 @@ static const struct z_exc_handle exceptions[] = {
 };
 #endif /* CONFIG_USERSPACE */
 
+void xtensa_fatal_log(void)
+{
+	uintptr_t vaddr;
+	uintptr_t cause;
+	uintptr_t depc;
+	uintptr_t epc;
+
+	__asm__ volatile("rsr.excvaddr %0" : "=r"(vaddr));
+	__asm__ volatile("rsr.exccause %0" : "=r"(cause));
+	__asm__ volatile("rsr.epc1 %0" : "=r"(epc));
+	__asm__ volatile("rsr.depc %0" : "=r"(depc));
+
+	LOG_ERR(" ** FATAL EXCEPTION **");
+	LOG_ERR(" **  cause (exccause): %p VADDR: %p **", (void *)cause, (void *)vaddr);
+	LOG_ERR(" **  epc: %p depc: %p **", (void *)epc, (void *)depc);
+}
+
 void xtensa_dump_stack(const z_arch_esf_t *stack)
 {
 	_xtensa_irq_stack_frame_raw_t *frame = (void *)stack;

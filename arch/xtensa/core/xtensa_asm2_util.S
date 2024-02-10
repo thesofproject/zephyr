@@ -477,7 +477,14 @@ _DoubleExceptionVector:
 	simcall
 #elif XCHAL_HAVE_DEBUG
 /* Signals an unhandled double exception */
-1:	break	1, 4
+1:	rsr.exccause a2
+	movi a2, PS_WOE | PS_INTLEVEL(XCHAL_NMILEVEL)
+	wsr.ps a2
+	rsr.ZSR_CPU a1
+	l32i a1, a1, ___cpu_t_irq_stack_OFFSET
+	call4 xtensa_fatal_log
+2:
+	j	2b
 #else
 1:
 #endif
