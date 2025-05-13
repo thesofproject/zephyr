@@ -47,4 +47,12 @@ elseif(CONFIG_BOARD_INTEL_ADSP_ACE30_PTL OR CONFIG_BOARD_INTEL_ADSP_ACE30_PTL_SI
 
   board_finalize_runner_args(intel_adsp)
 
+elseif(CONFIG_BOARD_INTEL_ADSP_ACE30_WCL OR CONFIG_BOARD_INTEL_ADSP_ACE30_WCL_SIM)
+
+  board_set_rimage_target(wcl)
+
+  set(RIMAGE_SIGN_KEY "otc_private_key.pem" CACHE STRING "default rimage key")
+
+  board_finalize_runner_args(intel_adsp)
+
 endif()
