@@ -12,7 +12,11 @@
 #define ZEPHYR_SOC_INTEL_ADSP_POWER_H_
 
 /* Value used as delay when waiting for hw register state change. */
+#if CONFIG_BOARD_INTEL_ADSP_ACE30_PTL
 #define HW_STATE_CHECK_DELAY 64
+#else
+#define HW_STATE_CHECK_DELAY 96
+#endif
 
 /* Power Control register - controls the power domain operations. */
 struct ace_pwrctl {
